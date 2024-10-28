@@ -1,0 +1,28 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "8ca8c6e344e7e7930741d19a67c13759"
+name = "story-0101"
+handle = "story-0101"
+application_url = "https://blade-ivory-slide-bug.trycloudflare.com"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "agspeak-test1-story-app.myshopify.com"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products"
+
+[auth]
+redirect_urls = [
+  "https://blade-ivory-slide-bug.trycloudflare.com/auth/callback",
+  "https://blade-ivory-slide-bug.trycloudflare.com/auth/shopify/callback",
+  "https://blade-ivory-slide-bug.trycloudflare.com/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-10"
+
+[pos]
+embedded = false
