@@ -3,7 +3,7 @@
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
 name = "story-0101"
 handle = "story-0101"
-application_url = "https://blade-ivory-slide-bug.trycloudflare.com"
+application_url = "https://sandra-survivors-miami-cv.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://blade-ivory-slide-bug.trycloudflare.com/auth/callback",
-  "https://blade-ivory-slide-bug.trycloudflare.com/auth/shopify/callback",
-  "https://blade-ivory-slide-bug.trycloudflare.com/api/auth/callback"
+  "https://sandra-survivors-miami-cv.trycloudflare.com/auth/callback",
+  "https://sandra-survivors-miami-cv.trycloudflare.com/auth/shopify/callback",
+  "https://sandra-survivors-miami-cv.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
