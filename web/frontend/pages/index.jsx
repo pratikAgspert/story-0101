@@ -5,87 +5,54 @@ import {
   TextContainer,
   Image,
   Stack,
+  AlphaCard,
   Link,
+  Tabs,
+  LegacyCard,
   Text,
 } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useTranslation, Trans } from "react-i18next";
-
+import { useState, useCallback } from "react";
 import { trophyImage } from "../assets";
 
 import { ProductsCard } from "../components";
 
+const tabs = [
+  {
+    id: 'all-products',
+    content: 'All Products',
+    accessibilityLabel: 'All Products',
+    panelID: 'all-products-content',
+  },
+  {
+    id: 'stories',
+    content: 'Stories',
+    panelID: 'stories-content',
+  }
+];
+
 export default function HomePage() {
   const { t } = useTranslation();
+
+  const [selected, setSelected] = useState(0);
+
+  const handleTabChange = useCallback(
+    (selectedTabIndex) => setSelected(selectedTabIndex),
+    [],
+  );
   return (
     <Page narrowWidth>
       <TitleBar title={t("HomePage.title")} />
       <Layout>
         <Layout.Section>
-          <Card sectioned>
-            <Stack
-              wrap={false}
-              spacing="extraTight"
-              distribution="trailing"
-              alignment="center"
-            >
-              <Stack.Item fill>
-                <TextContainer spacing="loose">
-                  <Text as="h2" variant="headingMd">
-                    {t("HomePage.heading")}
-                  </Text>
-                  <p>
-                    <Trans
-                      i18nKey="HomePage.yourAppIsReadyToExplore"
-                      components={{
-                        PolarisLink: (
-                          <Link url="https://polaris.shopify.com/" external />
-                        ),
-                        AdminApiLink: (
-                          <Link
-                            url="https://shopify.dev/api/admin-graphql"
-                            external
-                          />
-                        ),
-                        AppBridgeLink: (
-                          <Link
-                            url="https://shopify.dev/apps/tools/app-bridge"
-                            external
-                          />
-                        ),
-                      }}
-                    />
-                  </p>
-                  <p>{t("HomePage.startPopulatingYourApp")}</p>
-                  <p>
-                    <Trans
-                      i18nKey="HomePage.learnMore"
-                      components={{
-                        ShopifyTutorialLink: (
-                          <Link
-                            url="https://shopify.dev/apps/getting-started/add-functionality"
-                            external
-                          />
-                        ),
-                      }}
-                    />
-                  </p>
-                </TextContainer>
-              </Stack.Item>
-              <Stack.Item>
-                <div style={{ padding: "0 20px" }}>
-                  <Image
-                    source={trophyImage}
-                    alt={t("HomePage.trophyAltText")}
-                    width={120}
-                  />
-                </div>
-              </Stack.Item>
-            </Stack>
-          </Card>
-        </Layout.Section>
-        <Layout.Section>
-          <ProductsCard />
+          <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange} fitted>
+            {/* <LegacyCard.Section title={tabs[selected].content}> */}
+            <AlphaCard>
+              <p>Tab {selected} selected</p>
+            </AlphaCard>
+            {/* </LegacyCard.Section> */}
+          </Tabs>
         </Layout.Section>
       </Layout>
     </Page>

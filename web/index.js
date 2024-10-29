@@ -3,6 +3,7 @@ import { join } from "path";
 import { readFileSync } from "fs";
 import express from "express";
 import serveStatic from "serve-static";
+import crypto from "crypto";
 
 import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
@@ -43,6 +44,25 @@ app.get("/api/products/count", async (_req, res) => {
   const client = new shopify.api.clients.Graphql({
     session: res.locals.shopify.session,
   });
+  const accessToken = res.locals.shopify.session.accessToken;
+  console.log("Access Token:", accessToken);
+
+  const shopData = await client.query({
+    data: `{
+      shop {
+        name
+        email
+        myshopifyDomain
+        plan {
+          displayName
+        }
+        primaryDomain {
+          url
+          host
+        }
+      }
+    }`,
+  });
 
   const countData = await client.request(`
     query shopifyProductCount {
@@ -52,7 +72,35 @@ app.get("/api/products/count", async (_req, res) => {
     }
   `);
 
-  res.status(200).send({ count: countData.data.productsCount.count });
+  res.status(200).send({ count: countData.data.productsCount.count, shop: shopData?.body });
+});
+
+app.get("/api/products", async (_req, res) => {
+  const client = new shopify.api.clients.Graphql({
+    session: res.locals.shopify.session,
+  });
+
+  try {
+    const productsData = await client.request(`
+      query {
+        products(first: 10) {
+          edges {
+            node {
+              id
+              title
+              description
+            }
+          }
+        }
+      }
+    `);
+
+    const products = productsData.data.products.edges.map(edge => edge.node);
+    res.status(200).send({ products });
+  } catch (error) {
+    console.log(`Failed to fetch products: ${error.message}`);
+    res.status(500).send({ error: error.message });
+  }
 });
 
 app.post("/api/products", async (_req, res) => {
@@ -68,6 +116,64 @@ app.post("/api/products", async (_req, res) => {
   }
   res.status(status).send({ success: status === 200, error });
 });
+
+app.post('/webhooks/app-uninstalled', express.json(), (req, res) => {
+  const hmac = req.get('X-Shopify-Hmac-Sha256');
+  const body = req.body;
+
+  // Verify the request
+  const generatedHash = crypto
+    .createHmac('sha256', process.env.SHOPIFY_API_SECRET)
+    .update(JSON.stringify(body), 'utf8')
+    .digest('base64');
+
+  if (generatedHash !== hmac) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  // Process the webhook data
+  const shop = body.myshopify_domain;
+  console.log(`App uninstalled from shop: ${shop}`);
+
+  // Perform any cleanup or data storage here
+
+  res.status(200).send('Webhook received');
+});
+
+app.post('/webhooks/shop-update', express.json(), (req, res) => {
+  const hmac = req.get('X-Shopify-Hmac-Sha256');
+  const body = req.body;
+
+  // Verify the request
+  const generatedHash = crypto
+    .createHmac('sha256', process.env.SHOPIFY_API_SECRET)
+    .update(JSON.stringify(body), 'utf8')
+    .digest('base64');
+
+  if (generatedHash !== hmac) {
+    return res.status(401).send('Unauthorized');
+  }
+
+  // Extract shop information
+  const shopInfo = {
+    shopDomain: body.domain,
+    shopName: body.name,
+    shopEmail: body.email,
+    accessToken: req.headers['x-shopify-access-token'], // Assuming you have access to the token
+  };
+
+  console.log('shopInfo', shopInfo);
+  // Send shopInfo to your external system to create a user account
+  createUserInExternalSystem(shopInfo);
+
+  res.status(200).send('Webhook received');
+});
+
+// Function to send shop info to your external system
+function createUserInExternalSystem(shopInfo) {
+  // Implement the logic to create a user in your external system
+  console.log('Creating user in external system:', shopInfo);
+}
 
 app.use(shopify.cspHeaders());
 app.use(serveStatic(STATIC_PATH, { index: false }));

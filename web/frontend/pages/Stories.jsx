@@ -1,6 +1,7 @@
 import { Card, Page, Layout, TextContainer, Text } from "@shopify/polaris";
 import { TitleBar } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
+import { ProductsCard } from "../components";
 
 export default function PageName() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function PageName() {
       </TitleBar>
       <Layout>
         <Layout.Section>
+          <ProductsCard />
           <Card sectioned>
             <Text variant="headingMd" as="h2">
               {t("Stories.heading")}
