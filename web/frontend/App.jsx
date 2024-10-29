@@ -6,6 +6,7 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import "./App.css";
 
 import { PolarisProvider } from "./components";
+import { AuthContext } from "./services/context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App() {
@@ -22,18 +23,22 @@ export default function App() {
 
   return (
     <PolarisProvider>
-      <ChakraProvider theme={theme}>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <NavMenu>
-              <a href="/" rel="home" />
-              <a href="/stories">{t("NavigationMenu.stories")}</a>
-              <a href="/storyBuilder">{t("NavigationMenu.storyBuilder")}</a>
-            </NavMenu>
-            <Routes pages={pages} />
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ChakraProvider>
+      <AuthContext.Provider value={{ getToken: () => "Token 653d07211e176ab4e4707234a5411cb1a669a85e4d0bc59c3a03d7126b66e0ed" }}>
+
+        <ChakraProvider theme={theme}>
+          <QueryClientProvider client={queryClient}>
+
+            <BrowserRouter>
+              <NavMenu>
+                <a href="/" rel="home" />
+                <a href="/stories">{t("NavigationMenu.stories")}</a>
+                <a href="/storyBuilder">{t("NavigationMenu.storyBuilder")}</a>
+              </NavMenu>
+              <Routes pages={pages} />
+            </BrowserRouter>
+          </QueryClientProvider>
+        </ChakraProvider>
+      </AuthContext.Provider>
     </PolarisProvider>
   );
 }
