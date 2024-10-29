@@ -338,7 +338,7 @@ const SortableStatsCard = ({
       borderRadius="lg"
       overflow="hidden"
       height="100%"
-      bg="white"
+      // bg="white"
     >
       {renderStatsComponent()}
     </Box>

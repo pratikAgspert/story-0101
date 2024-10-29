@@ -89,7 +89,7 @@ export const Card = ({
   const textColor = isNegative ? 'red.500' : 'inherit';
   return (
     <Stack
-      w={142}
+      w={120}
       h={'fit-content'}
       // boxShadow={'0 0 3px 0 lightgray'}
       padding={2}
