@@ -22,6 +22,7 @@ export function ProductsCard() {
     },
     refetchOnWindowFocus: false,
   });
+  console.log("productdata", data)
 
   const setPopulating = (flag) => {
     shopify.loading(flag);
