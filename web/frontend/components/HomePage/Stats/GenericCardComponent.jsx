@@ -45,10 +45,6 @@ const GenericCardComponent = ({
     >
       <Stack padding={2} justifyContent={'center'}>
         <HStack justifyContent={'space-between'}>
-          <Box {...dragHandleProps} cursor="grab">
-            <RxDragHandleDots2 style={{ fontSize: 24 }} />
-          </Box>
-
           <HStack gap={2}>
             <Text fontSize={18} mb={0} textTransform={'capitalize'}>
               {title}
@@ -58,12 +54,6 @@ const GenericCardComponent = ({
               <OpenAiStats json={json} title={title} />
             ) : null}
           </HStack>
-
-          <IoClose
-            style={{ fontSize: 24 }}
-            cursor={'pointer'}
-            onClick={onClickClose}
-          />
         </HStack>
         {body}
       </Stack>
@@ -91,7 +81,6 @@ export const Card = ({
     <Stack
       w={120}
       h={'fit-content'}
-      // boxShadow={'0 0 3px 0 lightgray'}
       padding={2}
       justifyContent={'center'}
       textAlign={'center'}
