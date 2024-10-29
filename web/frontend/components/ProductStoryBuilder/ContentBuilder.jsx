@@ -65,11 +65,11 @@ import {
   useAnimate,
   useSpring,
 } from "framer-motion";
-import { FaRegEdit } from "react-icons/fa";
+import { FaRegEdit, FaSave } from "react-icons/fa";
 import { LuImport } from "react-icons/lu";
 import { useSearchParams } from "react-router-dom";
 import { useStoryTemplate } from "../../apiHooks/useStoryTemplate";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoCloudUploadSharp } from "react-icons/io5";
 import SeoEditor from "./SeoEditor";
 import GlobalStyleEditor from "./GlobalStyleEditor";
 
@@ -848,8 +848,8 @@ const ContentBuilder = ({
           </VStack>
         </Box>
 
-        <Stack width="40%" h="100%" alignItems={"center"} spacing={2}>
-          <HStack w={"35%"}>
+        <Stack width="40%" h="100%" alignItems={"center"} spacing={1}>
+          <HStack w={"35%"} mt={1}>
             <StoryFormSelect
               inputName={"stories"}
               noLabel
@@ -874,8 +874,8 @@ const ContentBuilder = ({
           </HStack>
 
           <Stack
-            w={"292px"}
-            h={"603px"}
+            w={"277.4px"}
+            h={"572.85px"}
             borderWidth={5}
             borderColor={"black"}
             borderRadius={50}
@@ -889,7 +889,7 @@ const ContentBuilder = ({
             />
           </Stack>
 
-          <HStack position={"absolute"} right={3} bottom={5}>
+          <Stack position={"absolute"} right={5} bottom={8}>
             {/* Save Button */}
             <Popover trigger="hover" placement="top">
               <PopoverTrigger>
@@ -899,8 +899,13 @@ const ContentBuilder = ({
                     alertDescription={
                       "Are you sure you want to save this product story?"
                     }
+                    IconButton
                     triggerButtonProps={{
-                      colorScheme: "gray",
+                      isIconButton: true,
+                      icon: <FaSave fontSize={24} />,
+                      padding: 5,
+
+                      colorScheme: "blue",
                       variant: "solid",
                       flex: 1,
                       label: "Save",
@@ -959,6 +964,10 @@ const ContentBuilder = ({
                       "Are you sure you want to publish this product story? Please ensure that you have saved all the changes."
                     }
                     triggerButtonProps={{
+                      isIconButton: true,
+                      icon: <IoCloudUploadSharp fontSize={26} />,
+                      padding: 5,
+
                       colorScheme: "green",
                       variant: "solid",
                       flex: 1,
@@ -1008,7 +1017,7 @@ const ContentBuilder = ({
                 </PopoverContent>
               )}
             </Popover>
-          </HStack>
+          </Stack>
         </Stack>
       </Box>
     </ProductStoryContext.Provider>

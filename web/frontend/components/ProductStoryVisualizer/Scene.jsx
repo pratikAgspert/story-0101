@@ -646,8 +646,8 @@ export const Scene = ({
     // <Box ref={ref} w={"100dvw"} h={"100dvh"}>
     <Box
       className="scene-container"
-      w={"285px"}
-      h={"80dvh"}
+      w={"268px"}
+      h={"100dvh"}
       position={"relative"}
     >
       {/* {inView ? */}

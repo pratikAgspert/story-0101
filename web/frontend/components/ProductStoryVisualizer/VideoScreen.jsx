@@ -223,7 +223,7 @@ const VideoScreen = ({ header, data, setIsInteracting, slideId }) => {
   }, [video]);
 
   return (
-    <Box position="relative" h="80dvh" overflow="hidden">
+    <Box position="relative" h="100dvh" overflow="hidden">
       <Stack overflow="hidden" position="relative">
         {videoUrl?.image_url && (
           <video

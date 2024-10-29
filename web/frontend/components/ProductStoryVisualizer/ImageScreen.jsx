@@ -225,7 +225,7 @@ const ImageScreen = ({ header, data, setIsInteracting, slideId }) => {
   }, [image]);
 
   return (
-    <Box position="relative" h="80dvh" overflow="hidden">
+    <Box position="relative" h="100dvh" overflow="hidden">
       <Stack overflow="hidden" position="relative">
         {imageUrl?.image_url && (
           <Image
