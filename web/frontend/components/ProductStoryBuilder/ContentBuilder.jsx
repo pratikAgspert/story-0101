@@ -664,397 +664,354 @@ const ContentBuilder = ({
   const isNoCardAdded = contents?.length === 0 && sheetData?.length === 0;
 
   return (
-    <>
-      {isNoCardAdded ? (
-        <IconButton
-          icon={<IoClose />}
-          style={{ color: "black", fontSize: 35 }}
-          onClick={handleCloseModal}
-          position={"absolute"}
-          right={5}
-          top={5}
-        />
-      ) : (
-        <DeleteConfirmationAlertDialog
-          alertTitle={"Confirm Discard!"}
-          alertDescription={
-            "Are you sure you want to discard this product story?"
-          }
-          onConfirm={() => {
-            handleCloseModal();
-            removeFromLocalStorage(`content_${productId}`);
-            removeFromLocalStorage(`sheet_${productId}`);
-            removeFromLocalStorage(`urlMap_${productId}`);
-          }}
-          triggerButtonProps={{
-            isIconButton: true,
-            backgroundColor: "transparent",
-            icon: <IoClose style={{ color: "black", fontSize: 35 }} />,
-            position: "absolute",
-            top: 5,
-            right: 5,
-          }}
-          confirmButtonProps={{
-            label: "Discard",
-          }}
-        />
-      )}
+    <ProductStoryContext.Provider value={productStoryContextValue}>
+      <DeleteConfirmationAlertDialog
+        alertTitle={
+          currentStory === "published"
+            ? "Copy Published Story?"
+            : "Edit Save Story?"
+        }
+        alertDescription={
+          currentStory === "published"
+            ? "This will create a new draft or overwrite a existing draft. Do you want to continue?"
+            : "This will create a new draft or overwrite a existing draft. Do you want to continue?"
+        }
+        onConfirm={handleSavedEditConfirmation}
+        onCancel={handleAlertClose}
+        noCloseIcon
+        triggerButtonProps={{
+          style: { display: "none" },
+        }}
+        confirmButtonProps={{
+          label: "Continue",
+          colorScheme: "blue",
+        }}
+        alertDialogProps={{
+          isOpen: isAlertOpen,
+          onClose: handleAlertClose,
+        }}
+      />
+      <Box display="flex" h="98dvh" w={"100%"} overflow={"hidden"}>
+        <Box
+          width="60%"
+          position="relative"
+          h="100%"
+          paddingX={10}
+          overflowX={"hidden"}
+          overflowY={"scroll"}
+          pb={"50px"}
+        >
+          <CurrentStoryTag currentStory={currentStory} />
 
-      <ProductStoryContext.Provider value={productStoryContextValue}>
-        <DeleteConfirmationAlertDialog
-          alertTitle={
-            currentStory === "published"
-              ? "Copy Published Story?"
-              : "Edit Save Story?"
-          }
-          alertDescription={
-            currentStory === "published"
-              ? "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-              : "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-          }
-          onConfirm={handleSavedEditConfirmation}
-          onCancel={handleAlertClose}
-          noCloseIcon
-          triggerButtonProps={{
-            style: { display: "none" },
-          }}
-          confirmButtonProps={{
-            label: "Continue",
-            colorScheme: "blue",
-          }}
-          alertDialogProps={{
-            isOpen: isAlertOpen,
-            onClose: handleAlertClose,
-          }}
-        />
-        <Box display="flex" h="100dvh" w={"100%"} overflow={"hidden"}>
-          <Box
-            width="60%"
-            position="relative"
-            h="100%"
-            paddingX={10}
-            overflowX={"hidden"}
-            overflowY={"scroll"}
-            pb={"50px"}
+          <HStack
+            position="sticky"
+            justifyContent={"flex-end"}
+            top={10}
+            right={4}
+            zIndex={10}
           >
-            <CurrentStoryTag currentStory={currentStory} />
-
-            <HStack
-              position="sticky"
-              justifyContent={"flex-end"}
-              top={10}
-              right={4}
-              zIndex={10}
-            >
-              {isDisabled ? (
-                // Edit Button
-                <Popover trigger="hover" placement="top">
-                  <PopoverTrigger>
-                    <Box>
-                      <IconButton
-                        className="edit-story-btn"
-                        icon={<FaRegEdit />}
-                        colorScheme="teal"
-                        size="lg"
-                        isRound
-                        onClick={() => setValue("isAlertOpen", true)}
-                        isDisabled={isNoData}
-                      />
-                    </Box>
-                  </PopoverTrigger>
-
-                  {isNoData && (
-                    <PopoverContent>
-                      <PopoverBody>
-                        <Stack>
-                          {currentStory === "saved" ? (
-                            <Text mb={0}>
-                              Edit is disabled because there is no saved data to
-                              copy.
-                            </Text>
-                          ) : currentStory === "published" ? (
-                            <Text mb={0}>
-                              Edit is disabled because there is no published
-                              data to copy.
-                            </Text>
-                          ) : null}
-                        </Stack>
-                      </PopoverBody>
-                    </PopoverContent>
-                  )}
-                </Popover>
-              ) : (
-                <Stack
-                  alignItems={"end"}
-                  position={"absolute"}
-                  right={0}
-                  top={0}
-                >
-                  <HStack>
-                    <GlobalStyleEditor />
-
-                    <AddContentButton
-                      onAdd={addContent}
-                      sheetData={sheetData}
-                      isDisabled={isDisabled}
+            {isDisabled ? (
+              // Edit Button
+              <Popover trigger="hover" placement="top">
+                <PopoverTrigger>
+                  <Box>
+                    <IconButton
+                      className="edit-story-btn"
+                      icon={<FaRegEdit />}
+                      colorScheme="teal"
+                      size="lg"
+                      isRound
+                      onClick={() => setValue("isAlertOpen", true)}
+                      isDisabled={isNoData}
                     />
-                  </HStack>
+                  </Box>
+                </PopoverTrigger>
 
-                  <SeoEditor />
-                </Stack>
-              )}
-            </HStack>
+                {isNoData && (
+                  <PopoverContent>
+                    <PopoverBody>
+                      <Stack>
+                        {currentStory === "saved" ? (
+                          <Text mb={0}>
+                            Edit is disabled because there is no saved data to
+                            copy.
+                          </Text>
+                        ) : currentStory === "published" ? (
+                          <Text mb={0}>
+                            Edit is disabled because there is no published data
+                            to copy.
+                          </Text>
+                        ) : null}
+                      </Stack>
+                    </PopoverBody>
+                  </PopoverContent>
+                )}
+              </Popover>
+            ) : (
+              <Stack alignItems={"end"} position={"absolute"} right={0} top={0}>
+                <HStack>
+                  <GlobalStyleEditor />
 
-            <ImportStorySection
-              formMethods={formMethods}
-              productId={productId}
+                  <AddContentButton
+                    onAdd={addContent}
+                    sheetData={sheetData}
+                    isDisabled={isDisabled}
+                  />
+                </HStack>
+
+                <SeoEditor />
+              </Stack>
+            )}
+          </HStack>
+
+          <ImportStorySection
+            formMethods={formMethods}
+            productId={productId}
+            isDisabled={isDisabled}
+            draftStoryId={draftStoryId}
+            publishedStoryId={publishedStoryId}
+            contents={contents}
+            sheetData={sheetData}
+            isSavedLoading={isProductStoryDraftPending}
+            isPublishedLoading={isPublishedStoryPending}
+            onSelectTemplate={() => {
+              const template = watch("template");
+
+              if (template)
+                handleSavedOrPublishData(
+                  template,
+                  setContents,
+                  setSheetData,
+                  filterCarouselTypes,
+                  productId
+                );
+            }}
+            onImportSaveClick={() =>
+              handleSavedOrPublishData(
+                productStoryDraft,
+                setContents,
+                setSheetData,
+                filterCarouselTypes,
+                productId
+              )
+            }
+            onImportPublishClick={() =>
+              handleSavedOrPublishData(
+                publishedStory,
+                setContents,
+                setSheetData,
+                filterCarouselTypes,
+                productId
+              )
+            }
+          />
+
+          <VStack mt={24} spacing={4} align="stretch">
+            <DraggableSection
+              items={contents}
+              onReorder={handleCarouselReorder}
+              sectionTitle="Carousel Section"
+              isDragDisabled={isDisabled}
               isDisabled={isDisabled}
-              draftStoryId={draftStoryId}
-              publishedStoryId={publishedStoryId}
-              contents={contents}
-              sheetData={sheetData}
-              isSavedLoading={isProductStoryDraftPending}
-              isPublishedLoading={isPublishedStoryPending}
-              onSelectTemplate={() => {
-                const template = watch("template");
-
-                if (template)
-                  handleSavedOrPublishData(
-                    template,
-                    setContents,
-                    setSheetData,
-                    filterCarouselTypes,
-                    productId
-                  );
-              }}
-              onImportSaveClick={() =>
-                handleSavedOrPublishData(
-                  productStoryDraft,
-                  setContents,
-                  setSheetData,
-                  filterCarouselTypes,
-                  productId
-                )
-              }
-              onImportPublishClick={() =>
-                handleSavedOrPublishData(
-                  publishedStory,
-                  setContents,
-                  setSheetData,
-                  filterCarouselTypes,
-                  productId
-                )
-              }
+              renderItem={(content) => (
+                <ContentCard
+                  {...content}
+                  addUrlMapping={addUrlMapping}
+                  addUnusedRemoteUrl={addUnusedRemoteUrl}
+                  onUpdate={(newData) => updateContent(content.id, newData)}
+                  onDelete={() => deleteContent(content.id)}
+                  isCarousel
+                  isDisabled={isDisabled}
+                  formMethods={formMethods}
+                />
+              )}
             />
 
-            <VStack mt={24} spacing={4} align="stretch">
-              <DraggableSection
-                items={contents}
-                onReorder={handleCarouselReorder}
-                sectionTitle="Carousel Section"
-                isDragDisabled={isDisabled}
-                isDisabled={isDisabled}
-                renderItem={(content) => (
-                  <ContentCard
-                    {...content}
-                    addUrlMapping={addUrlMapping}
-                    addUnusedRemoteUrl={addUnusedRemoteUrl}
-                    onUpdate={(newData) => updateContent(content.id, newData)}
-                    onDelete={() => deleteContent(content.id)}
-                    isCarousel
-                    isDisabled={isDisabled}
-                    formMethods={formMethods}
-                  />
-                )}
-              />
-
-              <DraggableSection
-                items={sheetData}
-                onReorder={handleSheetReorder}
-                sectionTitle="Bottom Sheet Section"
-                isDragDisabled={isDisabled}
-                isDisabled={isDisabled}
-                renderItem={(content) => (
-                  <ContentCard
-                    {...content}
-                    addUrlMapping={addUrlMapping}
-                    addUnusedRemoteUrl={addUnusedRemoteUrl}
-                    onUpdate={(newData) => updateSheetData(content.id, newData)}
-                    onDelete={() => deleteContent(content.id)}
-                    isDisabled={isDisabled}
-                    formMethods={formMethods}
-                  />
-                )}
-              />
-            </VStack>
-          </Box>
-
-          <Stack width="40%" h="100%" alignItems={"center"} spacing={2}>
-            {/* <HStack w={"35%"} mt={4}>
-              <StoryFormSelect
-                inputName={"stories"}
-                noLabel
-                control={control}
-                selectProps={{
-                  borderRadius: 50,
-                }}
-              >
-                <>
-                  {stories?.map((story) => (
-                    <Button
-                      as={"option"}
-                      size={"lg"}
-                      value={story?.value}
-                      key={story?.id}
-                    >
-                      {story?.label}
-                    </Button>
-                  ))}
-                </>
-              </StoryFormSelect>
-            </HStack> */}
-
-            <Stack
-              w={"292px"}
-              h={"603px"}
-              borderWidth={5}
-              borderColor={"black"}
-              borderRadius={50}
-              overflow={"hidden"}
-              boxShadow={"lg"}
-              position={"relative"}
-            >
-              <CarouselComponent
-                productData={contents}
-                defaultSheetData={sheetData}
-              />
-            </Stack>
-
-            <HStack position={"absolute"} right={3} bottom={5}>
-              {/* Save Button */}
-              <Popover trigger="hover" placement="top">
-                <PopoverTrigger>
-                  <Box>
-                    <DeleteConfirmationAlertDialog
-                      alertTitle={"Confirm Save Draft!"}
-                      alertDescription={
-                        "Are you sure you want to save this product story?"
-                      }
-                      triggerButtonProps={{
-                        colorScheme: "gray",
-                        variant: "solid",
-                        flex: 1,
-                        label: "Save",
-                        isDisabled:
-                          (contents || sheetData).length === 0 || isDisabled,
-                      }}
-                      onConfirm={() => {
-                        handleSaveAndEditProductStory();
-                      }}
-                      isPending={
-                        isSaveProductStoryPending ||
-                        isEditProductStoryPending ||
-                        isPublishProductStoryPending
-                      }
-                      confirmButtonProps={{
-                        label: "Save",
-                        colorScheme: "gray",
-                      }}
-                    />
-                  </Box>
-                </PopoverTrigger>
-
-                {((contents || sheetData).length === 0 || isDisabled) && (
-                  <PopoverContent>
-                    <PopoverBody>
-                      <Stack>
-                        {currentStory === "draft" ? (
-                          <Text mb={0}>
-                            Save is disabled. Ensure you have added atleast one
-                            slide.
-                          </Text>
-                        ) : currentStory === "saved" ? (
-                          <Text mb={0}>
-                            Save is disabled. You can't save directly you have
-                            to create an edit draft.
-                          </Text>
-                        ) : currentStory === "published" ? (
-                          <Text mb={0}>
-                            Save is disabled. You can't save directly after
-                            publishing; you have to create an edit draft.
-                          </Text>
-                        ) : null}
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                )}
-              </Popover>
-
-              {/* Publish Button */}
-              <Popover trigger="hover" placement="top">
-                <PopoverTrigger>
-                  <Box>
-                    <DeleteConfirmationAlertDialog
-                      alertTitle={"Confirm Publish!"}
-                      alertDescription={
-                        "Are you sure you want to publish this product story? Please ensure that you have saved all the changes."
-                      }
-                      triggerButtonProps={{
-                        colorScheme: "green",
-                        variant: "solid",
-                        flex: 1,
-                        label: "Publish",
-                        isDisabled:
-                          (contents || sheetData).length === 0 ||
-                          isPublishSelected,
-                      }}
-                      onConfirm={() => {
-                        handleSaveAndEditProductStory("publish");
-                      }}
-                      isPending={
-                        isSaveProductStoryPending ||
-                        isEditProductStoryPending ||
-                        isPublishProductStoryPending
-                      }
-                      confirmButtonProps={{
-                        label: "Publish",
-                        colorScheme: "green",
-                      }}
-                    />
-                  </Box>
-                </PopoverTrigger>
-
-                {((contents || sheetData).length === 0 ||
-                  isPublishSelected) && (
-                  <PopoverContent>
-                    <PopoverBody>
-                      <Stack>
-                        {currentStory === "draft" ? (
-                          <Text mb={0}>
-                            Publish is disabled. Ensure you have added atleast
-                            one slide.
-                          </Text>
-                        ) : currentStory === "saved" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't save directly you
-                            have to create an edit draft.
-                          </Text>
-                        ) : currentStory === "published" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't publish directly
-                            after publishing; you have to create an edit draft.
-                          </Text>
-                        ) : null}
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                )}
-              </Popover>
-            </HStack>
-          </Stack>
+            <DraggableSection
+              items={sheetData}
+              onReorder={handleSheetReorder}
+              sectionTitle="Bottom Sheet Section"
+              isDragDisabled={isDisabled}
+              isDisabled={isDisabled}
+              renderItem={(content) => (
+                <ContentCard
+                  {...content}
+                  addUrlMapping={addUrlMapping}
+                  addUnusedRemoteUrl={addUnusedRemoteUrl}
+                  onUpdate={(newData) => updateSheetData(content.id, newData)}
+                  onDelete={() => deleteContent(content.id)}
+                  isDisabled={isDisabled}
+                  formMethods={formMethods}
+                />
+              )}
+            />
+          </VStack>
         </Box>
-      </ProductStoryContext.Provider>
-    </>
+
+        <Stack width="40%" h="100%" alignItems={"center"} spacing={2}>
+          <HStack w={"35%"}>
+            <StoryFormSelect
+              inputName={"stories"}
+              noLabel
+              control={control}
+              selectProps={{
+                borderRadius: 50,
+              }}
+            >
+              <>
+                {stories?.map((story) => (
+                  <Button
+                    as={"option"}
+                    size={"lg"}
+                    value={story?.value}
+                    key={story?.id}
+                  >
+                    {story?.label}
+                  </Button>
+                ))}
+              </>
+            </StoryFormSelect>
+          </HStack>
+
+          <Stack
+            w={"292px"}
+            h={"603px"}
+            borderWidth={5}
+            borderColor={"black"}
+            borderRadius={50}
+            overflow={"hidden"}
+            boxShadow={"lg"}
+            position={"relative"}
+          >
+            <CarouselComponent
+              productData={contents}
+              defaultSheetData={sheetData}
+            />
+          </Stack>
+
+          <HStack position={"absolute"} right={3} bottom={5}>
+            {/* Save Button */}
+            <Popover trigger="hover" placement="top">
+              <PopoverTrigger>
+                <Box>
+                  <DeleteConfirmationAlertDialog
+                    alertTitle={"Confirm Save Draft!"}
+                    alertDescription={
+                      "Are you sure you want to save this product story?"
+                    }
+                    triggerButtonProps={{
+                      colorScheme: "gray",
+                      variant: "solid",
+                      flex: 1,
+                      label: "Save",
+                      isDisabled:
+                        (contents || sheetData).length === 0 || isDisabled,
+                    }}
+                    onConfirm={() => {
+                      handleSaveAndEditProductStory();
+                    }}
+                    isPending={
+                      isSaveProductStoryPending ||
+                      isEditProductStoryPending ||
+                      isPublishProductStoryPending
+                    }
+                    confirmButtonProps={{
+                      label: "Save",
+                      colorScheme: "gray",
+                    }}
+                  />
+                </Box>
+              </PopoverTrigger>
+
+              {((contents || sheetData).length === 0 || isDisabled) && (
+                <PopoverContent>
+                  <PopoverBody>
+                    <Stack>
+                      {currentStory === "draft" ? (
+                        <Text mb={0}>
+                          Save is disabled. Ensure you have added atleast one
+                          slide.
+                        </Text>
+                      ) : currentStory === "saved" ? (
+                        <Text mb={0}>
+                          Save is disabled. You can't save directly you have to
+                          create an edit draft.
+                        </Text>
+                      ) : currentStory === "published" ? (
+                        <Text mb={0}>
+                          Save is disabled. You can't save directly after
+                          publishing; you have to create an edit draft.
+                        </Text>
+                      ) : null}
+                    </Stack>
+                  </PopoverBody>
+                </PopoverContent>
+              )}
+            </Popover>
+
+            {/* Publish Button */}
+            <Popover trigger="hover" placement="top">
+              <PopoverTrigger>
+                <Box>
+                  <DeleteConfirmationAlertDialog
+                    alertTitle={"Confirm Publish!"}
+                    alertDescription={
+                      "Are you sure you want to publish this product story? Please ensure that you have saved all the changes."
+                    }
+                    triggerButtonProps={{
+                      colorScheme: "green",
+                      variant: "solid",
+                      flex: 1,
+                      label: "Publish",
+                      isDisabled:
+                        (contents || sheetData).length === 0 ||
+                        isPublishSelected,
+                    }}
+                    onConfirm={() => {
+                      handleSaveAndEditProductStory("publish");
+                    }}
+                    isPending={
+                      isSaveProductStoryPending ||
+                      isEditProductStoryPending ||
+                      isPublishProductStoryPending
+                    }
+                    confirmButtonProps={{
+                      label: "Publish",
+                      colorScheme: "green",
+                    }}
+                  />
+                </Box>
+              </PopoverTrigger>
+
+              {((contents || sheetData).length === 0 || isPublishSelected) && (
+                <PopoverContent>
+                  <PopoverBody>
+                    <Stack>
+                      {currentStory === "draft" ? (
+                        <Text mb={0}>
+                          Publish is disabled. Ensure you have added atleast one
+                          slide.
+                        </Text>
+                      ) : currentStory === "saved" ? (
+                        <Text mb={0}>
+                          Publish is disabled. You can't save directly you have
+                          to create an edit draft.
+                        </Text>
+                      ) : currentStory === "published" ? (
+                        <Text mb={0}>
+                          Publish is disabled. You can't publish directly after
+                          publishing; you have to create an edit draft.
+                        </Text>
+                      ) : null}
+                    </Stack>
+                  </PopoverBody>
+                </PopoverContent>
+              )}
+            </Popover>
+          </HStack>
+        </Stack>
+      </Box>
+    </ProductStoryContext.Provider>
   );
 };
 
@@ -1073,7 +1030,6 @@ const CurrentStoryTag = ({ currentStory }) => {
   return (
     <MotionTag
       mb={0}
-      mt={3}
       alignSelf={"center"}
       fontWeight={"600"}
       fontSize={18}
@@ -1171,7 +1127,7 @@ const ImportStorySection = ({
   return (
     <>
       {!isDisabled && isLocalStorageEmpty && (
-        <Stack h={"100%"} justifyContent={"center"} alignItems={"center"}>
+        <Stack h={"70%"} justifyContent={"center"} alignItems={"center"}>
           <Stack w={"40%"}>
             <Accordion allowToggle index={isOpen ? 0 : -1}>
               <AccordionItem border={"none"}>

@@ -78,55 +78,15 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
   console.log("selectedProduct: ", selectedProduct);
 
   return (
-    <>
-      {/* <Button className="add-story-btn" onClick={handleAddStory}>
-        Add Story
-      </Button> */}
-
-      {/* <DeleteConfirmationAlertDialog
-        alertTitle={'Confirm Delete!'}
-        alertDescription={'Are you sure you want to delete this product story?'}
-        triggerButtonProps={{
-          colorScheme: 'red',
-          variant: 'outline',
-          flex: 1,
-          label: 'Delete Story',
-        }}
-        // onConfirm={() => handleDeleteProductStory(selectedProduct?.id)}
-        confirmButtonProps={{ label: 'Delete' }}
-        // isLoading={isDeleteProductStoryPending}
-        isDisabled={!selectedProduct?.id}
-      /> */}
-
-      {/* <Modal onClose={handleCloseModal} size={"full"} isOpen={isOpen}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalBody>
-            <Box h={"98dvh"} overflow={"hidden"} position={"relative"}>
-              <ContentBuilder
-                productId={selectedProduct?.id}
-                productDisplayId={selectedProduct?.display_id}
-                onClose={handleCloseModal}
-                draftStoryId={selectedProduct?.draft_story}
-                publishedStoryId={selectedProduct?.published_story}
-                formMethods={formMethods}
-                handleCloseModal={handleCloseModal}
-              />
-            </Box>
-          </ModalBody>
-        </ModalContent>
-      </Modal> */}
-
-      <ContentBuilder
-        productId={selectedProduct?.id}
-        productDisplayId={selectedProduct?.display_id}
-        onClose={handleCloseModal}
-        draftStoryId={selectedProduct?.draft_story}
-        publishedStoryId={selectedProduct?.published_story}
-        formMethods={formMethods}
-        handleCloseModal={handleCloseModal}
-      />
-    </>
+    <ContentBuilder
+      productId={selectedProduct?.id}
+      productDisplayId={selectedProduct?.display_id}
+      onClose={handleCloseModal}
+      draftStoryId={selectedProduct?.draft_story}
+      publishedStoryId={selectedProduct?.published_story}
+      formMethods={formMethods}
+      handleCloseModal={handleCloseModal}
+    />
   );
 };
 

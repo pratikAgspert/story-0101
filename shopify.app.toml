@@ -3,7 +3,7 @@
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
 name = "story-0101"
 handle = "story-0101"
-application_url = "https://specializing-challenging-call-barbara.trycloudflare.com"
+application_url = "https://armor-preferences-geo-paradise.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://specializing-challenging-call-barbara.trycloudflare.com/auth/callback",
-  "https://specializing-challenging-call-barbara.trycloudflare.com/auth/shopify/callback",
-  "https://specializing-challenging-call-barbara.trycloudflare.com/api/auth/callback"
+  "https://armor-preferences-geo-paradise.trycloudflare.com/auth/callback",
+  "https://armor-preferences-geo-paradise.trycloudflare.com/auth/shopify/callback",
+  "https://armor-preferences-geo-paradise.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

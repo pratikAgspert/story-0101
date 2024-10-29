@@ -3,8 +3,7 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
-  HStack,
-  Switch,
+  Select,
 } from "@chakra-ui/react";
 
 import { useController } from "react-hook-form";
@@ -13,13 +12,16 @@ const StoryFormSelect = ({
   control,
   inputName,
   label,
+  children: selectOptions,
+  placeholder,
   validationRules = {},
   isRequired = false,
   isDisabled = false,
-  isReadOnly = false,
-  switchProps = {},
   onChange,
-  ...props
+  isReadOnly = false,
+  selectProps = {},
+  noLabel = false,
+  formControlProps = {},
 }) => {
   const {
     field,
@@ -36,28 +38,28 @@ const StoryFormSelect = ({
       isRequired={isRequired}
       isInvalid={error}
       isReadOnly={isReadOnly}
+      {...formControlProps}
     >
-      <HStack
-        py={2}
-        justifyContent={"flex-start"}
-        alignItems={"center"}
-        gap={3}
-      >
-        <Switch
-          {...field}
-          id={inputName}
-          {...props}
-          isChecked={field?.value}
-          onChange={(e) => {
-            field?.onChange(e);
-            onChange && onChange(e);
-          }}
-          {...switchProps}
-        />
-        <FormLabel textTransform={"capitalize"} htmlFor={inputName} mb={0}>
+      {!noLabel ? (
+        <FormLabel textTransform={"capitalize"} htmlFor={inputName}>
           {label ?? inputName}
         </FormLabel>
-      </HStack>
+      ) : null}
+
+      <Select
+        {...field}
+        value={field?.value ? field?.value : ""}
+        id={inputName}
+        placeholder={placeholder}
+        onChange={(e) => {
+          field.onChange(e);
+          onChange && onChange(e);
+        }}
+        isReadOnly={isReadOnly}
+        {...selectProps}
+      >
+        {selectOptions}
+      </Select>
 
       {error && <FormErrorMessage>{error?.message}</FormErrorMessage>}
     </FormControl>
