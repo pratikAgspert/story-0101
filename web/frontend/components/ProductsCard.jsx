@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, TextContainer, Text } from "@shopify/polaris";
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 
 export function ProductsCard() {
   const shopify = useAppBridge();

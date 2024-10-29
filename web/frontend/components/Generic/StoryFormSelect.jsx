@@ -9,7 +9,7 @@ import {
 
 import { useController } from "react-hook-form";
 
-export const FormSwitch = ({
+const StoryFormSelect = ({
   control,
   inputName,
   label,
@@ -64,4 +64,4 @@ export const FormSwitch = ({
   );
 };
 
-// export default FormSwitch;
+export default StoryFormSelect;

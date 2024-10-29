@@ -40,7 +40,7 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
     [searchParams, setSearchParams]
   );
 
-  const { driver } = useContext(ProductDriverContext);
+  // const { driver } = useContext(ProductDriverContext);
   useEffect(() => {
     const storyType = searchParams.get("productstory");
     if (["draft", "saved", "published"].includes(storyType)) {
@@ -60,9 +60,9 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
     searchParams.set("productstory", "draft");
     setSearchParams(searchParams.toString());
     onOpen();
-    setTimeout(() => {
-      driver?.moveNext();
-    }, 500);
+    // setTimeout(() => {
+    //   driver?.moveNext();
+    // }, 500);
   };
 
   const handleCloseModal = () => {
@@ -79,9 +79,9 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
 
   return (
     <>
-      <Button className="add-story-btn" onClick={handleAddStory}>
+      {/* <Button className="add-story-btn" onClick={handleAddStory}>
         Add Story
-      </Button>
+      </Button> */}
 
       {/* <DeleteConfirmationAlertDialog
         alertTitle={'Confirm Delete!'}
@@ -98,7 +98,7 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
         isDisabled={!selectedProduct?.id}
       /> */}
 
-      <Modal onClose={handleCloseModal} size={"full"} isOpen={isOpen}>
+      {/* <Modal onClose={handleCloseModal} size={"full"} isOpen={isOpen}>
         <ModalOverlay />
         <ModalContent>
           <ModalBody>
@@ -115,7 +115,17 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
             </Box>
           </ModalBody>
         </ModalContent>
-      </Modal>
+      </Modal> */}
+
+      <ContentBuilder
+        productId={selectedProduct?.id}
+        productDisplayId={selectedProduct?.display_id}
+        onClose={handleCloseModal}
+        draftStoryId={selectedProduct?.draft_story}
+        publishedStoryId={selectedProduct?.published_story}
+        formMethods={formMethods}
+        handleCloseModal={handleCloseModal}
+      />
     </>
   );
 };

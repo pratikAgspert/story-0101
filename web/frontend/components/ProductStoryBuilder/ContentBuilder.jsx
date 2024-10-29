@@ -44,7 +44,7 @@ import { useDeleteUnusedMediaUrls } from "../../apiHooks/useMediaUpload";
 import DeleteConfirmationAlertDialog from "../Generic/DeleteConfirmationAlertDialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-// import { FormSelect } from "../Generic/ControlledFormControls";
+import StoryFormSelect from "../Generic/StoryFormSelect";
 import {
   updateImageUrls,
   filterCarouselTypes,
@@ -727,15 +727,15 @@ const ContentBuilder = ({
             onClose: handleAlertClose,
           }}
         />
-        <Box display="flex" h="100%">
+        <Box display="flex" h="100dvh" w={"100%"} overflow={"hidden"}>
           <Box
             width="60%"
             position="relative"
-            h="100dvh"
+            h="100%"
             paddingX={10}
             overflowX={"hidden"}
             overflowY={"scroll"}
-            pb={"10dvh"}
+            pb={"50px"}
           >
             <CurrentStoryTag currentStory={currentStory} />
 
@@ -890,8 +890,8 @@ const ContentBuilder = ({
           </Box>
 
           <Stack width="40%" h="100%" alignItems={"center"} spacing={2}>
-            <HStack w={"35%"} mt={4}>
-              <FormSelect
+            {/* <HStack w={"35%"} mt={4}>
+              <StoryFormSelect
                 inputName={"stories"}
                 noLabel
                 control={control}
@@ -911,8 +911,8 @@ const ContentBuilder = ({
                     </Button>
                   ))}
                 </>
-              </FormSelect>
-            </HStack>
+              </StoryFormSelect>
+            </HStack> */}
 
             <Stack
               w={"292px"}
@@ -1171,7 +1171,7 @@ const ImportStorySection = ({
   return (
     <>
       {!isDisabled && isLocalStorageEmpty && (
-        <Stack h={"80%"} justifyContent={"center"} alignItems={"center"}>
+        <Stack h={"100%"} justifyContent={"center"} alignItems={"center"}>
           <Stack w={"40%"}>
             <Accordion allowToggle index={isOpen ? 0 : -1}>
               <AccordionItem border={"none"}>

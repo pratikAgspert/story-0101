@@ -3,8 +3,10 @@ import { useTranslation } from "react-i18next";
 import { NavMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import "./App.css";
 
-import { QueryProvider, PolarisProvider } from "./components";
+import { PolarisProvider } from "./components";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App() {
   // Any .tsx or .jsx files in /pages will become a route
@@ -16,19 +18,21 @@ export default function App() {
 
   const theme = extendTheme({});
 
+  const queryClient = new QueryClient();
+
   return (
     <PolarisProvider>
       <ChakraProvider theme={theme}>
-        <BrowserRouter>
-          <QueryProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
             <NavMenu>
               <a href="/" rel="home" />
               <a href="/stories">{t("NavigationMenu.stories")}</a>
               <a href="/storyBuilder">{t("NavigationMenu.storyBuilder")}</a>
             </NavMenu>
             <Routes pages={pages} />
-          </QueryProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </QueryClientProvider>
       </ChakraProvider>
     </PolarisProvider>
   );

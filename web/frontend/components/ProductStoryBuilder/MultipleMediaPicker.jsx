@@ -45,7 +45,7 @@ const MultipleMediaPicker = ({
   addUrlMapping, // Ensure this is passed as a prop
   isDisabled,
 }) => {
-  const { getToken } = useContext(AuthContext);
+  // const { getToken } = useContext(AuthContext);
   const [uploadProgress, setUploadProgress] = useState({});
   const toastId = "filePickerToast";
   const toast = useToast({
@@ -93,7 +93,8 @@ const MultipleMediaPicker = ({
         axios
           .post(BASE_URL + "kvk/upload_story/", formData, {
             headers: {
-              Authorization: getToken(),
+              // Authorization: getToken(),
+              Authorization: "",
             },
             onUploadProgress: (progressEvent) => {
               const percentCompleted = Math.round(

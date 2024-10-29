@@ -27,7 +27,7 @@ const MediaPicker = ({
   isDisabled,
 }) => {
   const [uploadProgress, setUploadProgress] = useState({});
-  const { getToken } = useContext(AuthContext);
+  // const { getToken } = useContext(AuthContext);
   const toastId = "filePickerToast";
   const toast = useToast({
     isClosable: true,
@@ -35,7 +35,7 @@ const MediaPicker = ({
     duration: 2000,
     id: toastId,
   });
-  const { driver } = useContext(ProductDriverContext);
+  // const { driver } = useContext(ProductDriverContext);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -63,7 +63,8 @@ const MediaPicker = ({
           axios
             .post(BASE_URL + "kvk/upload_story/", formData, {
               headers: {
-                Authorization: getToken(),
+                // Authorization: getToken(),
+                Authorization: "",
               },
               onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round(
@@ -98,7 +99,12 @@ const MediaPicker = ({
         }
       });
     },
-    [onImagesChange, addUrlMapping, toast, getToken]
+    [
+      onImagesChange,
+      addUrlMapping,
+      toast,
+      // getToken
+    ]
   );
 
   const image_types = [
@@ -179,9 +185,9 @@ const MediaPicker = ({
           onClick={() => {
             if (!isDisabled) {
               open();
-              setTimeout(() => {
-                driver?.moveNext();
-              }, 200);
+              // setTimeout(() => {
+              //   driver?.moveNext();
+              // }, 200);
             }
           }}
         >

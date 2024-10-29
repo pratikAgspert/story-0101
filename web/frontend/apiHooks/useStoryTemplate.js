@@ -5,13 +5,18 @@ import { AuthContext } from "../components/ProductStoryBuilder/context";
 import { makeRequest } from "./networkRequest";
 
 export const useStoryTemplate = () => {
-  const { getToken } = useContext(AuthContext);
+  // const { getToken } = useContext(AuthContext);
   const endPoint = BASE_URL + `kvk/story_templates/`;
 
   const query = useQuery({
     queryKey: ["story-template"],
     queryFn: async () => {
-      const templateList = await makeRequest(endPoint, "GET", getToken());
+      const templateList = await makeRequest(
+        endPoint,
+        "GET",
+        ""
+        //  getToken()
+      );
       return templateList;
     },
   });
