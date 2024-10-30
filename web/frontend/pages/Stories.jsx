@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, memo } from "react";
 import {
   Box,
   Button,
@@ -15,7 +15,8 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 
-const productNames = [
+// Constants
+const PRODUCT_NAMES = [
   "product 1",
   "product 2",
   "product 3",
@@ -23,26 +24,72 @@ const productNames = [
   "product 5",
 ];
 
-const Card = ({ index, availableProducts, onUpdateCards }) => {
+// Memoized Tag component
+const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
+  <Tag
+    size="sm"
+    borderRadius="full"
+    variant="subtle"
+    bg={tagBg}
+    color={tagColor}
+    p={1}
+    px={3}
+  >
+    <TagLabel>{tag}</TagLabel>
+    <TagCloseButton onClick={() => onRemove(tag)} />
+  </Tag>
+));
+
+ProductTag.displayName = "ProductTag";
+
+// Memoized Product Selector component
+const ProductSelector = memo(({ unselectedProducts, onSelect, isDisabled }) => (
+  <Menu>
+    <MenuButton
+      as={Button}
+      rightIcon={<FaArrowRight />}
+      w="full"
+      variant="outline"
+      textAlign="left"
+      isDisabled={isDisabled}
+      fontSize="sm"
+    >
+      {unselectedProducts.length > 0
+        ? "Select products..."
+        : "No more products available"}
+    </MenuButton>
+    <MenuList>
+      {unselectedProducts.map((name) => (
+        <MenuItem key={name} onClick={() => onSelect(name)}>
+          {name}
+        </MenuItem>
+      ))}
+    </MenuList>
+  </Menu>
+));
+
+ProductSelector.displayName = "ProductSelector";
+
+// Memoized Card component
+const Card = memo(({ index, availableProducts, onUpdateCards }) => {
   const [selectedTags, setSelectedTags] = useState([]);
 
   const tagBg = useColorModeValue("blue.50", "blue.900");
   const tagColor = useColorModeValue("blue.600", "blue.200");
 
-  // Names that aren't selected in this card
   const unselectedProducts = availableProducts.filter(
     (product) => !selectedTags.includes(product)
   );
 
-  const handleSelect = (product) => {
-    setSelectedTags([...selectedTags, product]);
-  };
+  const handleSelect = useCallback((product) => {
+    setSelectedTags((prev) => [...prev, product]);
+  }, []);
 
-  const handleRemove = (productToRemove) => {
-    setSelectedTags(
-      selectedTags.filter((product) => product !== productToRemove)
+  const handleRemove = useCallback((productToRemove) => {
+    setSelectedTags((prev) =>
+      prev.filter((product) => product !== productToRemove)
     );
-  };
+  }, []);
 
   // Update parent component when tags change
   React.useEffect(() => {
@@ -50,83 +97,61 @@ const Card = ({ index, availableProducts, onUpdateCards }) => {
   }, [selectedTags, index, onUpdateCards]);
 
   return (
-    <Stack bg={"white"} p={3} borderRadius={"xl"}>
-      <Text size="sm" fontWeight={"semibold"}>
+    <Stack bg="white" p={3} borderRadius="xl">
+      <Text size="sm" fontWeight="semibold">
         Story {index + 1}
       </Text>
 
       <Stack spacing={1}>
-        {/* Selector */}
         <Box>
-          <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<FaArrowRight />}
-              w="full"
-              variant="outline"
-              textAlign="left"
-              isDisabled={unselectedProducts.length === 0}
-              fontSize={"sm"}
-            >
-              {unselectedProducts.length > 0
-                ? "Select products..."
-                : "No more products available"}
-            </MenuButton>
-            <MenuList>
-              {unselectedProducts.map((name) => (
-                <MenuItem key={name} onClick={() => handleSelect(name)}>
-                  {name}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <ProductSelector
+            unselectedProducts={unselectedProducts}
+            onSelect={handleSelect}
+            isDisabled={unselectedProducts.length === 0}
+          />
         </Box>
 
-        {/* Tags Display */}
         <Stack direction="row" flexWrap="wrap" spacing={2}>
           {selectedTags.map((tag) => (
-            <Tag
+            <ProductTag
               key={tag}
-              size="sm"
-              borderRadius="full"
-              variant="subtle"
-              bg={tagBg}
-              color={tagColor}
-              p={1}
-              px={3}
-            >
-              <TagLabel>{tag}</TagLabel>
-              <TagCloseButton onClick={() => handleRemove(tag)} />
-            </Tag>
+              tag={tag}
+              onRemove={handleRemove}
+              tagBg={tagBg}
+              tagColor={tagColor}
+            />
           ))}
         </Stack>
       </Stack>
     </Stack>
   );
-};
+});
 
+Card.displayName = "Card";
+
+// Main Stories component
 const Stories = () => {
   const [cardCount] = useState(3);
   const [cardSelections, setCardSelections] = useState(
     Array(cardCount).fill([])
   );
 
-  const handleUpdateCards = (cardIndex, newTags) => {
+  const handleUpdateCards = useCallback((cardIndex, newTags) => {
     setCardSelections((prev) => {
       const newSelections = [...prev];
       newSelections[cardIndex] = newTags;
       return newSelections;
     });
-  };
+  }, []);
 
   return (
-    <Box p={5} w={"50%"}>
+    <Box p={5} w="50%">
       <Stack spacing={3}>
         {Array.from({ length: cardCount }).map((_, index) => (
           <Card
             key={index}
             index={index}
-            availableProducts={productNames}
+            availableProducts={PRODUCT_NAMES}
             onUpdateCards={handleUpdateCards}
           />
         ))}
