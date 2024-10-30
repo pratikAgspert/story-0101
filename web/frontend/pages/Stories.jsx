@@ -15,6 +15,8 @@ import {
   HStack,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
+import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
+import { ProductStoryContext } from "../components/ProductStoryBuilder/context";
 
 // Constants
 const PRODUCT_NAMES = [
@@ -157,19 +159,53 @@ const Stories = () => {
     });
   }, []);
 
+  // Create a context value object
+  const productStoryContextValue = {
+    addInfoPoint: () => {},
+    removeInfoPoint: () => {},
+    getInfoPoints: () => {},
+    updateInfoPointText: () => {},
+    isDisabled: true,
+    styles: {},
+    handleStyleChange: () => {},
+  };
+
+  const contents = [];
+  const sheetData = [];
+
   return (
-    <Box p={5} w="50%">
-      <Stack spacing={3}>
-        {Array.from({ length: cardCount }).map((_, index) => (
-          <Card
-            key={index}
-            index={index}
-            availableProducts={PRODUCT_NAMES}
-            onUpdateCards={handleUpdateCards}
-          />
-        ))}
-      </Stack>
-    </Box>
+    <ProductStoryContext.Provider value={productStoryContextValue}>
+      <HStack p={5}>
+        <Stack spacing={3} w="50%">
+          {Array.from({ length: cardCount }).map((_, index) => (
+            <Card
+              key={index}
+              index={index}
+              availableProducts={PRODUCT_NAMES}
+              onUpdateCards={handleUpdateCards}
+            />
+          ))}
+        </Stack>
+
+        <Stack w="50%" alignItems={"center"}>
+          <Stack
+            w={"277.4px"}
+            h={"572.85px"}
+            borderWidth={5}
+            borderColor={"black"}
+            borderRadius={50}
+            overflow={"hidden"}
+            boxShadow={"lg"}
+            position={"relative"}
+          >
+            <CarouselComponent
+              productData={contents || []}
+              defaultSheetData={sheetData || []}
+            />
+          </Stack>
+        </Stack>
+      </HStack>
+    </ProductStoryContext.Provider>
   );
 };
 
