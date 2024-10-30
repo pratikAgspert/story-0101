@@ -12,6 +12,7 @@ import {
   MenuList,
   MenuItem,
   useColorModeValue,
+  HStack,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 
@@ -98,9 +99,21 @@ const Card = memo(({ index, availableProducts, onUpdateCards }) => {
 
   return (
     <Stack bg="white" p={3} borderRadius="xl">
-      <Text size="sm" fontWeight="semibold">
-        Story {index + 1}
-      </Text>
+      <HStack justifyContent={"space-between"}>
+        <Text size="sm" fontWeight="semibold">
+          Story {index + 1}
+        </Text>
+
+        <HStack>
+          <Tag fontSize={"xs"} p={2} px={4} cursor={"pointer"}>
+            Edit
+          </Tag>
+
+          <Tag fontSize={"xs"} p={2} px={4} cursor={"pointer"}>
+            Preview
+          </Tag>
+        </HStack>
+      </HStack>
 
       <Stack spacing={1}>
         <Box>
