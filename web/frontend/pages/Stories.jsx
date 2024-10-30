@@ -114,6 +114,10 @@ const Card = memo(({ index, availableProducts, onUpdateCards }) => {
           <Tag fontSize={"xs"} p={2} px={4} cursor={"pointer"}>
             Preview
           </Tag>
+
+          <Tag fontSize={"xs"} p={2} px={4} cursor={"pointer"}>
+            Publish
+          </Tag>
         </HStack>
       </HStack>
 
