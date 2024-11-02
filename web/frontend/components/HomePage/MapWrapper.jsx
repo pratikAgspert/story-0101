@@ -1,14 +1,20 @@
-import { Box, Select, Button, Flex, HStack, VStack } from '@chakra-ui/react';
-import 'leaflet/dist/leaflet.css';
-import { Children, useEffect, useMemo, useState } from 'react';
-import { useGetGeofences } from '../../apiHooks/useLocations';
-import Map from './Map';
-import { FillSkeleton } from '../../components/skeletons/PostSkeleton';
-import { find_fitbound } from '../../utils/find_fitbound';
-import QRAnalytics from './QRAnalytics';
-import QRStatsPieChart from './QRStatsPieChart';
+import { Box, Select, Button, Flex, HStack, VStack } from "@chakra-ui/react";
+import "leaflet/dist/leaflet.css";
+import { Children, useEffect, useMemo, useState } from "react";
+import { useGetGeofences } from "../../apiHooks/useLocations";
+import Map from "./Map";
+import { FillSkeleton } from "../../components/skeletons/PostSkeleton";
+import { find_fitbound } from "../../utils/find_fitbound";
+import QRAnalytics from "./QRAnalytics";
+import QRStatsPieChart from "./QRStatsPieChart";
 
-export const MapWrapper = ({ selectedGeofence, updateGeofence, timeline }) => {
+export const MapWrapper = ({
+  selectedGeofence,
+  updateGeofence,
+  timeline,
+  qrStats,
+  setQrStats,
+}) => {
   // const {
   //   data: geofenceData,
   //   isPending: isFetchingGeofenceData,
@@ -21,7 +27,6 @@ export const MapWrapper = ({ selectedGeofence, updateGeofence, timeline }) => {
 
   const [mapData, setMapData] = useState(null);
   const [heatMapData, setHeatMapData] = useState([]);
-  const [qrStats, setQrStats] = useState({ qrstats: {}, heatMapData: [] });
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   // useEffect(() => {
@@ -101,7 +106,7 @@ export const MapWrapper = ({ selectedGeofence, updateGeofence, timeline }) => {
         />
 
         <Map
-        timeline={timeline}
+          timeline={timeline}
           heatMapData={qrStats.heatMapData}
           geofence={selectedGeofence}
           mapData={mapData}
@@ -112,10 +117,10 @@ export const MapWrapper = ({ selectedGeofence, updateGeofence, timeline }) => {
 
       {
         <Box
-          borderRadius={'lg'}
-          overflow={'hidden'}
-          height={'18rem'}
-          width={'100%'}
+          borderRadius={"lg"}
+          overflow={"hidden"}
+          height={"18rem"}
+          width={"100%"}
           mr={2}
         >
           <QRStatsPieChart QRStatsData={qrStats.qrstats} />
@@ -131,20 +136,20 @@ const MapContainer = ({ children }) => {
 
   return (
     <Box
-      overflow={'hidden'}
-      borderRadius={'lg'}
-      height={'30rem'}
-      position={'relative'}
+      overflow={"hidden"}
+      borderRadius={"lg"}
+      height={"30rem"}
+      position={"relative"}
     >
       <Flex
-        position={'absolute'}
-        width={'fit-content'}
-        zIndex={'1000'}
-        right={'0%'}
+        position={"absolute"}
+        width={"fit-content"}
+        zIndex={"1000"}
+        right={"0%"}
         top="0%"
-        borderRadius={'lg'}
-        background={'white'}
-        boxShadow={'0.5px 0 5px 0 #00000080'}
+        borderRadius={"lg"}
+        background={"white"}
+        boxShadow={"0.5px 0 5px 0 #00000080"}
       >
         {/* {GeofenceFilter} */}
         {QRAnalytics}
@@ -170,14 +175,14 @@ const GeofenceFilter = ({
     <Select
       variant="filled"
       placeholder="Select a Geofence"
-      width={'15rem'}
-      background={'white'}
-      _hover={{ background: 'white' }}
+      width={"15rem"}
+      background={"white"}
+      _hover={{ background: "white" }}
       focusBorderColor="transparent"
-      value={selectedGeofence?.pin ?? ''}
+      value={selectedGeofence?.pin ?? ""}
       onChange={(event) => {
         event?.stopPropagation();
-        onUpdateGeofence(event?.target?.value ?? '');
+        onUpdateGeofence(event?.target?.value ?? "");
       }}
     >
       {geofenceOptions?.map(({ pin, name }) => {

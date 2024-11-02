@@ -9,7 +9,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { CgArrowLeft, CgArrowRight, CgClose } from "react-icons/cg";
 import { MapWrapper as Map } from "../HomePage/MapWrapper";
 import CarouselComponent from "../ProductStoryVisualizer/CarouselComponent";
@@ -19,6 +19,7 @@ import QRCode from "../../assets/AgSpeak_qr_code.png";
 const HomePage2 = () => {
   const [selectedGeofence, setSelectedGeofence] = useState(null);
   const [isViewDemo, setIsViewDemo] = useState(false);
+  const [qrStats, setQrStats] = useState({ qrstats: {}, heatMapData: [] });
 
   const contents = [];
   const sheetData = [];
@@ -34,6 +35,15 @@ const HomePage2 = () => {
     handleStyleChange: () => {},
   };
 
+  const totalScans = qrStats?.qrstats?.total_scans;
+  const uniqueScans = qrStats?.qrstats?.total_unique_scans;
+  const allLocations = Object.entries(
+    qrStats?.qrstats?.locations?.cities || {}
+  )?.length;
+  const allPins = Object.entries(
+    qrStats?.qrstats?.locations?.pincodes || {}
+  )?.length;
+
   return (
     <HStack p={3} alignItems={"start"}>
       <Stack w={"70%"} h={"96dvh"} spacing={3} overflow={"scroll"}>
@@ -42,7 +52,7 @@ const HomePage2 = () => {
           <Link
             href="#"
             target="_blank"
-            color={"blue.400"}
+            color={"blue.300"}
             fontWeight={"semibold"}
           >
             brandname.agspeak.in
@@ -50,15 +60,15 @@ const HomePage2 = () => {
         </Stack>
 
         <Grid templateColumns="repeat(3, 1fr)" gap={3}>
-          <TopStatCard label={"Unique experiences"} value={"0 Experiences"} />
-          <TopStatCard label={"Unique links"} value={"0 Links"} />
-          <TopStatCard label={"Live on"} value={"0 Products"} />
+          <TopStatCard label={"Unique experiences"} value={"N/A Experiences"} />
+          <TopStatCard label={"Unique links"} value={"N/A Links"} />
+          <TopStatCard label={"Live on"} value={"N/A Products"} />
         </Grid>
 
         <Button
           px={10}
           py={6}
-          bg={"green.400"}
+          bg={"green.300"}
           boxShadow={"md"}
           w={"fit-content"}
           alignSelf={"center"}
@@ -73,18 +83,23 @@ const HomePage2 = () => {
             <Text>Analytics</Text>
 
             <Grid templateColumns="repeat(4, 2fr)" gap={3}>
-              <AnalyticsCard label={"All Scans"} value={5474} />
-              <AnalyticsCard label={"Unique Scans"} value={5474} />
-              <AnalyticsCard label={"All Locations"} value={5474} />
-              <AnalyticsCard label={"All Pins/Zips"} value={5474} />
-              <AnalyticsCard label={"Unique IPs"} value={5474} />
-              <AnalyticsCard label={"Referral Conversions"} value={5474} />
-              <AnalyticsCard isOSBrowserStats />
+              <AnalyticsCard label={"All Scans"} value={totalScans || 0} />
+              <AnalyticsCard label={"Unique Scans"} value={uniqueScans || 0} />
+              <AnalyticsCard
+                label={"All Locations"}
+                value={allLocations || 0}
+              />
+              <AnalyticsCard label={"All Pins/Zips"} value={allPins || 0} />
+              <AnalyticsCard label={"Unique IPs"} value={"N/A"} />
+              <AnalyticsCard label={"Referral Conversions"} value={"N/A"} />
+              <AnalyticsCard isOSBrowserStats qrStatsData={qrStats?.qrstats} />
             </Grid>
           </Stack>
 
           <Stack>
             <Map
+              qrStats={qrStats}
+              setQrStats={setQrStats}
               selectedGeofence={selectedGeofence}
               updateGeofence={(geofence) => setSelectedGeofence(geofence)}
             />
@@ -209,7 +224,56 @@ const TopStatCard = ({ label, value }) => {
   );
 };
 
-const AnalyticsCard = ({ label, value, isOSBrowserStats = false }) => {
+const AnalyticsCard = ({
+  label,
+  value,
+  isOSBrowserStats = false,
+  qrStatsData = null,
+}) => {
+  const browserColors = [
+    "yellow.300",
+    "green.300",
+    "blue.300",
+    "purple.300",
+    "pink.300",
+  ];
+  const osColors = [
+    "orange.300",
+    "red.300",
+    "teal.300",
+    "cyan.300",
+    "indigo.300",
+  ];
+
+  const { browsersStats, OSStats } = useMemo(() => {
+    const browsers = qrStatsData?.devices?.browsers || {};
+    const os = qrStatsData?.devices?.os || {};
+
+    const calculatePercentages = (data) => {
+      const total = Object.values(data).reduce(
+        (sum, item) => sum + (item?.num_scans || 0),
+        0
+      );
+      return Object.entries(data).map(([name, scanData]) => {
+        const count = scanData?.num_scans || 0;
+        const percentage =
+          total > 0 ? ((count / total) * 100).toFixed(2) : "0.00";
+        return {
+          state: name,
+          count: count,
+          percentage: `${percentage}%`,
+        };
+      });
+    };
+
+    const browsersStats = calculatePercentages(browsers);
+    const OSStats = calculatePercentages(os);
+
+    return { browsersStats, OSStats };
+  }, [qrStatsData]);
+
+  console.log("browsersStats, OSStats==>", browsersStats, "::::", OSStats);
+
   return (
     <>
       {isOSBrowserStats ? (
@@ -221,18 +285,42 @@ const AnalyticsCard = ({ label, value, isOSBrowserStats = false }) => {
           colSpan={2}
         >
           <Stack h={"100%"} spacing={1} alignItems={"end"}>
-            <Stack bg={"yellow.400"} w={"80%"} h={"25%"} />
-            <Stack bg={"orange.400"} w={"50%"} h={"25%"} />
-            <Stack bg={"red.400"} w={"30%"} h={"25%"} />
+            {browsersStats?.map((stat, index) => {
+              return (
+                <Stack
+                  key={index}
+                  bg={browserColors[index % browserColors.length]}
+                  w={stat?.percentage}
+                  h={"25%"}
+                  px={2}
+                  borderRadius={5}
+                >
+                  <Text fontSize={10} fontWeight={"semibold"}>
+                    {stat?.state} ({stat?.percentage})
+                  </Text>
+                </Stack>
+              );
+            })}
+            {OSStats?.map((stat, index) => {
+              return (
+                <Stack
+                  key={index}
+                  bg={osColors[index % osColors.length]}
+                  w={stat?.percentage}
+                  h={"25%"}
+                  px={2}
+                  borderRadius={5}
+                >
+                  <Text fontSize={10} fontWeight={"semibold"}>
+                    {stat?.state} ({stat?.percentage})
+                  </Text>
+                </Stack>
+              );
+            })}
+            <Text fontSize={12} fontWeight={"medium"} alignSelf={"start"}>
+              OS/Browser Stats
+            </Text>
           </Stack>
-          <Text
-            fontSize={12}
-            fontWeight={"medium"}
-            position={"absolute"}
-            bottom={1}
-          >
-            OS/Browser Stats
-          </Text>
         </GridItem>
       ) : (
         <GridItem
