@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo } from "react";
 import {
   Center,
   Popover,
@@ -11,26 +11,26 @@ import {
   Box,
   IconButton,
   Tooltip as ChakraTooltip,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
-import NotFoundMessage from '../../components/generic/NotFoundMessage';
-import { FillSkeleton } from '../../components/skeletons/PostSkeleton';
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import { IoMdRadioButtonOn } from 'react-icons/io';
-import { labelValue } from '@rjsf/utils';
-import { theme } from '@chakra-ui/react';
+import NotFoundMessage from "../../components/generic/NotFoundMessage";
+import { FillSkeleton } from "../../components/skeletons/PostSkeleton";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { IoMdRadioButtonOn } from "react-icons/io";
+import { labelValue } from "@rjsf/utils";
+import { theme } from "@chakra-ui/react";
 // const chakraColorSchemes = [...theme.colors];
 const COLOR_WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 const CHAKRA_COLOR_SCHEMES = Object.keys(theme.colors || {});
 const colorsToBeExcluded = [
-  'transparent',
-  'black',
-  'whileAlpha',
-  'blackAlpha',
-  'gray',
-  'white',
-  'current',
-  'whiteAlpha',
+  "transparent",
+  "black",
+  "whileAlpha",
+  "blackAlpha",
+  "gray",
+  "white",
+  "current",
+  "whiteAlpha",
 ];
 const { transparent, whileAlpha, blackAlpha, gray, white, ...rest } =
   CHAKRA_COLOR_SCHEMES; // 16
@@ -66,7 +66,7 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
       return {
         colorScheme: colorScheme,
         label: browserStat?.state?.toUpperCase(),
-        color: '#FFCD62',
+        color: "#FFCD62",
       };
     });
 
@@ -77,7 +77,7 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
       return {
         colorScheme: colorScheme,
         label: OSStat?.state?.toUpperCase(),
-        color: '#FFCD62',
+        color: "#FFCD62",
       };
     });
     return { browserTagData, osTagData };
@@ -87,41 +87,41 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
     <>
       {!browserTagData?.length && !osTagData?.length ? (
         <HStack
-          alignItems={'center'}
-          justifyContent={'center'}
+          alignItems={"center"}
+          justifyContent={"center"}
           spacing={5}
           borderRadius={10}
-          boxShadow={'0 0 3px 0 lightgray'}
+          boxShadow={"0 0 3px 0 lightgray"}
           mx={1}
           my={2}
-          h={'96%'}
+          h={"96%"}
         >
           <Text mb={0}>No Data Available</Text>
         </HStack>
       ) : (
         <HStack
-          alignItems={'center'}
+          alignItems={"center"}
           spacing={5}
-          height={'100%'}
+          height={"100%"}
           px={1}
           pt={3}
           pb={1}
         >
           <HStack
-            alignItems={'center'}
-            justifyContent={'space-between'}
-            height={'100%'}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            height={"100%"}
             flex={1}
             borderRadius={10}
-            boxShadow={'0 0 3px 0 lightgray'}
+            boxShadow={"0 0 3px 0 lightgray"}
           >
             <Stack
               pl={2}
               spacing={1}
-              width={'fit-content'}
-              height={'100%'}
-              overflow={'auto'}
-              justifyContent={'center'}
+              width={"fit-content"}
+              height={"100%"}
+              overflow={"auto"}
+              justifyContent={"center"}
             >
               {browserTagData?.map(({ label, colorScheme, color }) => {
                 return (
@@ -129,20 +129,20 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
                     <IconButton
                       isRound={true}
                       colorScheme={colorScheme}
-                      variant={'ghost'}
+                      variant={"ghost"}
                       aria-label="Pie Label"
                       icon={<IoMdRadioButtonOn size="22" color={color} />}
-                      pointerEvents={'none'}
+                      pointerEvents={"none"}
                     />
 
-                    <Tag width={'fit-content'} colorScheme={colorScheme}>
+                    <Tag width={"fit-content"} colorScheme={colorScheme}>
                       {label}
                     </Tag>
                   </HStack>
                 );
               })}
             </Stack>
-            <Box height={'100%'} width="40%">
+            <Box height={"100%"} width="50%">
               <StatsPieChart
                 colors={osTagData?.map((tagData) => tagData?.colorScheme)}
                 stats={browsersStats}
@@ -151,20 +151,20 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
           </HStack>
 
           <HStack
-            alignItems={'center'}
-            justifyContent={'space-between'}
-            height={'100%'}
+            alignItems={"center"}
+            justifyContent={"space-between"}
+            height={"100%"}
             flex={1}
             borderRadius={10}
-            boxShadow={'0 0 3px 0 lightgray'}
+            boxShadow={"0 0 3px 0 lightgray"}
           >
             <Stack
               pl={2}
               spacing={1}
-              width={'fit-content'}
-              height={'100%'}
-              overflow={'auto'}
-              justifyContent={'center'}
+              width={"fit-content"}
+              height={"100%"}
+              overflow={"auto"}
+              justifyContent={"center"}
             >
               {osTagData?.map(({ label, colorScheme, color }) => {
                 return (
@@ -172,20 +172,20 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
                     <IconButton
                       isRound={true}
                       colorScheme={colorScheme}
-                      variant={'ghost'}
+                      variant={"ghost"}
                       aria-label="Pie Label"
                       icon={<IoMdRadioButtonOn size="22" color={colorScheme} />}
-                      pointerEvents={'none'}
+                      pointerEvents={"none"}
                     />
 
-                    <Tag width={'fit-content'} colorScheme={colorScheme}>
+                    <Tag width={"fit-content"} colorScheme={colorScheme}>
                       {label}
                     </Tag>
                   </HStack>
                 );
               })}
             </Stack>
-            <Box height={'100%'} width="40%">
+            <Box height={"100%"} width="50%">
               <StatsPieChart
                 colors={osTagData?.map((tagData) => tagData?.colorScheme)}
                 stats={OSStats}
@@ -201,7 +201,7 @@ export const QRStatsPieChart = ({ QRStatsData }) => {
 export const StatsPieChart = ({
   colors,
   stats: data = [],
-  emptyLabel = 'No Data Available',
+  emptyLabel = "No Data Available",
 }) => {
   const RADIAN = Math.PI / 180;
 
@@ -227,38 +227,38 @@ export const StatsPieChart = ({
         as="text"
         x={x}
         y={y}
-        textAnchor={x > cx ? 'start' : 'end'}
+        textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
-        fontWeight={'500'}
-        fill={'black'}
+        fontWeight={"500"}
+        fill={"black"}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </Text>
     );
   };
 
-  const COLORS = colors ? colors : ['#FFCD62', '#95FF9F', '#0088FE', '#FF8042'];
+  const COLORS = colors ? colors : ["#FFCD62", "#95FF9F", "#0088FE", "#FF8042"];
 
   if (data.length === 0)
     return (
-      <Center height={'100%'} display={'flex'}>
-        <NotFoundMessage message={emptyLabel} alignSelf={'center'} />
+      <Center height={"100%"} display={"flex"}>
+        <NotFoundMessage message={emptyLabel} alignSelf={"center"} />
       </Center>
     );
 
   return (
-    <ResponsiveContainer height={'100%'} width={'100%'}>
+    <ResponsiveContainer height={"100%"} width={"100%"}>
       <PieChart>
         <Pie
           data={data}
-          nameKey={'state'}
-          dataKey={'count'}
+          nameKey={"state"}
+          dataKey={"count"}
           outerRadius={85}
           innerRadius={data.length === 1 ? 55 : 0}
           paddingAngle={data.length === 1 ? 5 : 2}
           label={CustomizedLabel}
           labelLine={false}
-          style={{ cursor: 'grab' }}
+          style={{ cursor: "grab" }}
         >
           {data.map((entry, index) => {
             return (
@@ -267,7 +267,7 @@ export const StatsPieChart = ({
           })}
         </Pie>
 
-        <Tooltip label={'true'} content={<PieChartTooltip />} />
+        <Tooltip label={"true"} content={<PieChartTooltip />} />
       </PieChart>
     </ResponsiveContainer>
   );
@@ -279,20 +279,20 @@ const PieChartTooltip = (tooltipProps) => {
   if (active && payload && payload?.length) {
     const { state, count: batchCount } = payload?.[0]?.payload?.payload;
 
-    const colorSchemes = ['orange', 'teal', 'whatsapp', 'green'];
+    const colorSchemes = ["orange", "teal", "whatsapp", "green"];
     const colorScheme =
       colorSchemes[Math.min(3, Math.round(Math.random() * 3))];
 
     return (
       <>
         <Popover isOpen={active}>
-          <PopoverContent width={'fit-content'}>
-            <Stack spacing={3} alignItems={'center'}>
+          <PopoverContent width={"fit-content"}>
+            <Stack spacing={3} alignItems={"center"}>
               <Tag
-                variant={'subtle'}
+                variant={"subtle"}
                 colorScheme={colorScheme}
-                size={'lg'}
-                width={'fit-content'}
+                size={"lg"}
+                width={"fit-content"}
               >
                 {batchCount === 1 && `${state} - ${batchCount}`}
 

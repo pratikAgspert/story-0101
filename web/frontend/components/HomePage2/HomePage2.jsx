@@ -178,7 +178,7 @@ const HomePage2 = () => {
                   size={"sm"}
                   onClick={() => setIsViewDemo(!isViewDemo)}
                 >
-                  View
+                  Preview
                 </Button>
 
                 <Button colorScheme="green" borderRadius={100} size={"sm"}>
