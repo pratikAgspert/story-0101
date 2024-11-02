@@ -8,7 +8,7 @@ import {
   Tag,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
-import { ProductDriverContext } from "./context";
+import { ProductDriverContext } from "../../services/context";
 
 const AddContentButton = ({ onAdd, sheetData, isDisabled }) => {
   const removeBrandBtn = sheetData?.some((btn) =>

@@ -41,7 +41,7 @@ import {
 } from "react-icons/md";
 import SheetBgIcon from "../../assets/Icon/SheetBgIcon";
 import SheetHandleIcon from "../../assets/Icon/SheetHandleIcon";
-import { ProductStoryContext } from "./context";
+import { ProductStoryContext } from "../../services/context";
 
 const GlobalStyles = () => {
   return (

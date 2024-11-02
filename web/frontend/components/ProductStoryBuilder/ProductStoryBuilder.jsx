@@ -13,7 +13,7 @@ import {
 import ContentBuilder from "./ContentBuilder";
 import { useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { ProductDriverContext } from "./context";
+import { ProductDriverContext } from "../../services/context";
 
 const ProductStoryBuilder = ({ selectedProduct }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();

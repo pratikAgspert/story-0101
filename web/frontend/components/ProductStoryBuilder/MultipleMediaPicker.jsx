@@ -32,7 +32,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { BASE_URL } from "../../apiHooks/baseURL";
-import { AuthContext } from "./context";
+import { AuthContext } from "../../services/context";
 import { nanoid } from "nanoid";
 import CircularLoader from "./CircularLoader";
 

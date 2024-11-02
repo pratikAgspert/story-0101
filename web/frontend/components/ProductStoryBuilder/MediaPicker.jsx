@@ -14,7 +14,7 @@ import { AddIcon, CloseIcon } from "@chakra-ui/icons";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { BASE_URL } from "../../apiHooks/baseURL";
-import { AuthContext, ProductDriverContext } from "./context";
+import { AuthContext, ProductDriverContext } from "../../services/context";
 import CircularLoader from "./CircularLoader";
 
 const MediaPicker = ({

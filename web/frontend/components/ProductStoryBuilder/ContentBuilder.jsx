@@ -57,7 +57,7 @@ import {
   templates,
 } from "./storyUtils";
 import { IoIosAdd } from "react-icons/io";
-import { ProductStoryContext } from "./context";
+import { ProductStoryContext } from "../../services/context";
 import DraggableSection from "./DraggableSection";
 import {
   isValidMotionProp,
