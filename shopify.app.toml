@@ -3,7 +3,7 @@
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
 name = "story-0101"
 handle = "story-0101"
-application_url = "https://destruction-ohio-american-expenditures.trycloudflare.com"
+application_url = "https://clerk-atm-panel-washing.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://destruction-ohio-american-expenditures.trycloudflare.com/auth/callback",
-  "https://destruction-ohio-american-expenditures.trycloudflare.com/auth/shopify/callback",
-  "https://destruction-ohio-american-expenditures.trycloudflare.com/api/auth/callback"
+  "https://clerk-atm-panel-washing.trycloudflare.com/auth/callback",
+  "https://clerk-atm-panel-washing.trycloudflare.com/auth/shopify/callback",
+  "https://clerk-atm-panel-washing.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
