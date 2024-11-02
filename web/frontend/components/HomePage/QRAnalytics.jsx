@@ -7,17 +7,22 @@ import {
   Select,
   Button,
   VStack,
-} from '@chakra-ui/react';
-import { useQRScanStats } from '../../apiHooks/useStatisticsAPIs';
-import { useEffect, useMemo, useState } from 'react';
-import { IoScanSharp } from 'react-icons/io5';
-import { IoIosBarcode } from 'react-icons/io';
-import { LiaMapMarkerAltSolid } from 'react-icons/lia';
-import { TbMapPinCode } from 'react-icons/tb';
-import { FillSkeleton } from '../../components/skeletons/PostSkeleton';
-import { useProducts } from '../../apiHooks/useProducts';
+} from "@chakra-ui/react";
+import { useQRScanStats } from "../../apiHooks/useStatisticsAPIs";
+import { useEffect, useMemo, useState } from "react";
+import { IoScanSharp } from "react-icons/io5";
+import { IoIosBarcode } from "react-icons/io";
+import { LiaMapMarkerAltSolid } from "react-icons/lia";
+import { TbMapPinCode } from "react-icons/tb";
+import { FillSkeleton } from "../../components/skeletons/PostSkeleton";
+import { useProducts } from "../../apiHooks/useProducts";
 
-export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedProduct }) => {
+export const QRAnalytics = ({
+  timeline,
+  setQrStats,
+  selectedProduct,
+  setSelectedProduct,
+}) => {
   // const [selectedProduct, setSelectedProduct] = useState(null);
 
   const {
@@ -34,48 +39,48 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
 
     const totalScans = QRScanStats?.total_scans ?? null;
 
-    typeof totalScans === 'number' &&
+    typeof totalScans === "number" &&
       statsData.push({
-        statLabel: 'All Scans',
+        statLabel: "All Scans",
         statValue: totalScans,
         icon: <IoScanSharp />,
       });
 
     const totalUniqueScans = QRScanStats?.total_unique_scans ?? null;
 
-    typeof totalUniqueScans === 'number' &&
+    typeof totalUniqueScans === "number" &&
       statsData.push({
-        statLabel: 'Unique Scans',
+        statLabel: "Unique Scans",
         statValue: totalUniqueScans,
         icon: <IoIosBarcode />,
       });
 
     const totalLocations = Object.keys(QRScanStats?.locations?.cities).reduce(
       (cities, cityName) => {
-        if (cityName !== 'unknown') cities++;
+        if (cityName !== "unknown") cities++;
         return cities;
       },
       0
     );
 
-    typeof totalLocations === 'number' &&
+    typeof totalLocations === "number" &&
       statsData.push({
-        statLabel: 'Locations',
+        statLabel: "Locations",
         statValue: totalLocations,
         icon: <LiaMapMarkerAltSolid />,
       });
 
     const totalPincodes = Object.keys(QRScanStats?.locations?.pincodes).reduce(
       (pincodes, pincode) => {
-        if (pincode !== 'unknown') pincodes++;
+        if (pincode !== "unknown") pincodes++;
         return pincodes;
       },
       0
     );
 
-    typeof totalPincodes === 'number' &&
+    typeof totalPincodes === "number" &&
       statsData.push({
-        statLabel: 'Pincodes',
+        statLabel: "Pincodes",
         statValue: totalPincodes,
         icon: <TbMapPinCode />,
       });
@@ -83,9 +88,9 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
     const heatMapData = Object.entries(QRScanStats?.city_to_coords || {})
       ?.filter(([city_name, obj]) => {
         return !(
-          city_name === 'unknown' ||
-          obj?.lat === 'unknown' ||
-          obj?.lon === 'unknown'
+          city_name === "unknown" ||
+          obj?.lat === "unknown" ||
+          obj?.lon === "unknown"
         );
       })
       ?.map(([city_name, coordObj]) => ({
@@ -127,10 +132,10 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
     <>
       {(isFetchingQRScanStats || isFetchingProducts) && (
         <Box
-          width={'20rem'}
-          height={'30rem'}
-          borderRadius={'lg'}
-          overflow={'hidden'}
+          width={"16rem"}
+          height={"18rem"}
+          borderRadius={"lg"}
+          overflow={"hidden"}
         >
           <FillSkeleton width="100%" height="100%" />
         </Box>
@@ -141,32 +146,33 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
           {QRScanStats && (
             <Box
               {...{
-                maxW: 'max-content',
+                maxW: "max-content",
                 p: 4,
-                boxShadow: '0.5px 0px 3px 0 #12121230',
-                borderRadius: 'lg',
+                boxShadow: "0.5px 0px 3px 0 #12121230",
+                borderRadius: "lg",
                 background: `radial-gradient(circle at 10% 20%, rgb(154, 198, 242) 0%,  rgb(111, 231, 176) 100.2%)`,
               }}
             >
-              <VStack spacing={5} px={2}>
+              <VStack spacing={3} px={2}>
                 <Select
-                  value={selectedProduct?.id ?? ''}
-                  variant={'filled'}
-                  width={'max-content'}
+                  value={selectedProduct?.id ?? ""}
+                  variant={"filled"}
+                  width={"fit-content"}
                   background={`white`}
+                  size={"sm"}
                   _focus={{
-                    boxShadow: '0.2px 0px 3px 0 rgb(111, 231, 176)',
-                    background: 'rgba(255,255,255)',
+                    boxShadow: "0.2px 0px 3px 0 rgb(111, 231, 176)",
+                    background: "rgba(255,255,255)",
                     fontWeight: 500,
                     borderColor: `transparent`,
                   }}
                   onChange={(event) =>
-                    handleProductChange(event?.target?.value ?? '')
+                    handleProductChange(event?.target?.value ?? "")
                   }
                 >
                   {productList?.map(({ name, id }) => {
                     return (
-                      <Button as="option" size="lg" value={id} key={id}>
+                      <Button as="option" size="sm" value={id} key={id}>
                         {name}
                       </Button>
                     );
@@ -175,7 +181,7 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
 
                 <VStack
                   {...{
-                    alignItems: 'start',
+                    alignItems: "start",
                   }}
                 >
                   {analyticsData?.map((data) => {
@@ -199,20 +205,20 @@ export const QRAnalytics = ({ timeline, setQrStats,selectedProduct, setSelectedP
 };
 
 export const StatTab = ({ statLabel, statValue, icon, onClick }) => {
-  const validStats = typeof statValue === 'number' && statValue >= 0;
+  const validStats = typeof statValue === "number" && statValue >= 0;
 
   const hoverEffects = {
-    as: 'button',
+    as: "button",
     onClick: onClick,
-    transition: 'all 150ms ease-out',
+    transition: "all 150ms ease-out",
     transform: `rotateY(0)`,
-    border: '1px solid transparent',
-    borderRadius: 'lg',
+    border: "1px solid transparent",
+    borderRadius: "lg",
     _hover: {
       background: `radial-gradient(circle at 10% 20%, rgba(216, 241, 230, 0.46) 2.1%, rgba(233, 226, 226, 0.28) 90.1%)`,
-      transform: 'scale(0.95)',
-      boxShadow: '0.1px 0.1px 2px 0 #12121230',
-      backdropBlur: '2rem',
+      transform: "scale(0.95)",
+      boxShadow: "0.1px 0.1px 2px 0 #12121230",
+      backdropBlur: "2rem",
     },
   };
 
@@ -220,30 +226,20 @@ export const StatTab = ({ statLabel, statValue, icon, onClick }) => {
     <>
       {statLabel && validStats && icon?.type && (
         <HStack
-          // justifyContent={'space-between'}
-          alignItems={'center'}
-          spacing={6}
-          px={5}
-          py={3}
+          alignItems={"center"}
+          spacing={5}
           {...(onClick && hoverEffects)}
         >
-          <Box
-            p={2}
-            borderRadius={'lg'}
-            background={
-              'radial-gradient(circle at 18.7% 37.8%, rgb(250, 250, 250) 0%, rgb(225, 234, 238) 90%)'
-            }
-            alignSelf={'end'}
-          >
-            <Icon as={icon?.type} boxSize={42} color={'#00b894'} />
-          </Box>
+          <Stack bg={"white"} borderRadius={10} p={2}>
+            <Icon as={icon?.type} boxSize={25} color={"#00b894"} />
+          </Stack>
 
           <Stack spacing={0}>
-            <Text mb={0} fontWeight={700} fontSize={'x-large'}>
+            <Text mb={0} fontWeight={700} fontSize={"md"}>
               {statValue < 10 ? `0${statValue}` : `${statValue}`}
             </Text>
 
-            <Text flex={1} mb={0} fontWeight={450} fontSize={'lg'}>
+            <Text flex={1} mb={0} fontWeight={450} fontSize={"sm"}>
               {statLabel}
             </Text>
           </Stack>
