@@ -15,22 +15,23 @@ export default function HomePage() {
 
   if (isLoading) {
     return (
-      <Page>
-        <Layout>
-          <Layout.Section>
-            <Card>
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <Spinner accessibilityLabel="Loading" size="large" />
-                <div style={{ marginTop: '1rem' }}>
-                  <Text variant="bodyMd" as="p">
-                    Authenticating...
-                  </Text>
-                </div>
-              </div>
-            </Card>
-          </Layout.Section>
-        </Layout>
-      </Page>
+      // <Page>
+      //   <Layout>
+      //     <Layout.Section>
+      //       <Card>
+      //         <div style={{ textAlign: 'center', padding: '2rem' }}>
+      //           <Spinner accessibilityLabel="Loading" size="large" />
+      //           <div style={{ marginTop: '1rem' }}>
+      //             <Text variant="bodyMd" as="p">
+      //               Authenticating...
+      //             </Text>
+      //           </div>
+      //         </div>
+      //       </Card>
+      //     </Layout.Section>
+      //   </Layout>
+      // </Page>
+      <></>
     );
   }
 

@@ -24,7 +24,7 @@ import { nanoid } from "nanoid";
 import { useThrottle } from "@uidotdev/usehooks";
 import { CgCloseO } from "react-icons/cg";
 import { motion } from "framer-motion";
-import { ProductStoryContext } from "../ProductStoryBuilder/context";
+import { ProductStoryContext } from "../../services/context";
 
 const InfoButton = ({
   index,

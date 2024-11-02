@@ -13,7 +13,7 @@ import React, { useMemo, useState } from "react";
 import { CgArrowLeft, CgArrowRight, CgClose } from "react-icons/cg";
 import { MapWrapper as Map } from "../HomePage/MapWrapper";
 import CarouselComponent from "../ProductStoryVisualizer/CarouselComponent";
-import { ProductStoryContext } from "../ProductStoryBuilder/context";
+import { ProductStoryContext } from "../../services/context";
 import QRCode from "../../assets/AgSpeak_qr_code.png";
 
 const HomePage2 = () => {

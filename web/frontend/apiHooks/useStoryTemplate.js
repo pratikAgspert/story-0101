@@ -1,11 +1,11 @@
 import { useContext } from "react";
 import { BASE_URL } from "../apiHooks/baseURL";
 import { useQuery } from "@tanstack/react-query";
-import { AuthContext } from "../components/ProductStoryBuilder/context";
+import { AuthContext } from "../services/context";
 import { makeRequest } from "./networkRequest";
 
 export const useStoryTemplate = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const endPoint = BASE_URL + `kvk/story_templates/`;
 
   const query = useQuery({
@@ -14,8 +14,8 @@ export const useStoryTemplate = () => {
       const templateList = await makeRequest(
         endPoint,
         "GET",
-        ""
-        //  getToken()
+        "",
+         getToken()
       );
       return templateList;
     },

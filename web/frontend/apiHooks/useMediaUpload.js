@@ -2,7 +2,7 @@ import { useCallback, useContext } from "react";
 import { useToast } from "@chakra-ui/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { BASE_URL } from "./baseURL";
-import { AuthContext } from "../components/ProductStoryBuilder/context";
+import { AuthContext } from "../services/context";
 import { makeRequest } from "./networkRequest";
 
 const generateUniqueFileName = () => {

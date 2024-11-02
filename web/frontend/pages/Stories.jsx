@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
-import { ProductStoryContext } from "../components/ProductStoryBuilder/context";
+import { ProductStoryContext } from "../services/context";
 
 // Constants
 const PRODUCT_NAMES = [

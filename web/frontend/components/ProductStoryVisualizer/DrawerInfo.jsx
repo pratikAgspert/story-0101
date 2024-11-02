@@ -8,7 +8,7 @@ import RedirectButton from "./RedirectButton";
 import VideoContent from "./VideoContent";
 import { BusinessPartner } from "./BusinessPartner";
 import { Content } from "./Content";
-import { ProductStoryContext } from "../ProductStoryBuilder/context";
+import { ProductStoryContext } from "../../services/context";
 
 export const DrawerInfo = ({ data }) => {
   const { styles } = useContext(ProductStoryContext);

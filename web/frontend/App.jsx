@@ -54,7 +54,7 @@ export default function App() {
     });
     
     if (!response.ok) throw new Error("Invalid token");
-    return response.json();
+    return response.status;
   };
 
   // Authentication flow
@@ -64,8 +64,8 @@ export default function App() {
       
       try {
         if (auth.getToken()) {
-          const result = await validateToken();
-          if (result.isSuccess) {
+          const validationStatus = await validateToken();
+          if (validationStatus === 200) {
             setIsAuthenticated(true);
             setIsLoading(false);
             return;

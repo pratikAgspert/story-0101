@@ -3,7 +3,7 @@ import { Box, VStack, Flex } from "@chakra-ui/react";
 import { motion, useTransform, animate } from "framer-motion";
 import { useDrag } from "@use-gesture/react";
 import { BrandBanner } from "../BrandBanner";
-import { ProductStoryContext } from "../../ProductStoryBuilder/context";
+import { ProductStoryContext } from "../../../services/context";
 
 const MotionBox = motion(Box);
 

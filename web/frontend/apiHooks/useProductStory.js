@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { AuthContext } from "../components/ProductStoryBuilder/context";
+import { AuthContext } from "../services/context";
 import { makeRequest } from "./networkRequest";
 import { BASE_URL } from "./baseURL";
 
