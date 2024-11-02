@@ -2,61 +2,60 @@ import {
   Card,
   Page,
   Layout,
-  TextContainer,
-  Image,
-  Stack,
-  AlphaCard,
-  Link,
-  Tabs,
-  LegacyCard,
   Text,
+  Spinner,
+  Button,
 } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
-import { useTranslation, Trans } from "react-i18next";
-import { useState, useCallback } from "react";
-import { AnalyticsHomePage } from "../components";
-import { trophyImage } from "../assets";
-
-import { ProductsCard } from "../components";
+import { useContext } from "react";
+import { AuthContext } from "../services/context";
 import HomePage2 from "../components/HomePage2/HomePage2";
 
-const tabs = [
-  {
-    id: "all-products",
-    content: "All Products",
-    accessibilityLabel: "All Products",
-    panelID: "all-products-content",
-  },
-  {
-    id: "stories",
-    content: "Stories",
-    panelID: "stories-content",
-  },
-];
-
 export default function HomePage() {
-  const { t } = useTranslation();
+  const { isLoading, isAuthenticated, refetchToken } = useContext(AuthContext);
 
-  const [selected, setSelected] = useState(0);
+  if (isLoading) {
+    return (
+      <Page>
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <Spinner accessibilityLabel="Loading" size="large" />
+                <div style={{ marginTop: '1rem' }}>
+                  <Text variant="bodyMd" as="p">
+                    Authenticating...
+                  </Text>
+                </div>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
 
-  const handleTabChange = useCallback(
-    (selectedTabIndex) => setSelected(selectedTabIndex),
-    []
-  );
-  return (
-    // <AnalyticsHomePage />
-    <HomePage2 />
-    // <Page narrowWidth>
-    //  <TitleBar title={t("HomePage.title")} />
-    // <Layout>
-    //   <Layout.Section>
-    //     <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange} fitted>
-    //       <AlphaCard>
-    //         <p>Tab {selected} selected</p>
-    //       </AlphaCard>
-    //     </Tabs>
-    //   </Layout.Section>
-    // </Layout>
-    // </Page>
-  );
+  if (!isAuthenticated) {
+    return (
+      <Page>
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <Text variant="headingMd" as="h2">
+                  Authentication Failed
+                </Text>
+                <div style={{ marginTop: '1rem' }}>
+                  <Button onClick={() => refetchToken()}>
+                    Retry Authentication
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
+    );
+  }
+
+  return <HomePage2 />;
 }

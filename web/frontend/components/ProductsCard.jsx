@@ -22,8 +22,20 @@ export function ProductsCard() {
     },
     refetchOnWindowFocus: false,
   });
+  const {
+    data: token,
+    refetch: refetchToken,
+    isLoading: isLoadingToken,
+  } = useQuery({
+    queryKey: ["knoxToken"],
+    queryFn: async () => {
+      const response = await fetch("/api/knox-token");
+      return await response.json();
+    },
+    refetchOnWindowFocus: false,
+  });
   console.log("productdata", data)
-
+  console.log("token", token)
   const setPopulating = (flag) => {
     shopify.loading(flag);
     setIsPopulating(flag);

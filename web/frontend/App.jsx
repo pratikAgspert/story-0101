@@ -4,30 +4,119 @@ import { NavMenu } from "@shopify/app-bridge-react";
 import Routes from "./Routes";
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import "./App.css";
-
+import { useState, useMemo, useEffect } from "react";
 import { PolarisProvider } from "./components";
 import { AuthContext } from "./services/context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export default function App() {
-  // Any .tsx or .jsx files in /pages will become a route
-  // See documentation for <Routes /> for more info
-  const pages = import.meta.glob("./pages/**/!(*.test.[jt]sx)*.([jt]sx)", {
-    eager: true,
-  });
+  const pages = import.meta.glob("./pages/**/!(*.test.[jt]sx)*.([jt]sx)", { eager: true });
   const { t } = useTranslation();
-
   const theme = extendTheme({});
-
   const queryClient = new QueryClient();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Auth helper functions
+  const auth = useMemo(
+    () => ({
+      setToken: (token) => {
+        localStorage.setItem('knox-token', token);
+        setIsAuthenticated(true);
+      },
+      getToken: () => localStorage.getItem('knox-token'),
+      removeToken: () => {
+        localStorage.removeItem('knox-token');
+        setIsAuthenticated(false);
+      },
+    }),
+    []
+  );
+
+  // Fetch new token
+  const fetchNewToken = async () => {
+    const response = await fetch("/api/knox-token");
+    const data = await response.json();
+    return data;
+  };
+
+  // Validate existing token
+  const validateToken = async () => {
+    const token = auth.getToken();
+    if (!token) throw new Error("No token found");
+    
+    const response = await fetch("https://g9bvvvyptqo7uxa0.agspert-ai.com/api/token_test/", {
+      headers: {
+        Authorization: token,
+      },
+      method: 'OPTIONS',
+    });
+    
+    if (!response.ok) throw new Error("Invalid token");
+    return response.json();
+  };
+
+  // Authentication flow
+  useEffect(() => {
+    const initializeAuth = async () => {
+      setIsLoading(true);
+      
+      try {
+        if (auth.getToken()) {
+          const result = await validateToken();
+          if (result.isSuccess) {
+            setIsAuthenticated(true);
+            setIsLoading(false);
+            return;
+          }
+        }
+        
+        const newTokenData = await fetchNewToken();
+        if (newTokenData?.token) {
+          auth.setToken('Token ' + newTokenData.token);
+        } else {
+          auth.removeToken();
+        }
+      } catch (error) {
+        console.error("Authentication error:", error);
+        auth.removeToken();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  // Retry authentication handler
+  const retryAuthentication = async () => {
+    try {
+      setIsLoading(true);
+      const newTokenData = await fetchNewToken();
+      if (newTokenData?.token) {
+        auth.setToken('Token ' + newTokenData.token);
+      } else {
+        auth.removeToken();
+      }
+    } catch (error) {
+      console.error("Retry authentication error:", error);
+      auth.removeToken();
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <PolarisProvider>
-      <AuthContext.Provider value={{ getToken: () => "Token 653d07211e176ab4e4707234a5411cb1a669a85e4d0bc59c3a03d7126b66e0ed" }}>
-
+      <AuthContext.Provider value={{ 
+        isLoading,
+        isAuthenticated,
+        ...auth,
+        refetchToken: retryAuthentication
+      }}>
         <ChakraProvider theme={theme}>
           <QueryClientProvider client={queryClient}>
-
             <BrowserRouter>
               <NavMenu>
                 <a href="/" rel="home" />

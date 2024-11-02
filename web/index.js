@@ -40,12 +40,54 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
 
+app.get("/api/knox-token", async (_req, res) => {
+  const client = new shopify.api.clients.Graphql({
+    session: res.locals.shopify.session,
+  });
+  const shopData = await client.query({
+    data: `{
+      shop {
+        name
+        email
+        myshopifyDomain
+        plan {
+          displayName
+        }
+        primaryDomain {
+          url
+          host
+        }
+      }
+    }`,
+  });
+  const body = {
+    "access_token": res.locals.shopify.session.accessToken,
+    "shop": res.locals.shopify.session.shop,
+    "shop_id": res.locals.shopify.session.state,
+    "email": shopData.body?.data?.shop?.email,
+  }
+  const response = await fetch("https://g9bvvvyptqo7uxa0.agspert-ai.com/shopify/auth/login/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    return res.status(response.status).send({ error: "Failed to fetch Knox token" });
+  }
+
+  const { token } = await response.json();
+  res.status(200).send({ token });
+});
+
 app.get("/api/products/count", async (_req, res) => {
   const client = new shopify.api.clients.Graphql({
     session: res.locals.shopify.session,
   });
   const accessToken = res.locals.shopify.session.accessToken;
-  console.log("Access Token:", accessToken);
+
 
   const shopData = await client.query({
     data: `{
