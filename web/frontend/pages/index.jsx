@@ -18,19 +18,20 @@ import { AnalyticsHomePage } from "../components";
 import { trophyImage } from "../assets";
 
 import { ProductsCard } from "../components";
+import HomePage2 from "../components/HomePage2/HomePage2";
 
 const tabs = [
   {
-    id: 'all-products',
-    content: 'All Products',
-    accessibilityLabel: 'All Products',
-    panelID: 'all-products-content',
+    id: "all-products",
+    content: "All Products",
+    accessibilityLabel: "All Products",
+    panelID: "all-products-content",
   },
   {
-    id: 'stories',
-    content: 'Stories',
-    panelID: 'stories-content',
-  }
+    id: "stories",
+    content: "Stories",
+    panelID: "stories-content",
+  },
 ];
 
 export default function HomePage() {
@@ -40,10 +41,11 @@ export default function HomePage() {
 
   const handleTabChange = useCallback(
     (selectedTabIndex) => setSelected(selectedTabIndex),
-    [],
+    []
   );
   return (
-    <AnalyticsHomePage />
+    // <AnalyticsHomePage />
+    <HomePage2 />
     // <Page narrowWidth>
     //  <TitleBar title={t("HomePage.title")} />
     // <Layout>
