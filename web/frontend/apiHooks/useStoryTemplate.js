@@ -6,7 +6,7 @@ import { makeRequest } from "./networkRequest";
 
 export const useStoryTemplate = () => {
   const { getToken } = useContext(AuthContext);
-  const endPoint = BASE_URL + `kvk/story_templates/`;
+  const endPoint = BASE_URL + `kvk/story_template/`;
 
   const query = useQuery({
     queryKey: ["story-template"],
@@ -14,8 +14,7 @@ export const useStoryTemplate = () => {
       const templateList = await makeRequest(
         endPoint,
         "GET",
-        "",
-         getToken()
+        getToken()
       );
       return templateList;
     },
