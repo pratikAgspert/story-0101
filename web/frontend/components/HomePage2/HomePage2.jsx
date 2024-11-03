@@ -8,13 +8,22 @@ import {
   Link,
   Stack,
   Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@chakra-ui/react";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { CgArrowLeft, CgArrowRight, CgClose } from "react-icons/cg";
 import { MapWrapper as Map } from "../HomePage/MapWrapper";
 import CarouselComponent from "../ProductStoryVisualizer/CarouselComponent";
 import { ProductStoryContext } from "../../services/context";
 import QRCode from "../../assets/AgSpeak_qr_code.png";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 const HomePage2 = () => {
   const [selectedGeofence, setSelectedGeofence] = useState(null);
@@ -26,13 +35,13 @@ const HomePage2 = () => {
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => {},
-    removeInfoPoint: () => {},
-    getInfoPoints: () => {},
-    updateInfoPointText: () => {},
+    addInfoPoint: () => { },
+    removeInfoPoint: () => { },
+    getInfoPoints: () => { },
+    updateInfoPointText: () => { },
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => {},
+    handleStyleChange: () => { },
   };
 
   const totalScans = qrStats?.qrstats?.total_scans;
@@ -44,10 +53,57 @@ const HomePage2 = () => {
     qrStats?.qrstats?.locations?.pincodes || {}
   )?.length;
 
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const driverObj = driver({
+    steps: [
+      {
+        element: '.step-1', popover: {
+          title: 'Select the product',
+          description: 'Click here for more details',
+        },
+      },
+      {
+        element: '.preview-experience-btn', popover: {
+          title: 'Preview Experience', description: 'Click to preview the experience', onNextClick: () => {
+            const button = document.querySelector('.preview-experience-btn');
+            button?.click();
+            return false
+          }
+        }
+      },
+      {
+        element: '.preview-qr-code', popover: {
+          title: 'Preview QR Code', description: 'scan this QR code to see the experience', onNextClick: () => {
+            onClose()
+            driverObj?.moveNext()
+            return false
+          }
+        }
+      },
+      {
+        element: '.add-story-btn', popover: {
+          title: 'Add Story', description: 'Click to create a product story', onNextClick: () => {
+            // Redirect to story builder
+            const button = document.querySelector('.add-story-btn');
+            button?.click()
+            // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
+            return false;
+          }
+        }
+      }],
+    allowClose: true,
+    overlayClickNext: false,
+    keyboardControl: false,
+    doneBtnText: 'Finish',
+  })
+  useEffect(() => {
+    driverObj.drive()
+  }, [])
+
   return (
-    <HStack p={3} alignItems={"start"}>
+    <HStack p={3} alignItems={"start"} >
       <Stack w={"70%"} h={"96dvh"} spacing={3} overflow={"scroll"}>
-        <Stack spacing={0}>
+        <Stack className="step-1" spacing={0}>
           <Text>Click on link to get a demo experience</Text>
           <Link
             href="#"
@@ -65,7 +121,7 @@ const HomePage2 = () => {
           <TopStatCard label={"Live on"} value={"N/A Products"} />
         </Grid>
 
-        <Button
+        <Button className="preview-experience-btn"
           px={10}
           py={6}
           bg={"green.300"}
@@ -74,6 +130,60 @@ const HomePage2 = () => {
           alignSelf={"center"}
           color={"white"}
           borderRadius={100}
+          onClick={() => {
+            onOpen()
+            setTimeout(() => {
+              driverObj?.moveNext()
+            }, 500)
+          }}
+        >
+          Preview
+        </Button>
+        <Modal isOpen={isOpen} onClose={onClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Preview Experience</ModalHeader>
+            <ModalBody>
+              <Stack
+                className="preview-qr-code"
+                bg={"blackAlpha.900"}
+                borderRadius={8}
+                color={"white"}
+                w={"85%"}
+                textAlign={"center"}
+                p={3}
+              >
+                <Text>Sample QR Code</Text>
+
+                <Stack bg={"white"} p={2} borderRadius={5}>
+                  <Image src={QRCode} alt="QR-code" />
+                </Stack>
+
+                <Text>
+                  Scan using your phone camera to get experience in your phone
+                </Text>
+              </Stack>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" onClick={onClose}>
+                Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+        <Button className="add-story-btn"
+          px={10}
+          py={6}
+          bg={"green.300"}
+          boxShadow={"md"}
+          w={"fit-content"}
+          alignSelf={"center"}
+          color={"white"}
+          borderRadius={100}
+          onClick={() => {
+            driverObj?.moveNext()
+            window.location.href = '/storyBuilder'
+          }} // Redirect to story builder
         >
           Create your first experience
         </Button>
@@ -204,7 +314,7 @@ const HomePage2 = () => {
           )}
         </ProductStoryContext.Provider>
       </Stack>
-    </HStack>
+    </HStack >
   );
 };
 

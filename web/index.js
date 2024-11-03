@@ -66,6 +66,7 @@ app.get("/api/knox-token", async (_req, res) => {
     "shop_id": res.locals.shopify.session.state,
     "email": shopData.body?.data?.shop?.email,
   }
+  console.log("body", body, shopData.body?.data?.shop);
   const response = await fetch("https://g9bvvvyptqo7uxa0.agspert-ai.com/shopify/auth/login/", {
     method: "POST",
     headers: {
@@ -73,6 +74,7 @@ app.get("/api/knox-token", async (_req, res) => {
     },
     body: JSON.stringify(body),
   });
+
 
   if (!response.ok) {
     return res.status(response.status).send({ error: "Failed to fetch Knox token" });
