@@ -81,7 +81,7 @@ app.get("/api/knox-token", async (_req, res) => {
   }
 
   const { token } = await response.json();
-  res.status(200).send({ token });
+  res.status(200).send({ token, shop: res.locals.shopify.session.shop });
 });
 
 app.get("/api/products/count", async (_req, res) => {

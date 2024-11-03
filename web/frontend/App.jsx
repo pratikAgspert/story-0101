@@ -26,8 +26,16 @@ export default function App() {
         setIsAuthenticated(true);
       },
       getToken: () => localStorage.getItem('knox-token'),
+      getShop: () => localStorage.getItem('shop'),
+      setShop: (shop) => {
+        localStorage.setItem('shop', shop);
+      },
+      removeShop: () => {
+        localStorage.removeItem('shop');
+      },
       removeToken: () => {
         localStorage.removeItem('knox-token');
+        localStorage.removeItem('shop');
         setIsAuthenticated(false);
       },
     }),
@@ -45,14 +53,14 @@ export default function App() {
   const validateToken = async () => {
     const token = auth.getToken();
     if (!token) throw new Error("No token found");
-    
+
     const response = await fetch("https://g9bvvvyptqo7uxa0.agspert-ai.com/api/token_test/", {
       headers: {
         Authorization: token,
       },
       method: 'OPTIONS',
     });
-    
+
     if (!response.ok) throw new Error("Invalid token");
     return response.status;
   };
@@ -61,7 +69,7 @@ export default function App() {
   useEffect(() => {
     const initializeAuth = async () => {
       setIsLoading(true);
-      
+
       try {
         if (auth.getToken()) {
           const validationStatus = await validateToken();
@@ -71,12 +79,14 @@ export default function App() {
             return;
           }
         }
-        
+
         const newTokenData = await fetchNewToken();
         if (newTokenData?.token) {
           auth.setToken('Token ' + newTokenData.token);
+          auth.setShop(newTokenData?.shop);
         } else {
           auth.removeToken();
+          auth.removeShop();
         }
       } catch (error) {
         console.error("Authentication error:", error);
@@ -96,12 +106,15 @@ export default function App() {
       const newTokenData = await fetchNewToken();
       if (newTokenData?.token) {
         auth.setToken('Token ' + newTokenData.token);
+        auth.setShop(newTokenData?.shop);
       } else {
         auth.removeToken();
+        auth.removeShop();
       }
     } catch (error) {
       console.error("Retry authentication error:", error);
       auth.removeToken();
+      auth.removeShop();
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +122,7 @@ export default function App() {
 
   return (
     <PolarisProvider>
-      <AuthContext.Provider value={{ 
+      <AuthContext.Provider value={{
         isLoading,
         isAuthenticated,
         ...auth,

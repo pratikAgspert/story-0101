@@ -11,10 +11,10 @@ import {
 } from './ApiHooksQueryKeys';
 
 export const useProducts = () => {
-  const { getToken } = useContext(AuthContext);
+  const { getToken, getShop } = useContext(AuthContext);
 
   const getProducts = async () => {
-    const endPoint = BASE_URL + 'kvk/product/';
+    const endPoint = BASE_URL + `/kvk/product/shopify/?shop=${getShop()}`;
 
     try {
       const productList = await makeRequest(endPoint, 'GET', getToken());

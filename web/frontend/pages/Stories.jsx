@@ -13,19 +13,15 @@ import {
   MenuItem,
   useColorModeValue,
   HStack,
+  Spinner,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
 import { ProductStoryContext } from "../services/context";
-
-// Constants
-const PRODUCT_NAMES = [
-  "product 1",
-  "product 2",
-  "product 3",
-  "product 4",
-  "product 5",
-];
+import { useProducts } from "../apiHooks/useProducts";
+import { useStoryTemplate } from "../apiHooks/useStoryTemplate";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -62,9 +58,9 @@ const ProductSelector = memo(({ availableProducts, onSelect, isDisabled }) => (
         : "No more products available"}
     </MenuButton>
     <MenuList>
-      {availableProducts.map((name) => (
-        <MenuItem key={name} onClick={() => onSelect(name)}>
-          {name}
+      {availableProducts.map((product) => (
+        <MenuItem key={product.id} onClick={() => onSelect(product)}>
+          {product?.name}
         </MenuItem>
       ))}
     </MenuList>
@@ -81,6 +77,7 @@ const Card = memo(
     availableProducts,
     onSelectProduct,
     onRemoveProduct,
+    template
   }) => {
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
@@ -89,7 +86,7 @@ const Card = memo(
       <Stack bg="white" p={3} borderRadius="xl">
         <HStack justifyContent="space-between">
           <Text size="sm" fontWeight="semibold">
-            Story {index + 1}
+            {template?.name}
           </Text>
           <HStack>
             <Tag fontSize="xs" p={2} px={4} cursor="pointer">
@@ -108,17 +105,17 @@ const Card = memo(
           <Box>
             <ProductSelector
               availableProducts={availableProducts}
-              onSelect={(product) => onSelectProduct(index, product)}
+              onSelect={(product) => onSelectProduct(template?.id, product)}
               isDisabled={availableProducts.length === 0}
             />
           </Box>
 
           <Stack direction="row" flexWrap="wrap" spacing={2}>
-            {selectedTags.map((tag) => (
+            {selectedTags.map((product) => (
               <ProductTag
-                key={tag}
-                tag={tag}
-                onRemove={() => onRemoveProduct(index, tag)}
+                key={product?.id}
+                tag={product?.name}
+                onRemove={() => onRemoveProduct(template?.id, product)}
                 tagBg={tagBg}
                 tagColor={tagColor}
               />
@@ -134,69 +131,100 @@ Card.displayName = "Card";
 
 // Main Stories component
 const Stories = () => {
-  const [cardCount] = useState(3);
-  const [cardSelections, setCardSelections] = useState(
-    Array(cardCount).fill([])
-  );
+  const { data: storyTemplates, isLoading: isStoryTemplatesLoading, isError: isStoryTemplatesError } = useStoryTemplate();
+  const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
+  const [cardSelections, setCardSelections] = useState({});
+  console.log("products", products);
 
+  // Initialize card selections when templates load
+  React.useEffect(() => {
+    if (storyTemplates?.length) {
+      console.log("storyTemplates", storyTemplates);
+      // story pre-selected products
+      // a dict of id and products from storyTemplates
+      const storyPreSelectedProducts = {}
+      storyTemplates.map((template) =>  {
+        storyPreSelectedProducts[template.id] = template.products
+      });
+      setCardSelections(storyPreSelectedProducts);
+    }
+  }, [storyTemplates]);
   // Get all selected products across all cards
   const getAllSelectedProducts = useCallback(() => {
-    return cardSelections.flat();
+    return Object.values(cardSelections).flat();
   }, [cardSelections]);
 
   // Get available products for any card
   const getAvailableProducts = useCallback(() => {
+    if (!products) return [];
     const selectedProducts = getAllSelectedProducts();
-    return PRODUCT_NAMES.filter(
-      (product) => !selectedProducts.includes(product)
+    console.log("selectedProducts", selectedProducts);
+    return products.filter(
+      (product) => !selectedProducts.some(selected => selected.id === product.id)
     );
-  }, [cardSelections]);
+  }, [cardSelections, products]);
 
   // Handle product selection
-  const handleSelectProduct = useCallback((cardIndex, product) => {
+  const handleSelectProduct = useCallback((templateId, product) => {
     setCardSelections((prev) => {
-      const newSelections = [...prev];
-      newSelections[cardIndex] = [...prev[cardIndex], product];
+      const newSelections = {...prev};
+      newSelections[templateId] = [...prev[templateId], product];
       return newSelections;
     });
   }, []);
 
   // Handle product removal
-  const handleRemoveProduct = useCallback((cardIndex, product) => {
+  const handleRemoveProduct = useCallback((templateId, product) => {
     setCardSelections((prev) => {
-      const newSelections = [...prev];
-      newSelections[cardIndex] = prev[cardIndex].filter((p) => p !== product);
+      const newSelections = {...prev};
+      newSelections[templateId] = prev[templateId].filter((p) => p.id !== product.id);
       return newSelections;
     });
   }, []);
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => {},
-    removeInfoPoint: () => {},
-    getInfoPoints: () => {},
-    updateInfoPointText: () => {},
+    addInfoPoint: () => { },
+    removeInfoPoint: () => { },
+    getInfoPoints: () => { },
+    updateInfoPointText: () => { },
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => {},
+    handleStyleChange: () => { },
   };
 
   const contents = [];
   const sheetData = [];
 
-  // Get available products once for all cards
-  const availableProducts = getAvailableProducts();
+  if (isStoryTemplatesLoading || isProductsLoading) {
+    return (
+      <Stack align="center" justify="center" h="100vh">
+        <Spinner size="xl" />
+        <Text>Loading...</Text>
+      </Stack>
+    );
+  }
+
+  if (isStoryTemplatesError || isProductsError) {
+    return (
+      <Alert status="error">
+        <AlertIcon />
+        Error loading data. Please try again later.
+      </Alert>
+    );
+  }
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <HStack p={5}>
         <Stack spacing={3} w="50%">
-          {Array.from({ length: cardCount }).map((_, index) => (
+          {storyTemplates?.map((template, index) => (
             <Card
-              key={index}
+              key={template.id}
               index={index}
-              selectedTags={cardSelections[index]}
-              availableProducts={availableProducts}
+              template={template}
+              selectedTags={cardSelections?.[template?.id] || []}
+              availableProducts={getAvailableProducts()}
               onSelectProduct={handleSelectProduct}
               onRemoveProduct={handleRemoveProduct}
             />
