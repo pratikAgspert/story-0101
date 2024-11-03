@@ -25,6 +25,7 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
       hasShownSavedAlert: false,
       isAlertOpen: false,
       template: "",
+      storyName: "",
     },
   });
   const { watch, setValue } = formMethods;
@@ -40,7 +41,6 @@ const ProductStoryBuilder = ({ selectedProduct }) => {
     [searchParams, setSearchParams]
   );
 
-  // const { driver } = useContext(ProductDriverContext);
   useEffect(() => {
     const storyType = searchParams.get("productstory");
     if (["draft", "saved", "published"].includes(storyType)) {

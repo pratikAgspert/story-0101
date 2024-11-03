@@ -65,7 +65,7 @@ const AddContentButton = ({ onAdd, sheetData, isDisabled }) => {
         )}
 
         <MenuItem onClick={() => onAdd("content")} gap={2}>
-          Add Content <Tag borderRadius={10}>Sheet</Tag>
+          Text Content <Tag borderRadius={10}>Sheet</Tag>
         </MenuItem>
 
         <MenuItem onClick={() => onAdd("image_content")} gap={2}>

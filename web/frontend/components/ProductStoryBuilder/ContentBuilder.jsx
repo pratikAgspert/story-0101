@@ -20,6 +20,9 @@ import {
   AccordionIcon,
   AccordionPanel,
   useDisclosure,
+  Input,
+  InputGroup,
+  InputLeftAddon,
 } from "@chakra-ui/react";
 import ContentCard from "./ContentCard";
 import AddContentButton from "./AddContentButton";
@@ -74,6 +77,7 @@ import SeoEditor from "./SeoEditor";
 import GlobalStyleEditor from "./GlobalStyleEditor";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { FormInput } from "../generic/ControlledFormControls";
 
 const ContentBuilder = ({
   productId,
@@ -123,7 +127,7 @@ const ContentBuilder = ({
 
   const [sheetData, setSheetData] = useState([]);
 
-  const { control, watch, setValue, getValues } = formMethods;
+  const { control, watch, setValue, getValues, setError } = formMethods;
 
   const [searchParams, setSearchParams] = useSearchParams();
   const isEditPublishStory = searchParams.get("edit");
@@ -376,6 +380,15 @@ const ContentBuilder = ({
   };
 
   const handleSaveAndEditProductStory = async (action = "save") => {
+    const storyName = getValues("storyName")
+    if (!storyName?.trim()) {
+      toast({
+        status: "error",
+        title: "Please enter a name for the story.",
+      });
+      setError("storyName", { type: "required", message: "Please enter a name for the story." });
+      return;
+    }
     const [replacedContentData, usedKeys] = updateImageUrls(contents, urlMap);
     const [replacedSheetData, usedSheetKeys] = updateImageUrls(
       sheetData,
@@ -398,7 +411,7 @@ const ContentBuilder = ({
     }
 
     const story = {
-      product: productId,
+      name: storyName,
       description: {
         // data:[...replacedContentData,...replacedSheetData] //when is_general_sheet: false
         data: replacedContentData,
@@ -417,7 +430,7 @@ const ContentBuilder = ({
 
           toast({
             status: "success",
-            title: `Product with ID ${productDisplayId} has been saved.`,
+            title: `Story ${storyName} has been saved.`,
           });
 
           queryClient.invalidateQueries({
@@ -443,7 +456,7 @@ const ContentBuilder = ({
     } else {
       editProductStory(
         {
-          storyId: draftStoryId,
+          storyId: draftStoryId,//TODO: change to story name
           formData: { description: story?.description },
         },
         {
@@ -455,7 +468,7 @@ const ContentBuilder = ({
 
             toast({
               status: "success",
-              title: `Product with ID ${productDisplayId} has been edited.`,
+              title: `Story ${storyName} has been edited.`,
             });
             removeFromLocalStorage(`content_${productId}`);
             removeFromLocalStorage(`sheet_${productId}`);
@@ -481,7 +494,7 @@ const ContentBuilder = ({
   const hasShownSavedAlert = watch("hasShownSavedAlert");
   const isAlertOpen = watch("isAlertOpen");
 
-  const isDisabled = false; //TODO: overwritten the case without checking the consequences
+  const isDisabled = currentStory !== 'draft';
   const isPublishSelected = currentStory === "published";
 
   const handleSavedEditConfirmation = useCallback(() => {
@@ -709,7 +722,12 @@ const ContentBuilder = ({
   })
 
   useEffect(() => {
-    driverObj.drive()
+    //TODO: check if local storage has data, if not, then show driver
+    if (localStorage.getItem(`content_${productId}`) || localStorage.getItem(`sheet_${productId}`)) {
+      setTimeout(() => {
+        driverObj?.drive()
+      }, 200)
+    }
   }, [])
 
 
@@ -861,6 +879,22 @@ const ContentBuilder = ({
             />
 
             <VStack mt={24} spacing={4} align="stretch">
+              {(contents.length > 0 || sheetData.length > 0) &&
+                <FormInput
+                  inputName={'storyName'}
+                  label={'Story Name'}
+                  placeholder={'Story Name'}
+                  control={control}
+                  formControlProps={{ isRequired: true }}
+                  validationRules={{
+                    required: {
+                      value: true,
+                      message: 'Please enter a name for the product.',
+                    },
+                  }}
+                />
+              }
+
               <DraggableSection
                 items={contents}
                 onReorder={handleCarouselReorder}
@@ -1009,7 +1043,7 @@ const ContentBuilder = ({
               </Popover>
 
               {/* Publish Button */}
-              <Popover trigger="hover" placement="top">
+              {/* <Popover trigger="hover" placement="top">
                 <PopoverTrigger>
                   <Box>
                     <DeleteConfirmationAlertDialog
@@ -1070,7 +1104,7 @@ const ContentBuilder = ({
                     </PopoverBody>
                   </PopoverContent>
                 )}
-              </Popover>
+              </Popover> */}
             </Stack>
           </Stack>
         </Box>
@@ -1158,6 +1192,7 @@ const ImportStorySection = ({
     isPending: isStoryTemplatesPending,
     isError: isStoryTemplatesError,
   } = useStoryTemplate();
+  console.log("storyTemplates: ", storyTemplates);
 
   const { setValue, watch, getValues } = formMethods;
 
@@ -1243,8 +1278,8 @@ const ImportStorySection = ({
                     )}
 
                     {storyTemplates?.map((temp, index) => {
-                      const templateName = Object.keys(temp)[0];
-                      const template = Object.values(temp)[0];
+                      const templateName = temp?.name;
+                      const template = temp?.description;
                       return (
                         <Button
                           as="option"

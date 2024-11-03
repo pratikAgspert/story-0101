@@ -182,7 +182,7 @@ const HomePage2 = () => {
           borderRadius={100}
           onClick={() => {
             driverObj?.moveNext()
-            window.location.href = '/storyBuilder'
+            window.location.href = '/storyBuilder?productstory=draft'
           }} // Redirect to story builder
         >
           Create your first experience
