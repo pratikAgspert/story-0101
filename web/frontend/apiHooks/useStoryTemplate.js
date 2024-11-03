@@ -1,15 +1,16 @@
 import { useContext } from "react";
 import { BASE_URL } from "../apiHooks/baseURL";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AuthContext } from "../services/context";
 import { makeRequest } from "./networkRequest";
 
+export const STORY_TEMPLATE_QUERY_KEY = "story-template";
 export const useStoryTemplate = () => {
   const { getToken } = useContext(AuthContext);
   const endPoint = BASE_URL + `kvk/story_template/`;
 
   const query = useQuery({
-    queryKey: ["story-template"],
+    queryKey: [STORY_TEMPLATE_QUERY_KEY],
     queryFn: async () => {
       const templateList = await makeRequest(
         endPoint,
@@ -22,3 +23,25 @@ export const useStoryTemplate = () => {
 
   return { ...query };
 };
+
+export const useUpdateStoryTemplate = () => {
+  const { getToken } = useContext(AuthContext);
+  const queryClient = useQueryClient();
+  const endPoint = BASE_URL + `kvk/story_template/`;
+
+  const updateStoryTemplate = async ({ id, formData }) => {
+    const data = await makeRequest(endPoint + `${id}/publish/`, "PUT", getToken(), formData);
+    return data;
+  }
+
+  const mutation = useMutation({
+    mutationFn: updateStoryTemplate,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: [STORY_TEMPLATE_QUERY_KEY],
+      });
+    },
+  });
+
+  return mutation;
+}

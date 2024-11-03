@@ -21,7 +21,8 @@ import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
 import { ProductStoryContext } from "../services/context";
 import { useProducts } from "../apiHooks/useProducts";
-import { useStoryTemplate } from "../apiHooks/useStoryTemplate";
+import { STORY_TEMPLATE_QUERY_KEY, useStoryTemplate, useUpdateStoryTemplate } from "../apiHooks/useStoryTemplate";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -81,6 +82,15 @@ const Card = memo(
   }) => {
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
+    const { mutate: updateStoryTemplate, isPending: isUpdatingStoryTemplate, isError: isUpdatingStoryTemplateError } = useUpdateStoryTemplate();
+
+
+    const handleUpdateStoryTemplate = async () => {
+      const updatedStoryTemplate = { ...template, products: selectedTags?.map((product) => product?.id) };
+
+      updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate }); //TODO:  a few changes may be required here
+    }
+
 
     return (
       <Stack bg="white" p={3} borderRadius="xl">
@@ -95,7 +105,7 @@ const Card = memo(
             <Tag fontSize="xs" p={2} px={4} cursor="pointer">
               Preview
             </Tag>
-            <Tag fontSize="xs" p={2} px={4} cursor="pointer">
+            <Tag fontSize="xs" p={2} px={4} cursor="pointer" isLoading={isUpdatingStoryTemplate} onClick={handleUpdateStoryTemplate}>
               Publish
             </Tag>
           </HStack>
@@ -134,7 +144,6 @@ const Stories = () => {
   const { data: storyTemplates, isLoading: isStoryTemplatesLoading, isError: isStoryTemplatesError } = useStoryTemplate();
   const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
   const [cardSelections, setCardSelections] = useState({});
-  console.log("products", products);
 
   // Initialize card selections when templates load
   React.useEffect(() => {
@@ -143,7 +152,7 @@ const Stories = () => {
       // story pre-selected products
       // a dict of id and products from storyTemplates
       const storyPreSelectedProducts = {}
-      storyTemplates.map((template) =>  {
+      storyTemplates.map((template) => {
         storyPreSelectedProducts[template.id] = template.products
       });
       setCardSelections(storyPreSelectedProducts);
@@ -158,7 +167,6 @@ const Stories = () => {
   const getAvailableProducts = useCallback(() => {
     if (!products) return [];
     const selectedProducts = getAllSelectedProducts();
-    console.log("selectedProducts", selectedProducts);
     return products.filter(
       (product) => !selectedProducts.some(selected => selected.id === product.id)
     );
@@ -167,7 +175,7 @@ const Stories = () => {
   // Handle product selection
   const handleSelectProduct = useCallback((templateId, product) => {
     setCardSelections((prev) => {
-      const newSelections = {...prev};
+      const newSelections = { ...prev };
       newSelections[templateId] = [...prev[templateId], product];
       return newSelections;
     });
@@ -176,7 +184,7 @@ const Stories = () => {
   // Handle product removal
   const handleRemoveProduct = useCallback((templateId, product) => {
     setCardSelections((prev) => {
-      const newSelections = {...prev};
+      const newSelections = { ...prev };
       newSelections[templateId] = prev[templateId].filter((p) => p.id !== product.id);
       return newSelections;
     });
