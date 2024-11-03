@@ -35,7 +35,7 @@ const MediaPicker = ({
     duration: 2000,
     id: toastId,
   });
-  // const { driver } = useContext(ProductDriverContext);
+  const { driver } = useContext(ProductDriverContext);
 
   const onDrop = useCallback(
     (acceptedFiles) => {
@@ -185,9 +185,9 @@ const MediaPicker = ({
           onClick={() => {
             if (!isDisabled) {
               open();
-              // setTimeout(() => {
-              //   driver?.moveNext();
-              // }, 200);
+              setTimeout(() => {
+                driver?.moveNext();
+              }, 200);
             }
           }}
         >

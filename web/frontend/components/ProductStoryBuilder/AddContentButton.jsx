@@ -18,7 +18,7 @@ const AddContentButton = ({ onAdd, sheetData, isDisabled }) => {
   const removeSocialBtn = sheetData?.some((btn) =>
     btn?.type?.includes("social_links")
   );
-  // const { driver } = useContext(ProductDriverContext);
+  const { driver } = useContext(ProductDriverContext);
 
   return (
     <Menu>
@@ -37,9 +37,9 @@ const AddContentButton = ({ onAdd, sheetData, isDisabled }) => {
           className="add-360-image"
           onClick={() => {
             onAdd("carousel_360_image");
-            // setTimeout(() => {
-            //   driver?.moveNext();
-            // }, 200);
+            setTimeout(() => {
+              driver?.moveNext();
+            }, 200);
           }}
           gap={2}
         >
