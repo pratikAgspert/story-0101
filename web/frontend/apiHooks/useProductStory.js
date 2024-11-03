@@ -13,7 +13,7 @@ export const PUBLISHED_PRODUCT_STORY_QUERY_KEY = "publish_product_story";
 const PUBLISH_OLD_PRODUCT_STORY_QUERY_KEY = "publish_old_product_story";
 
 export const useGetProductStoryDraft = (storyId) => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
 
   const query = useQuery({
     queryKey: [PRODUCT_STORY_DRAFT_QUERY_KEY, storyId],
@@ -21,8 +21,7 @@ export const useGetProductStoryDraft = (storyId) => {
       return await makeRequest(
         BASE_URL + `/kvk/draft_product_description/${storyId}/`,
         "GET",
-        ""
-        // getToken()
+        getToken()
       );
     },
     enabled: !!storyId,
@@ -34,16 +33,15 @@ export const useGetProductStoryDraft = (storyId) => {
 };
 
 export const useSaveProductStoryDraft = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const savefun = async (formData) => {
     try {
       const data = await makeRequest(
-        BASE_URL + "kvk/draft_product_description/",
+        BASE_URL + "kvk/story_template/",
         "POST",
-        "",
-        // getToken(),
+        getToken(),
         formData
       );
       return data;
@@ -68,7 +66,7 @@ export const useSaveProductStoryDraft = () => {
 };
 
 export const useEditProductStoryDraft = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const mutateFun = async ({ storyId, formData }) => {
@@ -76,8 +74,7 @@ export const useEditProductStoryDraft = () => {
       const data = await makeRequest(
         BASE_URL + `kvk/draft_product_description/${storyId}/`,
         "PATCH",
-        "",
-        // getToken(),
+        getToken(),
         formData
       );
       return data;
@@ -102,7 +99,7 @@ export const useEditProductStoryDraft = () => {
 };
 
 export const usePublishProductStoryDraft = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const mutateFun = async (storyId) => {
@@ -110,8 +107,7 @@ export const usePublishProductStoryDraft = () => {
       const data = await makeRequest(
         BASE_URL + `kvk/draft_product_description/${storyId}/publish/`,
         "PATCH",
-        ""
-        // getToken()
+        getToken()
       );
       return data;
     } catch (error) {
@@ -136,7 +132,7 @@ export const usePublishProductStoryDraft = () => {
 
 // get description versions (published)
 export const useGetPublishedProductStoryVersion = (productId) => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
 
   const query = useQuery({
     queryKey: [PUBLISH_PRODUCT_STORY_DRAFT_VERSION_QUERY_KEY, productId],
@@ -144,8 +140,7 @@ export const useGetPublishedProductStoryVersion = (productId) => {
       return await makeRequest(
         BASE_URL + `/kvk/product_description/versions/?product_id=${productId}`,
         "GET",
-        ""
-        // getToken()
+        getToken()
       );
     },
   });
@@ -157,7 +152,7 @@ export const useGetPublishedProductStoryVersion = (productId) => {
 
 // get a particular description version (published or previously published)
 export const useGetPublishedProductStory = (publishedStoryId) => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
 
   const query = useQuery({
     queryKey: [PUBLISHED_PRODUCT_STORY_QUERY_KEY, publishedStoryId],
@@ -165,8 +160,7 @@ export const useGetPublishedProductStory = (publishedStoryId) => {
       return await makeRequest(
         BASE_URL + `/kvk/product_description/${publishedStoryId}`,
         "GET",
-        ""
-        // getToken()
+        getToken()
       );
     },
     enabled: !!publishedStoryId,
@@ -179,17 +173,16 @@ export const useGetPublishedProductStory = (publishedStoryId) => {
 
 // publish older version
 export const usePublishOldProductStory = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const mutateFun = async (publishedStoryId) => {
     try {
       const data = await makeRequest(
         BASE_URL +
-          `kvk/product_description/${publishedStoryId}/publish_older_version/`,
+        `kvk/product_description/${publishedStoryId}/publish_older_version/`,
         "PATCH",
-        ""
-        // getToken()
+        getToken()
       );
       return data;
     } catch (error) {
@@ -214,7 +207,7 @@ export const usePublishOldProductStory = () => {
 
 // Delete Draft of Product Story
 export const useDeleteProductStoryDraft = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const deleteStoryDraft = async (draftStoryId) => {
@@ -224,8 +217,7 @@ export const useDeleteProductStoryDraft = () => {
       const data = await makeRequest(
         endPoint,
         "DELETE",
-        ""
-        //  getToken()
+        getToken()
       );
       return data;
     } catch (error) {
@@ -249,7 +241,7 @@ export const useDeleteProductStoryDraft = () => {
 
 // Delete Published Product Story
 export const useDeletePublishedProductStory = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const deletePublishedStory = async (publishedStoryId) => {
@@ -259,8 +251,7 @@ export const useDeletePublishedProductStory = () => {
       const data = await makeRequest(
         endPoint,
         "DELETE",
-        ""
-        //  getToken()
+        getToken()
       );
       return data;
     } catch (error) {

@@ -28,8 +28,7 @@ const useMediaUpload = (getToken) => {
         const response = await fetch(BASE_URL + "kvk/upload_story/", {
           method: "POST",
           headers: {
-            // Authorization: getToken(),
-            Authorization: "",
+            Authorization: getToken(),
           },
           body: formData,
         });
@@ -63,7 +62,7 @@ const useMediaUpload = (getToken) => {
 };
 
 export const useDeleteUnusedMediaUrls = () => {
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const deleteUnusedMedia = async (draftStoryId) => {
@@ -73,8 +72,7 @@ export const useDeleteUnusedMediaUrls = () => {
       const data = await makeRequest(
         endPoint,
         "DELETE",
-        ""
-        //  getToken()
+        getToken()
       );
       return data;
     } catch (error) {

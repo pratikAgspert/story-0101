@@ -27,7 +27,7 @@ const MediaPicker = ({
   isDisabled,
 }) => {
   const [uploadProgress, setUploadProgress] = useState({});
-  // const { getToken } = useContext(AuthContext);
+  const { getToken } = useContext(AuthContext);
   const toastId = "filePickerToast";
   const toast = useToast({
     isClosable: true,
@@ -63,8 +63,7 @@ const MediaPicker = ({
           axios
             .post(BASE_URL + "kvk/upload_story/", formData, {
               headers: {
-                // Authorization: getToken(),
-                Authorization: "",
+                Authorization: getToken(),
               },
               onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round(
