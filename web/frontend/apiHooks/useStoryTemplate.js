@@ -45,3 +45,19 @@ export const useUpdateStoryTemplate = () => {
 
   return mutation;
 }
+
+export const useGetTemplateStory = (templateId) => {
+  const { getToken } = useContext(AuthContext);
+  const endPoint = BASE_URL + `kvk/story_template/${templateId}/`;
+
+  const query = useQuery({
+    queryKey: [STORY_TEMPLATE_QUERY_KEY, templateId],
+    queryFn: async () => {
+      const data = await makeRequest(endPoint, "GET", getToken());
+      return data;
+    },
+    enabled: !!templateId,
+  });
+
+  return { ...query };
+}

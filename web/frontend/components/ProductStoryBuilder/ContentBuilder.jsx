@@ -71,7 +71,7 @@ import {
 import { FaRegEdit, FaSave } from "react-icons/fa";
 import { LuImport } from "react-icons/lu";
 import { useSearchParams } from "react-router-dom";
-import { useStoryTemplate } from "../../apiHooks/useStoryTemplate";
+import { useGetTemplateStory, useStoryTemplate } from "../../apiHooks/useStoryTemplate";
 import { IoClose, IoCloudUploadSharp } from "react-icons/io5";
 import SeoEditor from "./SeoEditor";
 import GlobalStyleEditor from "./GlobalStyleEditor";
@@ -88,6 +88,7 @@ const ContentBuilder = ({
   formMethods,
   handleCloseModal,
 }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { mutate: saveProductStory, isPending: isSaveProductStoryPending } =
     useSaveProductStoryDraft();
@@ -111,6 +112,12 @@ const ContentBuilder = ({
     isPending: isPublishedStoryPending,
     isError: isPublishedStoryError,
   } = useGetPublishedProductStory(publishedStoryId);
+  const templateId = searchParams.get("templateId");
+  const {
+    data: templateStory,
+    isPending: isTemplateStoryPending,
+    isError: isTemplateStoryError,
+  } = useGetTemplateStory(templateId);
 
   const {
     mutate: deleteUnusedMediaUrls,
@@ -129,23 +136,24 @@ const ContentBuilder = ({
 
   const { control, watch, setValue, getValues, setError } = formMethods;
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const isEditPublishStory = searchParams.get("edit");
 
   useEffect(() => {
     if (isEditPublishStory === "published") {
-      handleSavedOrPublishData(
-        publishedStory,
-        setContents,
-        setSheetData,
-        filterCarouselTypes,
-        productId
-      );
+      if (templateStory) {
+        handleSavedOrPublishData(
+          templateStory,
+          setContents,
+          setSheetData,
+          filterCarouselTypes,
+          templateStory?.name
+        );
 
-      searchParams.delete("edit");
-      setSearchParams(searchParams.toString());
+        searchParams.delete("edit");
+        setSearchParams(searchParams.toString());
+      }
     }
-  }, [isEditPublishStory]);
+  }, [isEditPublishStory, templateStory]);
 
   const currentStory = watch("stories");
 

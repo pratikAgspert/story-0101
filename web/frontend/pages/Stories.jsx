@@ -80,7 +80,8 @@ const Card = memo(
     onSelectProduct,
     onRemoveProduct,
     template,
-    onPreview
+    onPreview,
+    onEdit
   }) => {
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
@@ -101,7 +102,7 @@ const Card = memo(
             {template?.name}
           </Text>
           <HStack>
-            <Tag fontSize="xs" p={2} px={4} cursor="pointer">
+            <Tag  onClick={() => {onEdit(template)}} fontSize="xs" p={2} px={4} cursor="pointer">
               Edit
             </Tag>
             <Tag fontSize="xs" p={2} px={4} cursor="pointer" onClick={() => onPreview(template)}>
@@ -234,6 +235,11 @@ const Stories = () => {
     // setSheetData(sheetData);
   }
 
+  const handleEdit = (template) => {
+    window.location.href = `/storyBuilder?edit=published&templateId=${template?.id}`;
+    console.log("template", template);
+  }
+
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <HStack p={5}>
@@ -248,6 +254,7 @@ const Stories = () => {
               onSelectProduct={handleSelectProduct}
               onRemoveProduct={handleRemoveProduct}
               onPreview={handlePreview}
+              onEdit={handleEdit}
             />
           ))}
         </Stack>
