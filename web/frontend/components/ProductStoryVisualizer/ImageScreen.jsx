@@ -238,7 +238,7 @@ const ImageScreen = ({ header, data, setIsInteracting, slideId }) => {
           />
         )}
 
-        {Object.entries(infoPoints)
+        {Object.entries(infoPoints || {})
           .filter(([_, point]) => point && Object.keys(point).length > 0)
           .map(([pointId, point], index) => (
             <Box

@@ -23,6 +23,7 @@ import { ProductStoryContext } from "../services/context";
 import { useProducts } from "../apiHooks/useProducts";
 import { STORY_TEMPLATE_QUERY_KEY, useStoryTemplate, useUpdateStoryTemplate } from "../apiHooks/useStoryTemplate";
 import { useQueryClient } from "@tanstack/react-query";
+import { filterCarouselTypes, handleSavedOrPublishData } from "../components/ProductStoryBuilder/storyUtils";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -78,7 +79,8 @@ const Card = memo(
     availableProducts,
     onSelectProduct,
     onRemoveProduct,
-    template
+    template,
+    onPreview
   }) => {
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
@@ -102,7 +104,7 @@ const Card = memo(
             <Tag fontSize="xs" p={2} px={4} cursor="pointer">
               Edit
             </Tag>
-            <Tag fontSize="xs" p={2} px={4} cursor="pointer">
+            <Tag fontSize="xs" p={2} px={4} cursor="pointer" onClick={() => onPreview(template)}>
               Preview
             </Tag>
             <Tag fontSize="xs" p={2} px={4} cursor="pointer" isLoading={isUpdatingStoryTemplate} onClick={handleUpdateStoryTemplate}>
@@ -201,8 +203,8 @@ const Stories = () => {
     handleStyleChange: () => { },
   };
 
-  const contents = [];
-  const sheetData = [];
+  const [contents, setContents] = useState([]);
+  const [sheetData, setSheetData] = useState([]);
 
   if (isStoryTemplatesLoading || isProductsLoading) {
     return (
@@ -221,6 +223,16 @@ const Stories = () => {
       </Alert>
     );
   }
+  const handlePreview = (template) => {
+    console.log("template", template);
+    const contents = template?.description?.data;
+    const sheetData = template?.description?.general_sheet;
+    handleSavedOrPublishData(template, setContents, setSheetData, filterCarouselTypes, template?.name)
+    console.log("contents", contents);
+    console.log("sheetData", sheetData);
+    // setContents(contents);
+    // setSheetData(sheetData);
+  }
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
@@ -235,6 +247,7 @@ const Stories = () => {
               availableProducts={getAvailableProducts()}
               onSelectProduct={handleSelectProduct}
               onRemoveProduct={handleRemoveProduct}
+              onPreview={handlePreview}
             />
           ))}
         </Stack>

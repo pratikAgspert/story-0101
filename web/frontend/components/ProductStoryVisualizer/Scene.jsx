@@ -373,7 +373,7 @@ const ImageSphere = ({
             />
           </mesh>
 
-          {Object.entries(infoPoints)
+          {Object.entries(infoPoints || {})
             .filter(([_, point]) => point && Object.keys(point).length > 0)
             .map(([pointId, point], index) => (
               <Html
@@ -520,7 +520,7 @@ const VideoSphere = ({
             <meshStandardMaterial map={videoTexture} side={THREE.DoubleSide} />
           </mesh>
 
-          {Object.entries(infoPoints)
+          {Object.entries(infoPoints || {})
             .filter(([_, point]) => point && Object.keys(point).length > 0)
             .map(([pointId, point], index) => (
               <Html

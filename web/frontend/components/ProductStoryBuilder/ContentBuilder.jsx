@@ -708,12 +708,45 @@ const ContentBuilder = ({
         }
       },
       {
+        element: '.story-name', popover: {
+          title: 'Story Name', description: 'Click to add a story name', onNextClick: () => {
+            const input = document.querySelector('.story-name');
+            input?.focus();
+            driverObj?.moveNext()
+          }
+        }
+      },
+      {
         element: '.scene-container', popover: {
           title: '360° View', description: 'Click to add information pointers and drag to view the scene', onNextClick: () => {
             driverObj?.moveNext()
           }
         }
       },
+      {
+        element: '.save-btn', popover: {
+          title: 'Save Draft', description: 'Click to save the draft', onNextClick: () => {
+            const button = document.querySelector('.save-btn');
+            button?.click();
+            setTimeout(() => {
+              driverObj?.moveNext()
+            }, 500)
+          }
+        }
+      },
+      {
+        element: '.confirm-save-btn', popover: {
+          title: 'Confirm Save', description: 'Click to confirm save', onNextClick: () => {
+            const button = document.querySelector('.confirm-save-btn');
+            button?.click();
+            setTimeout(() => { //TODO: must be attached to save onSuccess callback
+              driverObj?.moveNext()
+              window.location.href = "/stories"
+            }, 500)
+          }
+        }
+      }
+
     ],
     allowClose: true,
     overlayClickNext: false,
@@ -723,11 +756,11 @@ const ContentBuilder = ({
 
   useEffect(() => {
     //TODO: check if local storage has data, if not, then show driver
-    if (localStorage.getItem(`content_${productId}`) || localStorage.getItem(`sheet_${productId}`)) {
-      setTimeout(() => {
-        driverObj?.drive()
-      }, 200)
-    }
+    // if (localStorage.getItem(`content_${productId}`) || localStorage.getItem(`sheet_${productId}`)) {
+    setTimeout(() => {
+      driverObj?.drive()
+    }, 200)
+    // }
   }, [])
 
 
@@ -881,6 +914,7 @@ const ContentBuilder = ({
             <VStack mt={24} spacing={4} align="stretch">
               {(contents.length > 0 || sheetData.length > 0) &&
                 <FormInput
+                  className="story-name"
                   inputName={'storyName'}
                   label={'Story Name'}
                   placeholder={'Story Name'}
@@ -983,6 +1017,9 @@ const ContentBuilder = ({
                 <PopoverTrigger>
                   <Box>
                     <DeleteConfirmationAlertDialog
+                      triggerClassName="save-btn"
+                      confirmClassName="confirm-save-btn"
+                      cancelClassName="cancel-save-btn"
                       alertTitle={"Confirm Save Draft!"}
                       alertDescription={
                         "Are you sure you want to save this product story?"
@@ -1002,6 +1039,10 @@ const ContentBuilder = ({
                       }}
                       onConfirm={() => {
                         handleSaveAndEditProductStory();
+                        if (driverObj?.hasNextStep()) {
+                          window.location.href = "/stories"
+                          driverObj?.moveNext()
+                        }
                       }}
                       isPending={
                         isSaveProductStoryPending ||

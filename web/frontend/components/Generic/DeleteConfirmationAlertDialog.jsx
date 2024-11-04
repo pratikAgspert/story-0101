@@ -27,6 +27,9 @@ export const DeleteConfirmationAlertDialog = ({
   alertDialogProps = {},
   isPending = false,
   noCloseIcon = false,
+  triggerClassName = '',
+  confirmClassName = '',
+  cancelClassName = '',
 }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef();
@@ -42,6 +45,7 @@ export const DeleteConfirmationAlertDialog = ({
               e?.stopPropagation();
               onOpen();
             }}
+            className={triggerClassName}
           />
         )}
 
@@ -52,6 +56,7 @@ export const DeleteConfirmationAlertDialog = ({
               e?.stopPropagation();
               onOpen();
             }}
+            className={triggerClassName}
           >
             {triggerButtonProps?.label ?? 'Delete'}
           </Button>
@@ -83,6 +88,7 @@ export const DeleteConfirmationAlertDialog = ({
                 onCancel && onCancel();
                 onClose();
               }}
+              className={cancelClassName}
             >
               {cancelButtonProps?.label ?? 'Cancel'}
             </Button>
@@ -95,6 +101,7 @@ export const DeleteConfirmationAlertDialog = ({
                 onConfirm && onConfirm();
                 onClose();
               }}
+              className={confirmClassName}
             >
               {isPending ? <Spinner /> : confirmButtonProps?.label ?? 'Delete'}
             </Button>
