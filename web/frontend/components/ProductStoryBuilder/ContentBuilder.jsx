@@ -170,12 +170,12 @@ const ContentBuilder = ({
     // let storyData;
 
     // Always check localStorage first when switching to draft
-    // if (currentStory === "draft") {
-    //   const { contentData, sheetData } = getLocalStorageData(productId);
-    //   setContents(contentData);
-    //   setSheetData(sheetData);
-    //   return;
-    // }
+    if (!templateStory) {
+      const { contentData, sheetData } = getLocalStorageData();
+      setContents(contentData);
+      setSheetData(sheetData);
+      return;
+    }
 
     // Handle published and saved cases
     // if (currentStory === "published") {
@@ -252,7 +252,7 @@ const ContentBuilder = ({
         [id]: url,
       };
 
-      storeInLocalStorage(`urlMap_${productId}`, newUrlMapping);
+      storeInLocalStorage(`urlMap`, newUrlMapping);
       return newUrlMapping;
     });
   }, []);
@@ -265,7 +265,7 @@ const ContentBuilder = ({
   }, []);
 
   const removeFromLocalStorage = (keyName) => {
-    localStorage.removeItem(`product_${keyName}`);
+    localStorage.removeItem(`${keyName}`);
   };
 
   const addContent = (type) => {
@@ -296,7 +296,7 @@ const ContentBuilder = ({
           },
         ];
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
 
         return newContents;
       });
@@ -327,7 +327,7 @@ const ContentBuilder = ({
         },
       ];
 
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
 
       return newSheetData;
     });
@@ -339,7 +339,7 @@ const ContentBuilder = ({
         content.id === id ? { ...content, ...newData } : content
       );
 
-      storeInLocalStorage(`content_${productId}`, newContents);
+      storeInLocalStorage(`content`, newContents);
 
       return newContents;
     });
@@ -351,7 +351,7 @@ const ContentBuilder = ({
         content.id === id ? { ...content, ...newData } : content
       );
 
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
 
       return newSheetData;
     });
@@ -362,13 +362,13 @@ const ContentBuilder = ({
     setContents((prevContents) => {
       const newContents = prevContents.filter((content) => content.id !== id);
 
-      storeInLocalStorage(`content_${productId}`, newContents);
+      storeInLocalStorage(`content`, newContents);
 
       return newContents;
     });
     setSheetData((prevSheetData) => {
       const newSheetData = prevSheetData.filter((content) => content.id !== id);
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
 
       return newSheetData;
     });
@@ -464,9 +464,9 @@ const ContentBuilder = ({
             queryKey: [PRODUCT_LIST_QUERY_KEY],
           });
 
-          removeFromLocalStorage(`content_${productId}`);
-          removeFromLocalStorage(`sheet_${productId}`);
-          removeFromLocalStorage(`urlMap_${productId}`);
+          removeFromLocalStorage(`content`);
+          removeFromLocalStorage(`sheet`);
+          removeFromLocalStorage(`urlMap`);
 
           // setValue("stories", "saved");
           // onClose();
@@ -497,9 +497,9 @@ const ContentBuilder = ({
               status: "success",
               title: `Story ${storyName} has been edited.`,
             });
-            removeFromLocalStorage(`content_${productId}`);
-            removeFromLocalStorage(`sheet_${productId}`);
-            removeFromLocalStorage(`urlMap_${productId}`);
+            removeFromLocalStorage(`content`);
+            removeFromLocalStorage(`sheet`);
+            removeFromLocalStorage(`urlMap`);
 
             // setValue("stories", "saved");
             // onClose();
@@ -540,13 +540,13 @@ const ContentBuilder = ({
   //       filterStoryData(storyData);
 
   //     if (is_general_sheet) {
-  //       storeInLocalStorage(`content_${productId}`, data);
-  //       storeInLocalStorage(`sheet_${productId}`, general_sheet);
+  //       storeInLocalStorage(`content`, data);
+  //       storeInLocalStorage(`sheet`, general_sheet);
   //       setContents(data || []);
   //       setSheetData(general_sheet || []);
   //     } else {
-  //       storeInLocalStorage(`content_${productId}`, filterCarouselData);
-  //       storeInLocalStorage(`sheet_${productId}`, filterSheetData);
+  //       storeInLocalStorage(`content`, filterCarouselData);
+  //       storeInLocalStorage(`sheet`, filterSheetData);
   //       setContents(filterCarouselData || []);
   //       setSheetData(filterSheetData || []);
   //     }
@@ -595,7 +595,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -625,7 +625,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -648,7 +648,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -692,7 +692,7 @@ const ContentBuilder = ({
   const handleCarouselReorder = useCallback(
     (newItems) => {
       setContents(newItems);
-      storeInLocalStorage(`content_${productId}`, newItems);
+      storeInLocalStorage(`content`, newItems);
     },
     [productId]
   );
@@ -700,7 +700,7 @@ const ContentBuilder = ({
   const handleSheetReorder = useCallback(
     (newItems) => {
       setSheetData(newItems);
-      storeInLocalStorage(`sheet_${productId}`, newItems);
+      storeInLocalStorage(`sheet`, newItems);
     },
     [productId]
   );
@@ -810,7 +810,7 @@ const ContentBuilder = ({
 
   useEffect(() => {
     //TODO: check if local storage has data, if not, then show driver
-    // if (localStorage.getItem(`content_${productId}`) || localStorage.getItem(`sheet_${productId}`)) {
+    // if (localStorage.getItem(`content`) || localStorage.getItem(`sheet`)) {
     setTimeout(() => {
       driverObj?.drive();
     }, 200);
@@ -1296,18 +1296,14 @@ const ImportStorySection = ({
 
   const { setValue, watch, getValues } = formMethods;
 
-  useEffect(() => {
-    console.log("Values: ", getValues());
-  }, [watch()]);
+  // useEffect(() => {
+  //   console.log("Values: ", getValues());
+  // }, [watch()]);
 
   useEffect(() => {
-    const localContentDataString = localStorage.getItem(
-      `product_content_${productId}`
-    );
+    const localContentDataString = localStorage.getItem(`content`);
 
-    const localSheetDataString = localStorage.getItem(
-      `product_sheet_${productId}`
-    );
+    const localSheetDataString = localStorage.getItem(`sheet`);
 
     if (!localContentDataString && !localSheetDataString) {
       setIsLocalStorageEmpty(true);
@@ -1321,7 +1317,7 @@ const ImportStorySection = ({
         ? setIsLocalStorageEmpty(true)
         : setIsLocalStorageEmpty(false);
     }
-  }, [productId, contents, sheetData]);
+  }, [contents, sheetData]);
 
   return (
     <>

@@ -1,7 +1,7 @@
 export const template = {
   text_content: {
-    header: '',
-    content: '',
+    header: "",
+    content: "",
   },
   image_content: {
     image_urls: [],
@@ -9,43 +9,43 @@ export const template = {
   video_content: {
     video_urls: [],
   },
-  content: '',
+  content: "",
   header: {
-    header: '',
+    header: "",
   },
-  brand_banner: '',
+  brand_banner: "",
   redirect_url: {
-    url: '',
-    label: '',
+    url: "",
+    label: "",
   },
   social_links: {
     social_links: [],
   },
   partners: [],
   global_style: {
-    background_color: '#ffffff',
-    handle_color: '#808080',
-    font_family: 'Poppins',
+    background_color: "#ffffff",
+    handle_color: "#808080",
+    font_family: "Poppins",
     lineHeight: 1.5,
   },
 };
 
 export const filterCarouselTypes = [
-  'carousel_360_image',
-  'carousel_360_video',
-  'carousel_2d_image',
-  'carousel_2d_video',
+  "carousel_360_image",
+  "carousel_360_video",
+  "carousel_2d_image",
+  "carousel_2d_video",
 ];
 
 export const ALLOWED_TYPES = [
-  'carousel_360_image',
-  'carousel_360_video',
-  'carousel_2d_image',
-  'carousel_2d_video',
-  'image_content',
-  'video_content',
-  'brand_banner',
-  'partners',
+  "carousel_360_image",
+  "carousel_360_video",
+  "carousel_2d_image",
+  "carousel_2d_video",
+  "image_content",
+  "video_content",
+  "brand_banner",
+  "partners",
 ];
 
 export function updateImageUrls(dataList, mapping) {
@@ -57,10 +57,10 @@ export function updateImageUrls(dataList, mapping) {
           ...item,
           data: item.data.map((subItem) => {
             if (ALLOWED_TYPES.includes(subItem.type)) {
-              const currentImageUrl = subItem.image_url || '';
-              if (currentImageUrl.startsWith('blob:')) {
+              const currentImageUrl = subItem.image_url || "";
+              if (currentImageUrl.startsWith("blob:")) {
                 usedKeys.push(subItem.id);
-                const newImageUrl = mapping[subItem.id] || '';
+                const newImageUrl = mapping[subItem.id] || "";
                 return {
                   ...subItem,
                   image_url: newImageUrl,
@@ -80,73 +80,73 @@ export function updateImageUrls(dataList, mapping) {
 export const stories = [
   {
     id: 1,
-    label: 'Draft Story',
-    value: 'draft',
+    label: "Draft Story",
+    value: "draft",
   },
   {
     id: 2,
-    label: 'Saved Story',
-    value: 'saved',
+    label: "Saved Story",
+    value: "saved",
   },
   {
     id: 3,
-    label: 'Published Story',
-    value: 'published',
+    label: "Published Story",
+    value: "published",
   },
 ];
 
 export const templates = [
   {
     id: 1,
-    label: 'temp-1',
-    value: 'temp-1',
+    label: "temp-1",
+    value: "temp-1",
   },
   {
     id: 2,
-    label: 'temp-2',
-    value: 'temp-2',
+    label: "temp-2",
+    value: "temp-2",
   },
   {
     id: 3,
-    label: 'temp-3',
-    value: 'temp-3',
+    label: "temp-3",
+    value: "temp-3",
   },
   {
     id: 4,
-    label: 'temp-4',
-    value: 'temp-4',
+    label: "temp-4",
+    value: "temp-4",
   },
   {
     id: 5,
-    label: 'temp-5',
-    value: 'temp-5',
+    label: "temp-5",
+    value: "temp-5",
   },
   {
     id: 6,
-    label: 'temp-6',
-    value: 'temp-6',
+    label: "temp-6",
+    value: "temp-6",
   },
 ];
 
 export const positions = [
   {
     id: 1,
-    label: 'Right Bottom',
+    label: "Right Bottom",
     value: 50,
   },
   {
     id: 2,
-    label: 'Left Bottom',
+    label: "Left Bottom",
     value: 100,
   },
   {
     id: 3,
-    label: 'Front Bottom',
+    label: "Front Bottom",
     value: 150,
   },
   {
     id: 4,
-    label: 'Back Bottom',
+    label: "Back Bottom",
     value: 150,
   },
 ];
@@ -175,18 +175,12 @@ export const filterStoryData = (storyData) => {
   };
 };
 
-export const getLocalStorageData = (productId) => {
-  const localContentDataString = localStorage.getItem(
-    `product_content_${productId}`
-  );
+export const getLocalStorageData = () => {
+  const localContentDataString = localStorage.getItem(`content`);
 
-  const localSheetDataString = localStorage.getItem(
-    `product_sheet_${productId}`
-  );
+  const localSheetDataString = localStorage.getItem(`sheet`);
 
-  const localUrlMapDataString = localStorage.getItem(
-    `product_urlMap_${productId}`
-  );
+  const localUrlMapDataString = localStorage.getItem(`urlMap`);
 
   try {
     // If any localStorage data exists, use it
@@ -195,9 +189,9 @@ export const getLocalStorageData = (productId) => {
       localSheetDataString ||
       localUrlMapDataString
     ) {
-      const localUrlMapData = JSON.parse(localUrlMapDataString || '{}');
-      const localContentData = JSON.parse(localContentDataString || '[]');
-      const localSheetData = JSON.parse(localSheetDataString || '[]');
+      const localUrlMapData = JSON.parse(localUrlMapDataString || "{}");
+      const localContentData = JSON.parse(localContentDataString || "[]");
+      const localSheetData = JSON.parse(localSheetDataString || "[]");
 
       const [replacedContentData, usedContentKeys] = updateImageUrls(
         localContentData,
@@ -209,7 +203,7 @@ export const getLocalStorageData = (productId) => {
         localUrlMapData
       );
 
-      console.log('Local Storage Data:', {
+      console.log("Local Storage Data:", {
         content: replacedContentData,
         sheet: replacedSheetData,
       });
@@ -220,7 +214,7 @@ export const getLocalStorageData = (productId) => {
       };
     }
   } catch (error) {
-    console.error('Error reading from localStorage:', error);
+    console.error("Error reading from localStorage:", error);
   }
 
   return {
@@ -230,7 +224,7 @@ export const getLocalStorageData = (productId) => {
 };
 
 export const storeInLocalStorage = (keyName, data) => {
-  localStorage.setItem(`product_${keyName}`, JSON.stringify(data));
+  localStorage.setItem(`${keyName}`, JSON.stringify(data));
 };
 
 export const handleSavedOrPublishData = (
@@ -248,8 +242,8 @@ export const handleSavedOrPublishData = (
     setContents(data || []);
     setSheetData(general_sheet || []);
 
-    storeInLocalStorage(`content_${productId}`, data);
-    storeInLocalStorage(`sheet_${productId}`, general_sheet);
+    storeInLocalStorage(`content`, data);
+    storeInLocalStorage(`sheet`, general_sheet);
   } else {
     const filterCarouselData = data.filter((c) =>
       filterCarouselTypes.includes(c?.type)
@@ -258,7 +252,7 @@ export const handleSavedOrPublishData = (
       (c) => !filterCarouselTypes.includes(c?.type)
     );
 
-    console.log('Filtered Data:', {
+    console.log("Filtered Data:", {
       carousel: filterCarouselData,
       sheet: filterSheetData,
     });
@@ -266,7 +260,7 @@ export const handleSavedOrPublishData = (
     setContents(filterCarouselData || []);
     setSheetData(filterSheetData || []);
 
-    storeInLocalStorage(`content_${productId}`, filterCarouselData);
-    storeInLocalStorage(`sheet_${productId}`, filterSheetData);
+    storeInLocalStorage(`content`, filterCarouselData);
+    storeInLocalStorage(`sheet`, filterSheetData);
   }
 };
