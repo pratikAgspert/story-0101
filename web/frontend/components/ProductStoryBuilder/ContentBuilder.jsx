@@ -107,23 +107,25 @@ const ContentBuilder = ({
     isPending: isPublishProductStoryPending,
   } = usePublishProductStoryDraft();
 
+  const templateId = searchParams.get("templateId") || null;
+
   const {
     data: productStoryDraft,
     isPending: isProductStoryDraftPending,
     isError: isProductStoryDraftError,
-  } = useGetProductStoryDraft(draftStoryId);
+  } = useGetProductStoryDraft(Number(templateId));
 
   const {
     data: publishedStory,
     isPending: isPublishedStoryPending,
     isError: isPublishedStoryError,
   } = useGetPublishedProductStory(publishedStoryId);
-  const templateId = searchParams.get("templateId");
+
   const {
     data: templateStory,
     isPending: isTemplateStoryPending,
     isError: isTemplateStoryError,
-  } = useGetTemplateStory(templateId);
+  } = useGetTemplateStory(Number(templateId));
 
   const {
     mutate: deleteUnusedMediaUrls,
@@ -152,7 +154,7 @@ const ContentBuilder = ({
         templateStory?.name
       );
 
-      storeInLocalStorage("storyName", templateStory?.name);
+      localStorage.setItem("storyName", templateStory?.name);
       setValue("storyName", templateStory?.name);
 
       searchParams.delete("edit");
@@ -178,7 +180,7 @@ const ContentBuilder = ({
       const { data, general_sheet, is_general_sheet } =
         templateStory?.description;
 
-      storeInLocalStorage("storyName", templateStory?.name);
+      localStorage.setItem("storyName", templateStory?.name);
       setValue("storyName", templateStory?.name);
 
       if (is_general_sheet) {
@@ -338,11 +340,21 @@ const ContentBuilder = ({
 
       storeInLocalStorage(`content`, newContents);
 
+      if (newContents?.length === 0 && sheetData?.length === 0) {
+        removeFromLocalStorage("storyName");
+        setValue("storyName", undefined);
+      }
+
       return newContents;
     });
     setSheetData((prevSheetData) => {
       const newSheetData = prevSheetData.filter((content) => content.id !== id);
       storeInLocalStorage(`sheet`, newSheetData);
+
+      if (contents?.length === 0 && newSheetData?.length === 0) {
+        removeFromLocalStorage("storyName");
+        setValue("storyName", undefined);
+      }
 
       return newSheetData;
     });
@@ -427,7 +439,7 @@ const ContentBuilder = ({
     } else {
       editProductStory(
         {
-          storyId: draftStoryId, //TODO: change to story name
+          storyId: templateId, //TODO: change to story name
           formData: { description: story?.description },
         },
         {
@@ -594,7 +606,7 @@ const ContentBuilder = ({
     [productId]
   );
 
-  const isNoData = draftStoryId === null;
+  const isNoData = templateId === null;
 
   const isNoCardAdded = contents?.length === 0 && sheetData?.length === 0;
 
@@ -713,16 +725,16 @@ const ContentBuilder = ({
 
   useEffect(() => {
     if (watchStoryName) {
-      storeInLocalStorage("storyName", watchStoryName);
+      localStorage.setItem("storyName", watchStoryName);
     }
   }, [watchStoryName]);
 
-  useEffect(() => {
-    if (contents?.length === 0 && sheetData?.length === 0) {
-      removeFromLocalStorage("storyName");
-      setValue("storyName", "");
-    }
-  }, [contents, sheetData]);
+  // useEffect(() => {
+  //   if (contents?.length === 0 && sheetData?.length === 0) {
+  //     removeFromLocalStorage("storyName");
+  //     setValue("storyName", undefined);
+  //   }
+  // }, [contents, sheetData]);
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>

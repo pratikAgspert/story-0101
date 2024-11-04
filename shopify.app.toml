@@ -3,7 +3,7 @@
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
 name = "story-0101"
 handle = "story-0101"
-application_url = "https://behavior-among-bi-wearing.trycloudflare.com"
+application_url = "https://bargains-hardwood-colleagues-dem.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://behavior-among-bi-wearing.trycloudflare.com/auth/callback",
-  "https://behavior-among-bi-wearing.trycloudflare.com/auth/shopify/callback",
-  "https://behavior-among-bi-wearing.trycloudflare.com/api/auth/callback"
+  "https://bargains-hardwood-colleagues-dem.trycloudflare.com/auth/callback",
+  "https://bargains-hardwood-colleagues-dem.trycloudflare.com/auth/shopify/callback",
+  "https://bargains-hardwood-colleagues-dem.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
