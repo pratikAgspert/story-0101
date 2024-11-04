@@ -21,9 +21,17 @@ import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
 import { ProductStoryContext } from "../services/context";
 import { useProducts } from "../apiHooks/useProducts";
-import { STORY_TEMPLATE_QUERY_KEY, useStoryTemplate, useUpdateStoryTemplate } from "../apiHooks/useStoryTemplate";
+import {
+  STORY_TEMPLATE_QUERY_KEY,
+  useStoryTemplate,
+  useUpdateStoryTemplate,
+} from "../apiHooks/useStoryTemplate";
 import { useQueryClient } from "@tanstack/react-query";
-import { filterCarouselTypes, handleSavedOrPublishData } from "../components/ProductStoryBuilder/storyUtils";
+import {
+  filterCarouselTypes,
+  handleSavedOrPublishData,
+} from "../components/ProductStoryBuilder/storyUtils";
+import { useSearchParams } from "react-router-dom";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -81,34 +89,74 @@ const Card = memo(
     onRemoveProduct,
     template,
     onPreview,
-    onEdit
+    onEdit,
+    templateId,
   }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
-    const { mutate: updateStoryTemplate, isPending: isUpdatingStoryTemplate, isError: isUpdatingStoryTemplateError } = useUpdateStoryTemplate();
-
+    const {
+      mutate: updateStoryTemplate,
+      isPending: isUpdatingStoryTemplate,
+      isError: isUpdatingStoryTemplateError,
+    } = useUpdateStoryTemplate();
 
     const handleUpdateStoryTemplate = async () => {
-      const updatedStoryTemplate = { ...template, products: selectedTags?.map((product) => product?.id) };
+      const updatedStoryTemplate = {
+        ...template,
+        products: selectedTags?.map((product) => product?.id),
+      };
 
       updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate }); //TODO:  a few changes may be required here
-    }
-
+    };
 
     return (
-      <Stack bg="white" p={3} borderRadius="xl">
+      <Stack
+        bg="white"
+        p={3}
+        borderRadius="xl"
+        borderWidth={templateId === template?.id ? 2 : 0}
+        borderColor={templateId === template?.id ? "green" : "white"}
+      >
         <HStack justifyContent="space-between">
           <Text size="sm" fontWeight="semibold">
             {template?.name}
           </Text>
-          <HStack>
-            <Tag  onClick={() => {onEdit(template)}} fontSize="xs" p={2} px={4} cursor="pointer">
+          <HStack
+            onClick={() => {
+              searchParams.set("templateId", template?.id);
+              setSearchParams(searchParams.toString());
+            }}
+          >
+            <Tag
+              onClick={() => {
+                onEdit(template);
+              }}
+              fontSize="xs"
+              p={2}
+              px={4}
+              cursor="pointer"
+            >
               Edit
             </Tag>
-            <Tag fontSize="xs" p={2} px={4} cursor="pointer" onClick={() => onPreview(template)}>
+            <Tag
+              fontSize="xs"
+              p={2}
+              px={4}
+              cursor="pointer"
+              onClick={() => onPreview(template)}
+            >
               Preview
             </Tag>
-            <Tag fontSize="xs" p={2} px={4} cursor="pointer" isLoading={isUpdatingStoryTemplate} onClick={handleUpdateStoryTemplate}>
+            <Tag
+              fontSize="xs"
+              p={2}
+              px={4}
+              cursor="pointer"
+              isLoading={isUpdatingStoryTemplate}
+              onClick={handleUpdateStoryTemplate}
+            >
               Publish
             </Tag>
           </HStack>
@@ -144,9 +192,20 @@ Card.displayName = "Card";
 
 // Main Stories component
 const Stories = () => {
-  const { data: storyTemplates, isLoading: isStoryTemplatesLoading, isError: isStoryTemplatesError } = useStoryTemplate();
-  const { data: products, isLoading: isProductsLoading, isError: isProductsError } = useProducts();
+  const {
+    data: storyTemplates,
+    isLoading: isStoryTemplatesLoading,
+    isError: isStoryTemplatesError,
+  } = useStoryTemplate();
+  const {
+    data: products,
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+  } = useProducts();
   const [cardSelections, setCardSelections] = useState({});
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const templateId = searchParams.get("templateId");
 
   // Initialize card selections when templates load
   React.useEffect(() => {
@@ -154,9 +213,9 @@ const Stories = () => {
       console.log("storyTemplates", storyTemplates);
       // story pre-selected products
       // a dict of id and products from storyTemplates
-      const storyPreSelectedProducts = {}
+      const storyPreSelectedProducts = {};
       storyTemplates.map((template) => {
-        storyPreSelectedProducts[template.id] = template.products
+        storyPreSelectedProducts[template.id] = template.products;
       });
       setCardSelections(storyPreSelectedProducts);
     }
@@ -171,7 +230,8 @@ const Stories = () => {
     if (!products) return [];
     const selectedProducts = getAllSelectedProducts();
     return products.filter(
-      (product) => !selectedProducts.some(selected => selected.id === product.id)
+      (product) =>
+        !selectedProducts.some((selected) => selected.id === product.id)
     );
   }, [cardSelections, products]);
 
@@ -188,20 +248,22 @@ const Stories = () => {
   const handleRemoveProduct = useCallback((templateId, product) => {
     setCardSelections((prev) => {
       const newSelections = { ...prev };
-      newSelections[templateId] = prev[templateId].filter((p) => p.id !== product.id);
+      newSelections[templateId] = prev[templateId].filter(
+        (p) => p.id !== product.id
+      );
       return newSelections;
     });
   }, []);
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => { },
-    removeInfoPoint: () => { },
-    getInfoPoints: () => { },
-    updateInfoPointText: () => { },
+    addInfoPoint: () => {},
+    removeInfoPoint: () => {},
+    getInfoPoints: () => {},
+    updateInfoPointText: () => {},
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => { },
+    handleStyleChange: () => {},
   };
 
   const [contents, setContents] = useState([]);
@@ -228,35 +290,44 @@ const Stories = () => {
     console.log("template", template);
     const contents = template?.description?.data;
     const sheetData = template?.description?.general_sheet;
-    handleSavedOrPublishData(template, setContents, setSheetData, filterCarouselTypes, template?.name)
+    handleSavedOrPublishData(
+      template,
+      setContents,
+      setSheetData,
+      filterCarouselTypes,
+      template?.name
+    );
     console.log("contents", contents);
     console.log("sheetData", sheetData);
     // setContents(contents);
     // setSheetData(sheetData);
-  }
+  };
 
   const handleEdit = (template) => {
     window.location.href = `/storyBuilder?edit=published&templateId=${template?.id}`;
     console.log("template", template);
-  }
+  };
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
-      <HStack p={5}>
-        <Stack spacing={3} w="50%">
-          {storyTemplates?.map((template, index) => (
-            <Card
-              key={template.id}
-              index={index}
-              template={template}
-              selectedTags={cardSelections?.[template?.id] || []}
-              availableProducts={getAvailableProducts()}
-              onSelectProduct={handleSelectProduct}
-              onRemoveProduct={handleRemoveProduct}
-              onPreview={handlePreview}
-              onEdit={handleEdit}
-            />
-          ))}
+      <HStack p={5} h={"100dvh"}>
+        <Stack spacing={3} w="50%" h={"100%"} overflowY={"scroll"}>
+          {storyTemplates
+            ?.sort((a, b) => b?.id - a?.id)
+            ?.map((template, index) => (
+              <Card
+                key={template.id}
+                index={index}
+                template={template}
+                selectedTags={cardSelections?.[template?.id] || []}
+                availableProducts={getAvailableProducts()}
+                onSelectProduct={handleSelectProduct}
+                onRemoveProduct={handleRemoveProduct}
+                onPreview={handlePreview}
+                onEdit={handleEdit}
+                templateId={Number(templateId)}
+              />
+            ))}
         </Stack>
 
         <Stack w="50%" alignItems="center">

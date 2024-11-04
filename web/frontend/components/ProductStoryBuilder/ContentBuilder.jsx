@@ -412,6 +412,8 @@ const ContentBuilder = ({
           removeFromLocalStorage(`sheet`);
           removeFromLocalStorage(`urlMap`);
           removeFromLocalStorage(`storyName`);
+
+          window.location.href = `/stories?templateId=${data?.id}`;
         },
         onError: (error) => {
           toast({
