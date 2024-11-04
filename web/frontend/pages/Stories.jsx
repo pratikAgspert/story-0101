@@ -149,7 +149,7 @@ const Card = memo(
             >
               Preview
             </Tag>
-            <Tag
+            {isUpdatingStoryTemplate ? <Spinner /> : <Tag
               fontSize="xs"
               p={2}
               px={4}
@@ -158,7 +158,7 @@ const Card = memo(
               onClick={handleUpdateStoryTemplate}
             >
               Publish
-            </Tag>
+            </Tag>}
           </HStack>
         </HStack>
 
@@ -257,13 +257,13 @@ const Stories = () => {
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => {},
-    removeInfoPoint: () => {},
-    getInfoPoints: () => {},
-    updateInfoPointText: () => {},
+    addInfoPoint: () => { },
+    removeInfoPoint: () => { },
+    getInfoPoints: () => { },
+    updateInfoPointText: () => { },
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => {},
+    handleStyleChange: () => { },
   };
 
   const [contents, setContents] = useState([]);
