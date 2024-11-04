@@ -133,18 +133,19 @@ const Card = memo(
         borderWidth={templateId === template?.id ? 2 : 0}
         borderColor={templateId === template?.id ? "green" : "white"}
         className={className}
+        onClick={() => {
+          searchParams.set("templateId", template?.id);
+          setSearchParams(searchParams.toString());
+
+          onPreview(template);
+        }}
       >
         <Stack p={3}>
           <HStack justifyContent="space-between">
             <Text size="sm" fontWeight="semibold">
               {template?.name}
             </Text>
-            <HStack
-              onClick={() => {
-                searchParams.set("templateId", template?.id);
-                setSearchParams(searchParams.toString());
-              }}
-            >
+            <HStack>
               <Tag
                 onClick={() => {
                   onEdit(template);
@@ -156,7 +157,7 @@ const Card = memo(
               >
                 Edit
               </Tag>
-              <Tag
+              {/* <Tag
                 className="preview-experience-btn"
                 fontSize="xs"
                 p={2}
@@ -165,7 +166,7 @@ const Card = memo(
                 onClick={() => onPreview(template)}
               >
                 Preview
-              </Tag>
+              </Tag> */}
               {isUpdatingStoryTemplate ? (
                 <Spinner />
               ) : (
@@ -269,20 +270,25 @@ const Stories = () => {
         popover: {
           title: "Select the product",
           description: "Click here for more details",
-        },
-      },
-      {
-        element: ".preview-experience-btn",
-        popover: {
-          title: "Preview Experience",
-          description: "Click to preview the experience",
           onNextClick: () => {
-            const button = document.querySelector(".preview-experience-btn");
+            const button = document.querySelector(".first-story-card");
             button?.click();
             return false;
           },
         },
       },
+      // {
+      //   element: ".preview-experience-btn",
+      //   popover: {
+      //     title: "Preview Experience",
+      //     description: "Click to preview the experience",
+      //     onNextClick: () => {
+      //       const button = document.querySelector(".preview-experience-btn");
+      //       button?.click();
+      //       return false;
+      //     },
+      //   },
+      // },
       {
         element: ".preview-experience-card",
         popover: {
@@ -401,6 +407,7 @@ const Stories = () => {
 
   const [contents, setContents] = useState([]);
   const [sheetData, setSheetData] = useState([]);
+  const [templateData, setTemplateData] = useState(null);
 
   if (isStoryTemplatesLoading || isProductsLoading) {
     return (
@@ -423,6 +430,9 @@ const Stories = () => {
     console.log("template", template);
     const contents = template?.description?.data;
     const sheetData = template?.description?.general_sheet;
+
+    setTemplateData(template);
+
     handleSavedOrPublishData(
       template,
       setContents,
@@ -450,7 +460,8 @@ const Stories = () => {
         <HStack p={5} h={"100dvh"}>
           <Stack
             spacing={3}
-            w={contents?.length > 0 || sheetData?.length > 0 ? "50%" : "70%"}
+            // w={contents?.length > 0 || sheetData?.length > 0 ? "70%" : "100%"}
+            w={"70%"}
             h={"100%"}
             overflowY={"scroll"}
           >
@@ -473,26 +484,48 @@ const Stories = () => {
               ))}
           </Stack>
 
-          {(contents?.length > 0 || sheetData?.length > 0) && (
-            <Stack w="50%" alignItems="center">
-              <Stack
-                className="preview-experience-card"
-                w="277.4px"
-                h="572.85px"
-                borderWidth={5}
-                borderColor="black"
-                borderRadius={50}
-                overflow="hidden"
-                boxShadow="lg"
-                position="relative"
-              >
+          {/* {(contents?.length > 0 || sheetData?.length > 0) && ( */}
+          <Stack w="30%" alignItems="center" spacing={0}>
+            {templateData && (
+              <Text fontSize={"lg"} fontWeight={"semibold"}>
+                {templateData?.name}
+              </Text>
+            )}
+
+            <Stack
+              className="preview-experience-card"
+              w="277.4px"
+              h="572.85px"
+              borderWidth={5}
+              borderColor="black"
+              borderRadius={50}
+              overflow="hidden"
+              boxShadow="lg"
+              position="relative"
+            >
+              {!templateData ? (
+                <Stack
+                  alignSelf={"center"}
+                  mt={250}
+                  textAlign={"center"}
+                  spacing={0}
+                >
+                  <Text fontWeight={"semibold"} fontSize={"lg"}>
+                    Select Story Template
+                  </Text>
+                  <Text fontWeight={"semibold"} fontSize={"lg"}>
+                    for Preview
+                  </Text>
+                </Stack>
+              ) : (
                 <CarouselComponent
                   productData={contents || []}
                   defaultSheetData={sheetData || []}
                 />
-              </Stack>
+              )}
             </Stack>
-          )}
+          </Stack>
+          {/* )} */}
         </HStack>
       </ProductDriverContext.Provider>
     </ProductStoryContext.Provider>
