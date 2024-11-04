@@ -16,6 +16,12 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
@@ -34,6 +40,8 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import { FaArrowUpRightFromSquare } from "react-icons/fa6";
+import { MdRemoveCircleOutline } from "react-icons/md";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -70,9 +78,13 @@ const ProductSelector = memo(({ availableProducts, onSelect, isDisabled }) => (
         ? "Select products..."
         : "No more products available"}
     </MenuButton>
-    <MenuList overflow={'scroll'} maxH={'80vh'}>
+    <MenuList overflow={"scroll"} maxH={"80vh"}>
       {availableProducts.map((product, index) => (
-        <MenuItem className="first-product-selector" key={product.id} onClick={() => onSelect(product)}>
+        <MenuItem
+          className="first-product-selector"
+          key={product.id}
+          onClick={() => onSelect(product)}
+        >
           {product?.name}
         </MenuItem>
       ))}
@@ -94,7 +106,7 @@ const Card = memo(
     onPreview,
     onEdit,
     templateId,
-    className = ''
+    className = "",
   }) => {
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -117,78 +129,102 @@ const Card = memo(
     return (
       <Stack
         bg="white"
-        p={3}
         borderRadius="xl"
         borderWidth={templateId === template?.id ? 2 : 0}
         borderColor={templateId === template?.id ? "green" : "white"}
         className={className}
       >
-        <HStack justifyContent="space-between">
-          <Text size="sm" fontWeight="semibold">
-            {template?.name}
-          </Text>
-          <HStack
-            onClick={() => {
-              searchParams.set("templateId", template?.id);
-              setSearchParams(searchParams.toString());
-            }}
-          >
-            <Tag
+        <Stack p={3}>
+          <HStack justifyContent="space-between">
+            <Text size="sm" fontWeight="semibold">
+              {template?.name}
+            </Text>
+            <HStack
               onClick={() => {
-                onEdit(template);
+                searchParams.set("templateId", template?.id);
+                setSearchParams(searchParams.toString());
               }}
-              fontSize="xs"
-              p={2}
-              px={4}
-              cursor="pointer"
             >
-              Edit
-            </Tag>
-            <Tag
-              className="preview-experience-btn"
-              fontSize="xs"
-              p={2}
-              px={4}
-              cursor="pointer"
-              onClick={() => onPreview(template)}
-            >
-              Preview
-            </Tag>
-            {isUpdatingStoryTemplate ? <Spinner /> : <Tag
-              className="publish-story-btn"
-              fontSize="xs"
-              p={2}
-              px={4}
-              cursor="pointer"
-              isLoading={isUpdatingStoryTemplate}
-              onClick={handleUpdateStoryTemplate}
-            >
-              Publish
-            </Tag>}
+              <Tag
+                onClick={() => {
+                  onEdit(template);
+                }}
+                fontSize="xs"
+                p={2}
+                px={4}
+                cursor="pointer"
+              >
+                Edit
+              </Tag>
+              <Tag
+                className="preview-experience-btn"
+                fontSize="xs"
+                p={2}
+                px={4}
+                cursor="pointer"
+                onClick={() => onPreview(template)}
+              >
+                Preview
+              </Tag>
+              {isUpdatingStoryTemplate ? (
+                <Spinner />
+              ) : (
+                <Tag
+                  className="publish-story-btn"
+                  fontSize="xs"
+                  p={2}
+                  px={4}
+                  cursor="pointer"
+                  isLoading={isUpdatingStoryTemplate}
+                  onClick={handleUpdateStoryTemplate}
+                >
+                  Publish
+                </Tag>
+              )}
+            </HStack>
           </HStack>
-        </HStack>
 
-        <Stack spacing={1}>
-          <Box>
-            <ProductSelector
-              availableProducts={availableProducts}
-              onSelect={(product) => onSelectProduct(template?.id, product)}
-              isDisabled={availableProducts.length === 0}
-            />
-          </Box>
-
-          <Stack direction="row" flexWrap="wrap" spacing={2}>
-            {selectedTags.map((product) => (
-              <ProductTag
-                key={product?.id}
-                tag={product?.name}
-                onRemove={() => onRemoveProduct(template?.id, product)}
-                tagBg={tagBg}
-                tagColor={tagColor}
+          <Stack spacing={1}>
+            <Box>
+              <ProductSelector
+                availableProducts={availableProducts}
+                onSelect={(product) => onSelectProduct(template?.id, product)}
+                isDisabled={availableProducts.length === 0}
               />
-            ))}
+            </Box>
+
+            <Stack direction="row" flexWrap="wrap" spacing={2}>
+              {selectedTags.map((product) => (
+                <ProductTag
+                  key={product?.id}
+                  tag={product?.name}
+                  onRemove={() => onRemoveProduct(template?.id, product)}
+                  tagBg={tagBg}
+                  tagColor={tagColor}
+                />
+              ))}
+            </Stack>
           </Stack>
         </Stack>
+
+        {selectedTags?.length !== 0 && (
+          <CardAccordion
+            label={<Text fontWeight={"semibold"}>Live Products</Text>}
+            body={
+              <>
+                {selectedTags?.map((product) => {
+                  return (
+                    <ProductCard
+                      key={product?.id}
+                      product={product}
+                      onRemove={() => onRemoveProduct(template?.id, product)}
+                    />
+                  );
+                })}
+              </>
+            }
+          />
+        )}
       </Stack>
     );
   }
@@ -229,77 +265,94 @@ const Stories = () => {
   const driverObj = driver({
     steps: [
       {
-        element: '.first-story-card', popover: {
-          title: 'Select the product',
-          description: 'Click here for more details',
+        element: ".first-story-card",
+        popover: {
+          title: "Select the product",
+          description: "Click here for more details",
         },
       },
       {
-        element: '.preview-experience-btn', popover: {
-          title: 'Preview Experience', description: 'Click to preview the experience', onNextClick: () => {
-            const button = document.querySelector('.preview-experience-btn');
+        element: ".preview-experience-btn",
+        popover: {
+          title: "Preview Experience",
+          description: "Click to preview the experience",
+          onNextClick: () => {
+            const button = document.querySelector(".preview-experience-btn");
             button?.click();
-            return false
-          }
-        }
+            return false;
+          },
+        },
       },
       {
-        element: '.preview-experience-card', popover: {
-          title: 'Preview Experience', description: 'Preview the story', onNextClick: () => {
-            driverObj?.moveNext()
-            return false
-          }
-        }
+        element: ".preview-experience-card",
+        popover: {
+          title: "Preview Experience",
+          description: "Preview the story",
+          onNextClick: () => {
+            driverObj?.moveNext();
+            return false;
+          },
+        },
       },
       {
-        element: '.products-selector', popover: {
-          title: 'Select Products', description: 'Select the products for the story', onNextClick: () => {
+        element: ".products-selector",
+        popover: {
+          title: "Select Products",
+          description: "Select the products for the story",
+          onNextClick: () => {
             // Redirect to story builder
-            const button = document.querySelector('.products-selector');
-            button?.click()
-            driverObj?.moveNext()
+            const button = document.querySelector(".products-selector");
+            button?.click();
+            driverObj?.moveNext();
             // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
             return false;
-          }
-        }
+          },
+        },
       },
       {
-        element: '.first-product-selector', popover: {
-          title: 'Attach product', description: 'Click to attach a product to the story', onNextClick: () => {
+        element: ".first-product-selector",
+        popover: {
+          title: "Attach product",
+          description: "Click to attach a product to the story",
+          onNextClick: () => {
             // Redirect to story builder
-            const button = document.querySelector('.first-product-selector');
-            button?.click()
-            driverObj?.moveNext()
+            const button = document.querySelector(".first-product-selector");
+            button?.click();
+            driverObj?.moveNext();
             // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
             return false;
-          }
-        }
+          },
+        },
       },
       {
-        element: '.publish-story-btn', popover: {
-          title: 'Publish Story', description: 'Click to publish the story', onNextClick: () => {
+        element: ".publish-story-btn",
+        popover: {
+          title: "Publish Story",
+          description: "Click to publish the story",
+          onNextClick: () => {
             // Redirect to story builder
-            const button = document.querySelector('.publish-story-btn');
-            button?.click()
-            driverObj?.moveNext()
+            const button = document.querySelector(".publish-story-btn");
+            button?.click();
+            driverObj?.moveNext();
             // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
             return false;
-          }
-        }
-      },],
+          },
+        },
+      },
+    ],
     allowClose: true,
     overlayClickNext: false,
     keyboardControl: false,
-    doneBtnText: 'Finish',
-  })
+    doneBtnText: "Finish",
+  });
   useEffect(() => {
     if (products?.length > 0) {
       setTimeout(() => {
-        driverObj.drive()
-      }, 1000)
+        driverObj.drive();
+      }, 1000);
     }
-  }, [products])
-  console.log('cardSelections', cardSelections)
+  }, [products]);
+  console.log("cardSelections", cardSelections);
   // Get all selected products across all cards
   const getAllSelectedProducts = useCallback(() => {
     return Object.values(cardSelections).flat();
@@ -337,13 +390,13 @@ const Stories = () => {
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => { },
-    removeInfoPoint: () => { },
-    getInfoPoints: () => { },
-    updateInfoPointText: () => { },
+    addInfoPoint: () => {},
+    removeInfoPoint: () => {},
+    getInfoPoints: () => {},
+    updateInfoPointText: () => {},
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => { },
+    handleStyleChange: () => {},
   };
 
   const [contents, setContents] = useState([]);
@@ -380,8 +433,8 @@ const Stories = () => {
     console.log("contents", contents);
     console.log("sheetData", sheetData);
     setTimeout(() => {
-      driverObj?.moveNext()
-    }, 500)
+      driverObj?.moveNext();
+    }, 500);
     // setContents(contents);
     // setSheetData(sheetData);
   };
@@ -391,15 +444,16 @@ const Stories = () => {
     console.log("template", template);
   };
 
-
-
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <ProductDriverContext.Provider value={{ driver: driverObj }}>
-
-
         <HStack p={5} h={"100dvh"}>
-          <Stack spacing={3} w={(contents?.length > 0 || sheetData?.length > 0) ? "50%" : "100%"} h={"100%"} overflowY={"scroll"}>
+          <Stack
+            spacing={3}
+            w={contents?.length > 0 || sheetData?.length > 0 ? "50%" : "70%"}
+            h={"100%"}
+            overflowY={"scroll"}
+          >
             {storyTemplates
               ?.sort((a, b) => b?.id - a?.id)
               ?.map((template, index) => (
@@ -419,27 +473,83 @@ const Stories = () => {
               ))}
           </Stack>
 
-          {(contents?.length > 0 || sheetData?.length > 0) && <Stack w="50%" alignItems="center">
-            <Stack
-              className="preview-experience-card"
-              w="277.4px"
-              h="572.85px"
-              borderWidth={5}
-              borderColor="black"
-              borderRadius={50}
-              overflow="hidden"
-              boxShadow="lg"
-              position="relative"
-            >
-              <CarouselComponent
-                productData={contents || []}
-                defaultSheetData={sheetData || []}
-              />
+          {(contents?.length > 0 || sheetData?.length > 0) && (
+            <Stack w="50%" alignItems="center">
+              <Stack
+                className="preview-experience-card"
+                w="277.4px"
+                h="572.85px"
+                borderWidth={5}
+                borderColor="black"
+                borderRadius={50}
+                overflow="hidden"
+                boxShadow="lg"
+                position="relative"
+              >
+                <CarouselComponent
+                  productData={contents || []}
+                  defaultSheetData={sheetData || []}
+                />
+              </Stack>
             </Stack>
-          </Stack>}
+          )}
         </HStack>
       </ProductDriverContext.Provider>
     </ProductStoryContext.Provider>
+  );
+};
+
+const ProductCard = ({ product, onRemove }) => {
+  return (
+    <HStack
+      justifyContent={"space-between"}
+      boxShadow={"md"}
+      p={1}
+      px={3}
+      borderRadius={10}
+      bg={"gray.100"}
+    >
+      <Text fontWeight={"semibold"}>{product?.name}</Text>
+
+      <HStack>
+        <IconButton icon={<FaArrowUpRightFromSquare />} />
+        <IconButton
+          icon={<MdRemoveCircleOutline fontSize={24} />}
+          onClick={() => onRemove(product?.id)}
+        />
+      </HStack>
+    </HStack>
+  );
+};
+
+const CardAccordion = ({ label, body, headerStyles }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleAccordion = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <Accordion allowToggle index={isOpen ? 0 : -1}>
+      <AccordionItem border={"none"}>
+        <Stack>
+          <AccordionButton
+            onClick={toggleAccordion}
+            borderBottomRadius={isOpen ? 0 : 10}
+            {...headerStyles}
+          >
+            <Stack as="span" flex="1">
+              {label}
+            </Stack>
+            <AccordionIcon />
+          </AccordionButton>
+        </Stack>
+
+        <AccordionPanel pb={3}>
+          <Stack>{body}</Stack>
+        </AccordionPanel>
+      </AccordionItem>
+    </Accordion>
   );
 };
 

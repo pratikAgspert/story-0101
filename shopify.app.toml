@@ -1,14 +1,14 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
-name = "story-0101"
-handle = "story-0101"
-application_url = "https://stroke-resident-are-restrictions.trycloudflare.com"
+name = "App0101"
+handle = "App0101"
+application_url = "https://lift-positioning-forums-tested.trycloudflare.com"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = "agspeak-test1-story-app.myshopify.com"
+dev_store_url = "hellostorexyz.myshopify.com"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://stroke-resident-are-restrictions.trycloudflare.com/auth/callback",
-  "https://stroke-resident-are-restrictions.trycloudflare.com/auth/shopify/callback",
-  "https://stroke-resident-are-restrictions.trycloudflare.com/api/auth/callback"
+  "https://lift-positioning-forums-tested.trycloudflare.com/auth/callback",
+  "https://lift-positioning-forums-tested.trycloudflare.com/auth/shopify/callback",
+  "https://lift-positioning-forums-tested.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

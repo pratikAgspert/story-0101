@@ -507,6 +507,9 @@ const AnalyticsCard = ({
 
 const TopCardsPopover = ({ modalOptions, selectedTabIndex }) => {
   const { isOpen, onClose } = modalOptions;
+
+  const [selectedTab, setSelectedTab] = useState(selectedTabIndex);
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} size={"lg"}>
@@ -516,7 +519,8 @@ const TopCardsPopover = ({ modalOptions, selectedTabIndex }) => {
             <Stack alignItems={"center"}>
               <TabbedContent
                 tabs={["Unique Experiences", "Unique Links", "Live Products"]}
-                selectedTabIndex={selectedTabIndex}
+                selectedTabIndex={selectedTab}
+                onTabChange={setSelectedTab}
               >
                 <Stack alignItems={"center"}>
                   <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
