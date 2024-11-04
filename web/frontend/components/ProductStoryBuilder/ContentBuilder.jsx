@@ -1028,6 +1028,7 @@ const ImportStorySection = ({
 }) => {
   const [isLocalStorageEmpty, setIsLocalStorageEmpty] = useState(false);
   const { isOpen, onToggle } = useDisclosure();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: storyTemplates,
@@ -1125,10 +1126,15 @@ const ImportStorySection = ({
                           textTransform={"capitalize"}
                           onClick={async () => {
                             onToggle();
-                            await setValue("template", {
-                              description: template,
-                            });
+                            // await setValue("template", {
+                            //   description: template,
+                            // });
                             await onSelectTemplate();
+                            const newSearchParams = new URLSearchParams(
+                              searchParams
+                            );
+                            newSearchParams.set("templateId", temp?.id);
+                            setSearchParams(newSearchParams.toString());
                           }}
                           isLoading={isStoryTemplatesPending}
                           isDisabled={
