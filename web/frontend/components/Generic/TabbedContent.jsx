@@ -1,4 +1,4 @@
-import { Children } from 'react';
+import { Children } from "react";
 import {
   Tab,
   TabList,
@@ -6,8 +6,8 @@ import {
   TabPanels,
   Tabs,
   Flex,
-} from '@chakra-ui/react';
-import HorizontalScrollableWrapper from './HorizontalScrollableWrapper';
+} from "@chakra-ui/react";
+import HorizontalScrollableWrapper from "./HorizontalScrollableWrapper";
 
 export const TabbedContent = ({
   tabs,
@@ -32,28 +32,28 @@ export const TabbedContent = ({
       onChange={(index) => {
         onTabChange && onTabChange(index);
       }}
-      colorScheme={colorScheme || 'green'}
-      variant={variant || 'soft-rounded'}
+      colorScheme={colorScheme || "green"}
+      variant={variant || "soft-rounded"}
       {...props}
     >
       {isFlexWrapTabList && (
-        <Flex alignItems={'baseline'} justifyContent={'space-between'}>
+        <Flex alignItems={"baseline"} justifyContent={"space-between"}>
           <TabList
             gap={2}
             py={2}
             px={1}
-            overflow={'auto hidden'}
-            scrollBehavior={'smooth'}
+            overflow={"auto hidden"}
+            scrollBehavior={"smooth"}
             flex={1}
-            height={'100%'}
-            flexWrap={'wrap'}
+            height={"100%"}
+            flexWrap={"wrap"}
           >
             {tabs.map((tab) => (
               <Tab
-                textTransform={'capitalize'}
+                textTransform={"capitalize"}
                 key={tab}
                 fontSize={14}
-                boxShadow={'0 0 3px 0 lightgray'}
+                boxShadow={"0 0 3px 0 lightgray"}
               >
                 {tab}
               </Tab>
@@ -68,19 +68,19 @@ export const TabbedContent = ({
         <Flex
           py={1}
           px={4}
-          alignItems={'center'}
-          justifyContent={'space-between'}
+          alignItems={"center"}
+          justifyContent={"space-between"}
         >
           <TabList
             gap={1}
             pb={3}
-            overflow={'auto hidden'}
-            scrollBehavior={'smooth'}
+            overflow={"auto hidden"}
+            scrollBehavior={"smooth"}
             flex={1}
-            height={'100%'}
+            height={"100%"}
           >
             {tabs.map((tab) => (
-              <Tab textTransform={'uppercase'} key={tab}>
+              <Tab textTransform={"capitalize"} key={tab} fontSize={14}>
                 {tab}
               </Tab>
             ))}
@@ -92,9 +92,9 @@ export const TabbedContent = ({
 
       {scrollableTabList && (
         <HorizontalScrollableWrapper>
-          <TabList width={'fit-content'} gap={2}>
+          <TabList width={"fit-content"} gap={2}>
             {tabs.map((tab) => (
-              <Tab textTransform={'uppercase'} key={tab} whiteSpace={'nowrap'}>
+              <Tab textTransform={"uppercase"} key={tab} whiteSpace={"nowrap"}>
                 {tab}
               </Tab>
             ))}

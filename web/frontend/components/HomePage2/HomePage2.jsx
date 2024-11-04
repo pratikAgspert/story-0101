@@ -15,6 +15,7 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import React, { useMemo, useState, useEffect } from "react";
 import { CgArrowLeft, CgArrowRight, CgClose } from "react-icons/cg";
@@ -24,6 +25,7 @@ import { ProductStoryContext } from "../../services/context";
 import QRCode from "../../assets/AgSpeak_qr_code.png";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import TabbedContent from "../Generic/TabbedContent";
 
 const HomePage2 = () => {
   const [selectedGeofence, setSelectedGeofence] = useState(null);
@@ -35,13 +37,13 @@ const HomePage2 = () => {
 
   // Create a context value object
   const productStoryContextValue = {
-    addInfoPoint: () => { },
-    removeInfoPoint: () => { },
-    getInfoPoints: () => { },
-    updateInfoPointText: () => { },
+    addInfoPoint: () => {},
+    removeInfoPoint: () => {},
+    getInfoPoints: () => {},
+    updateInfoPointText: () => {},
     isDisabled: true,
     styles: {},
-    handleStyleChange: () => { },
+    handleStyleChange: () => {},
   };
 
   const totalScans = qrStats?.qrstats?.total_scans;
@@ -53,55 +55,81 @@ const HomePage2 = () => {
     qrStats?.qrstats?.locations?.pincodes || {}
   )?.length;
 
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const driverObj = driver({
     steps: [
       {
-        element: '.step-1', popover: {
-          title: 'Select the product',
-          description: 'Click here for more details',
+        element: ".step-1",
+        popover: {
+          title: "Select the product",
+          description: "Click here for more details",
         },
       },
       {
-        element: '.preview-experience-btn', popover: {
-          title: 'Preview Experience', description: 'Click to preview the experience', onNextClick: () => {
-            const button = document.querySelector('.preview-experience-btn');
+        element: ".preview-experience-btn",
+        popover: {
+          title: "Preview Experience",
+          description: "Click to preview the experience",
+          onNextClick: () => {
+            const button = document.querySelector(".preview-experience-btn");
             button?.click();
-            return false
-          }
-        }
+            return false;
+          },
+        },
       },
       {
-        element: '.preview-qr-code', popover: {
-          title: 'Preview QR Code', description: 'scan this QR code to see the experience', onNextClick: () => {
-            onClose()
-            driverObj?.moveNext()
-            return false
-          }
-        }
+        element: ".preview-qr-code",
+        popover: {
+          title: "Preview QR Code",
+          description: "scan this QR code to see the experience",
+          onNextClick: () => {
+            onClose();
+            driverObj?.moveNext();
+            return false;
+          },
+        },
       },
       {
-        element: '.add-story-btn', popover: {
-          title: 'Add Story', description: 'Click to create a product story', onNextClick: () => {
+        element: ".add-story-btn",
+        popover: {
+          title: "Add Story",
+          description: "Click to create a product story",
+          onNextClick: () => {
             // Redirect to story builder
-            const button = document.querySelector('.add-story-btn');
-            button?.click()
+            const button = document.querySelector(".add-story-btn");
+            button?.click();
             // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
             return false;
-          }
-        }
-      }],
+          },
+        },
+      },
+    ],
     allowClose: true,
     overlayClickNext: false,
     keyboardControl: false,
-    doneBtnText: 'Finish',
-  })
-  useEffect(() => {
-    driverObj.drive()
-  }, [])
+    doneBtnText: "Finish",
+  });
+  // useEffect(() => {
+  //   driverObj.drive();
+  // }, []);
+
+  const topCardsData = [
+    {
+      label: "Unique experiences",
+      value: "N/A Experiences",
+    },
+    {
+      label: "Unique links",
+      value: "N/A Links",
+    },
+    {
+      label: "Live on",
+      value: "N/A Products",
+    },
+  ];
 
   return (
-    <HStack p={3} alignItems={"start"} >
+    <HStack p={3} alignItems={"start"}>
       <Stack w={"70%"} h={"96dvh"} spacing={3} overflow={"scroll"}>
         <Stack className="step-1" spacing={0}>
           <Text>Click on link to get a demo experience</Text>
@@ -116,12 +144,20 @@ const HomePage2 = () => {
         </Stack>
 
         <Grid templateColumns="repeat(3, 1fr)" gap={3}>
-          <TopStatCard label={"Unique experiences"} value={"N/A Experiences"} />
-          <TopStatCard label={"Unique links"} value={"N/A Links"} />
-          <TopStatCard label={"Live on"} value={"N/A Products"} />
+          {topCardsData?.map((card, index) => {
+            return (
+              <TopStatCard
+                key={index}
+                label={card?.label}
+                value={card?.value}
+                selectedTabIndex={index}
+              />
+            );
+          })}
         </Grid>
 
-        <Button className="preview-experience-btn"
+        <Button
+          className="preview-experience-btn"
           px={10}
           py={6}
           bg={"green.300"}
@@ -131,10 +167,10 @@ const HomePage2 = () => {
           color={"white"}
           borderRadius={100}
           onClick={() => {
-            onOpen()
+            onOpen();
             setTimeout(() => {
-              driverObj?.moveNext()
-            }, 500)
+              driverObj?.moveNext();
+            }, 500);
           }}
         >
           Preview
@@ -171,7 +207,8 @@ const HomePage2 = () => {
             </ModalFooter>
           </ModalContent>
         </Modal>
-        <Button className="add-story-btn"
+        <Button
+          className="add-story-btn"
           px={10}
           py={6}
           bg={"green.300"}
@@ -181,8 +218,8 @@ const HomePage2 = () => {
           color={"white"}
           borderRadius={100}
           onClick={() => {
-            driverObj?.moveNext()
-            window.location.href = '/storyBuilder?productstory=draft'
+            driverObj?.moveNext();
+            window.location.href = "/storyBuilder";
           }} // Redirect to story builder
         >
           Create your first experience
@@ -314,23 +351,39 @@ const HomePage2 = () => {
           )}
         </ProductStoryContext.Provider>
       </Stack>
-    </HStack >
+    </HStack>
   );
 };
 
-const TopStatCard = ({ label, value }) => {
+const TopStatCard = ({ label, value, selectedTabIndex }) => {
+  const modalOptions = useDisclosure();
+  const { onOpen } = modalOptions;
   return (
-    <GridItem bg={"white"} borderRadius={5} p={3.5} py={5} spacing={0}>
-      <HStack justifyContent={"space-between"}>
-        <Text fontSize={14} fontWeight={"medium"}>
-          {label}
+    <>
+      <GridItem
+        bg={"white"}
+        borderRadius={5}
+        p={3.5}
+        py={5}
+        spacing={0}
+        onClick={onOpen}
+      >
+        <HStack justifyContent={"space-between"}>
+          <Text fontSize={14} fontWeight={"medium"}>
+            {label}
+          </Text>
+          <CgArrowRight fontSize={20} />
+        </HStack>
+        <Text fontSize={20} fontWeight={"bold"}>
+          {value}
         </Text>
-        <CgArrowRight fontSize={20} />
-      </HStack>
-      <Text fontSize={20} fontWeight={"bold"}>
-        {value}
-      </Text>
-    </GridItem>
+      </GridItem>
+
+      <TopCardsPopover
+        modalOptions={modalOptions}
+        selectedTabIndex={selectedTabIndex}
+      />
+    </>
   );
 };
 
@@ -448,6 +501,40 @@ const AnalyticsCard = ({
           </Text>
         </GridItem>
       )}
+    </>
+  );
+};
+
+const TopCardsPopover = ({ modalOptions, selectedTabIndex }) => {
+  const { isOpen, onClose } = modalOptions;
+  return (
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} size={"lg"}>
+        <ModalOverlay />
+        <ModalContent borderRadius={15}>
+          <ModalBody py={6}>
+            <Stack alignItems={"center"}>
+              <TabbedContent
+                tabs={["Unique Experiences", "Unique Links", "Live Products"]}
+                selectedTabIndex={selectedTabIndex}
+              >
+                <Stack alignItems={"center"}>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                </Stack>
+                <Stack alignItems={"center"}>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                </Stack>
+                <Stack alignItems={"center"}>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                  <Text>Helllo Helllo Helllo Helllo Helllo Helllo Helllo</Text>
+                </Stack>
+              </TabbedContent>
+            </Stack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
