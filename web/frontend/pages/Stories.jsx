@@ -1,4 +1,4 @@
-import React, { useState, useCallback, memo } from "react";
+import React, { useState, useCallback, useEffect, memo } from "react";
 import {
   Box,
   Button,
@@ -19,7 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
-import { ProductStoryContext } from "../services/context";
+import { ProductDriverContext, ProductStoryContext } from "../services/context";
 import { useProducts } from "../apiHooks/useProducts";
 import {
   STORY_TEMPLATE_QUERY_KEY,
@@ -32,6 +32,8 @@ import {
   handleSavedOrPublishData,
 } from "../components/ProductStoryBuilder/storyUtils";
 import { useSearchParams } from "react-router-dom";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -62,14 +64,15 @@ const ProductSelector = memo(({ availableProducts, onSelect, isDisabled }) => (
       textAlign="left"
       isDisabled={isDisabled}
       fontSize="sm"
+      className="products-selector"
     >
       {availableProducts.length > 0
         ? "Select products..."
         : "No more products available"}
     </MenuButton>
-    <MenuList>
-      {availableProducts.map((product) => (
-        <MenuItem key={product.id} onClick={() => onSelect(product)}>
+    <MenuList overflow={'scroll'} maxH={'80vh'}>
+      {availableProducts.map((product, index) => (
+        <MenuItem className="first-product-selector" key={product.id} onClick={() => onSelect(product)}>
           {product?.name}
         </MenuItem>
       ))}
@@ -91,6 +94,7 @@ const Card = memo(
     onPreview,
     onEdit,
     templateId,
+    className = ''
   }) => {
     const [searchParams, setSearchParams] = useSearchParams();
 
@@ -117,6 +121,7 @@ const Card = memo(
         borderRadius="xl"
         borderWidth={templateId === template?.id ? 2 : 0}
         borderColor={templateId === template?.id ? "green" : "white"}
+        className={className}
       >
         <HStack justifyContent="space-between">
           <Text size="sm" fontWeight="semibold">
@@ -140,6 +145,7 @@ const Card = memo(
               Edit
             </Tag>
             <Tag
+              className="preview-experience-btn"
               fontSize="xs"
               p={2}
               px={4}
@@ -149,6 +155,7 @@ const Card = memo(
               Preview
             </Tag>
             {isUpdatingStoryTemplate ? <Spinner /> : <Tag
+              className="publish-story-btn"
               fontSize="xs"
               p={2}
               px={4}
@@ -219,6 +226,79 @@ const Stories = () => {
       setCardSelections(storyPreSelectedProducts);
     }
   }, [storyTemplates]);
+  const driverObj = driver({
+    steps: [
+      {
+        element: '.first-story-card', popover: {
+          title: 'Select the product',
+          description: 'Click here for more details',
+        },
+      },
+      {
+        element: '.preview-experience-btn', popover: {
+          title: 'Preview Experience', description: 'Click to preview the experience', onNextClick: () => {
+            const button = document.querySelector('.preview-experience-btn');
+            button?.click();
+            return false
+          }
+        }
+      },
+      {
+        element: '.preview-experience-card', popover: {
+          title: 'Preview Experience', description: 'Preview the story', onNextClick: () => {
+            driverObj?.moveNext()
+            return false
+          }
+        }
+      },
+      {
+        element: '.products-selector', popover: {
+          title: 'Select Products', description: 'Select the products for the story', onNextClick: () => {
+            // Redirect to story builder
+            const button = document.querySelector('.products-selector');
+            button?.click()
+            driverObj?.moveNext()
+            // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
+            return false;
+          }
+        }
+      },
+      {
+        element: '.first-product-selector', popover: {
+          title: 'Attach product', description: 'Click to attach a product to the story', onNextClick: () => {
+            // Redirect to story builder
+            const button = document.querySelector('.first-product-selector');
+            button?.click()
+            driverObj?.moveNext()
+            // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
+            return false;
+          }
+        }
+      },
+      {
+        element: '.publish-story-btn', popover: {
+          title: 'Publish Story', description: 'Click to publish the story', onNextClick: () => {
+            // Redirect to story builder
+            const button = document.querySelector('.publish-story-btn');
+            button?.click()
+            driverObj?.moveNext()
+            // window.location.href = '/story-builder'; // Change this to the actual path of your story builder
+            return false;
+          }
+        }
+      },],
+    allowClose: true,
+    overlayClickNext: false,
+    keyboardControl: false,
+    doneBtnText: 'Finish',
+  })
+  useEffect(() => {
+    if (products?.length > 0) {
+      setTimeout(() => {
+        driverObj.drive()
+      }, 1000)
+    }
+  }, [products])
   console.log('cardSelections', cardSelections)
   // Get all selected products across all cards
   const getAllSelectedProducts = useCallback(() => {
@@ -299,6 +379,9 @@ const Stories = () => {
     );
     console.log("contents", contents);
     console.log("sheetData", sheetData);
+    setTimeout(() => {
+      driverObj?.moveNext()
+    }, 500)
     // setContents(contents);
     // setSheetData(sheetData);
   };
@@ -308,46 +391,54 @@ const Stories = () => {
     console.log("template", template);
   };
 
+
+
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
-      <HStack p={5} h={"100dvh"}>
-        <Stack spacing={3} w={(contents?.length > 0 || sheetData?.length > 0) ? "50%" : "100%"} h={"100%"} overflowY={"scroll"}>
-          {storyTemplates
-            ?.sort((a, b) => b?.id - a?.id)
-            ?.map((template, index) => (
-              <Card
-                key={template.id}
-                index={index}
-                template={template}
-                selectedTags={cardSelections?.[template?.id] || []}
-                availableProducts={getAvailableProducts()}
-                onSelectProduct={handleSelectProduct}
-                onRemoveProduct={handleRemoveProduct}
-                onPreview={handlePreview}
-                onEdit={handleEdit}
-                templateId={Number(templateId)}
-              />
-            ))}
-        </Stack>
+      <ProductDriverContext.Provider value={{ driver: driverObj }}>
 
-        {(contents?.length > 0 || sheetData?.length > 0) && <Stack w="50%" alignItems="center">
-          <Stack
-            w="277.4px"
-            h="572.85px"
-            borderWidth={5}
-            borderColor="black"
-            borderRadius={50}
-            overflow="hidden"
-            boxShadow="lg"
-            position="relative"
-          >
-            <CarouselComponent
-              productData={contents || []}
-              defaultSheetData={sheetData || []}
-            />
+
+        <HStack p={5} h={"100dvh"}>
+          <Stack spacing={3} w={(contents?.length > 0 || sheetData?.length > 0) ? "50%" : "100%"} h={"100%"} overflowY={"scroll"}>
+            {storyTemplates
+              ?.sort((a, b) => b?.id - a?.id)
+              ?.map((template, index) => (
+                <Card
+                  className="first-story-card"
+                  key={template.id}
+                  index={index}
+                  template={template}
+                  selectedTags={cardSelections?.[template?.id] || []}
+                  availableProducts={getAvailableProducts()}
+                  onSelectProduct={handleSelectProduct}
+                  onRemoveProduct={handleRemoveProduct}
+                  onPreview={handlePreview}
+                  onEdit={handleEdit}
+                  templateId={Number(templateId)}
+                />
+              ))}
           </Stack>
-        </Stack>}
-      </HStack>
+
+          {(contents?.length > 0 || sheetData?.length > 0) && <Stack w="50%" alignItems="center">
+            <Stack
+              className="preview-experience-card"
+              w="277.4px"
+              h="572.85px"
+              borderWidth={5}
+              borderColor="black"
+              borderRadius={50}
+              overflow="hidden"
+              boxShadow="lg"
+              position="relative"
+            >
+              <CarouselComponent
+                productData={contents || []}
+                defaultSheetData={sheetData || []}
+              />
+            </Stack>
+          </Stack>}
+        </HStack>
+      </ProductDriverContext.Provider>
     </ProductStoryContext.Provider>
   );
 };

@@ -257,7 +257,7 @@ const ImageSphere = ({
 
   const t = new THREE.TextureLoader();
   t.load(
-    image_url,
+    `${image_url}?not-from-cache`,
     (data) => {
       imageTexture.current = data;
       setLoadingPercentage(100);
