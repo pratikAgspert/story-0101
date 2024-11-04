@@ -688,7 +688,20 @@ const ContentBuilder = ({
         driverObj?.drive();
       }, 200);
     }
+
+    const savedStoryName = localStorage.getItem("storyName");
+    if (savedStoryName) {
+      setValue("storyName", savedStoryName);
+    }
   }, []);
+
+  const watchStoryName = watch("storyName");
+
+  useEffect(() => {
+    if (watchStoryName) {
+      localStorage.setItem("storyName", watchStoryName);
+    }
+  }, [watchStoryName]);
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
