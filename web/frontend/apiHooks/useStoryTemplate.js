@@ -30,7 +30,7 @@ export const useUpdateStoryTemplate = () => {
   const endPoint = BASE_URL + `kvk/story_template/`;
 
   const updateStoryTemplate = async ({ id, formData }) => {
-    const data = await makeRequest(endPoint + `${id}/`, "PUT", getToken(), formData);
+    const data = await makeRequest(endPoint + `${id}/publish/`, "PUT", getToken(), formData);
     return data;
   }
 

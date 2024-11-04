@@ -104,11 +104,10 @@ const Card = memo(
 
     const handleUpdateStoryTemplate = async () => {
       const updatedStoryTemplate = {
-        ...template,
-        products: selectedTags?.map((product) => product?.id),
+        product_ids: selectedTags?.map((product) => product?.id),
       };
 
-      updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate }); //TODO:  a few changes may be required here
+      updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate });
     };
 
     return (
@@ -220,6 +219,7 @@ const Stories = () => {
       setCardSelections(storyPreSelectedProducts);
     }
   }, [storyTemplates]);
+  console.log('cardSelections', cardSelections)
   // Get all selected products across all cards
   const getAllSelectedProducts = useCallback(() => {
     return Object.values(cardSelections).flat();
@@ -311,7 +311,7 @@ const Stories = () => {
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <HStack p={5} h={"100dvh"}>
-        <Stack spacing={3} w="50%" h={"100%"} overflowY={"scroll"}>
+        <Stack spacing={3} w={(contents?.length > 0 || sheetData?.length > 0) ? "50%" : "100%"} h={"100%"} overflowY={"scroll"}>
           {storyTemplates
             ?.sort((a, b) => b?.id - a?.id)
             ?.map((template, index) => (
@@ -330,7 +330,7 @@ const Stories = () => {
             ))}
         </Stack>
 
-        <Stack w="50%" alignItems="center">
+        {(contents?.length > 0 || sheetData?.length > 0) && <Stack w="50%" alignItems="center">
           <Stack
             w="277.4px"
             h="572.85px"
@@ -346,7 +346,7 @@ const Stories = () => {
               defaultSheetData={sheetData || []}
             />
           </Stack>
-        </Stack>
+        </Stack>}
       </HStack>
     </ProductStoryContext.Provider>
   );
