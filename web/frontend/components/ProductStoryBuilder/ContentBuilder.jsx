@@ -152,6 +152,9 @@ const ContentBuilder = ({
         templateStory?.name
       );
 
+      storeInLocalStorage("storyName", templateStory?.name);
+      setValue("storyName", templateStory?.name);
+
       searchParams.delete("edit");
       setSearchParams(searchParams.toString());
     }
@@ -162,15 +165,21 @@ const ContentBuilder = ({
   useEffect(() => {
     // Always check localStorage first when switching to draft
     if (!templateStory) {
-      const { contentData, sheetData } = getLocalStorageData();
+      const { contentData, sheetData, storyName } = getLocalStorageData();
       setContents(contentData);
       setSheetData(sheetData);
+      if (storyName) {
+        setValue("storyName", storyName);
+      }
       return;
     }
 
     if (templateStory) {
       const { data, general_sheet, is_general_sheet } =
         templateStory?.description;
+
+      storeInLocalStorage("storyName", templateStory?.name);
+      setValue("storyName", templateStory?.name);
 
       if (is_general_sheet) {
         setContents(data || []);
@@ -195,6 +204,7 @@ const ContentBuilder = ({
       // Set empty arrays when no storyData is available
       setContents([]);
       setSheetData([]);
+      setValue("storyName", undefined);
     }
   }, [templateStory]);
 
@@ -385,9 +395,9 @@ const ContentBuilder = ({
       saveProductStory(story, {
         onSuccess: (data) => {
           console.log("NEW PRODUCT STORY saved: ", data);
-          if (action === "publish") {
-            handlePublishProductStory(data?.id);
-          }
+          // if (action === "publish") {
+          //   handlePublishProductStory(data?.id);
+          // }
 
           toast({
             status: "success",
@@ -401,6 +411,7 @@ const ContentBuilder = ({
           removeFromLocalStorage(`content`);
           removeFromLocalStorage(`sheet`);
           removeFromLocalStorage(`urlMap`);
+          removeFromLocalStorage(`storyName`);
         },
         onError: (error) => {
           toast({
@@ -431,6 +442,7 @@ const ContentBuilder = ({
             removeFromLocalStorage(`content`);
             removeFromLocalStorage(`sheet`);
             removeFromLocalStorage(`urlMap`);
+            removeFromLocalStorage(`storyName`);
           },
           onError: (error) => {
             toast({
@@ -699,9 +711,16 @@ const ContentBuilder = ({
 
   useEffect(() => {
     if (watchStoryName) {
-      localStorage.setItem("storyName", watchStoryName);
+      storeInLocalStorage("storyName", watchStoryName);
     }
   }, [watchStoryName]);
+
+  useEffect(() => {
+    if (contents?.length === 0 && sheetData?.length === 0) {
+      removeFromLocalStorage("storyName");
+      setValue("storyName", "");
+    }
+  }, [contents, sheetData]);
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
@@ -758,49 +777,50 @@ const ContentBuilder = ({
               )}
             </HStack>
 
-            {!templateStory && (
-              <ImportStorySection
-                formMethods={formMethods}
-                productId={productId}
-                isDisabled={isDisabled}
-                draftStoryId={draftStoryId}
-                publishedStoryId={publishedStoryId}
-                contents={contents}
-                sheetData={sheetData}
-                isSavedLoading={isProductStoryDraftPending}
-                isPublishedLoading={isPublishedStoryPending}
-                onSelectTemplate={() => {
-                  const template = watch("template");
+            {!templateStory ||
+              ((contents && sheetData)?.length === 0 && (
+                <ImportStorySection
+                  formMethods={formMethods}
+                  productId={productId}
+                  isDisabled={isDisabled}
+                  draftStoryId={draftStoryId}
+                  publishedStoryId={publishedStoryId}
+                  contents={contents}
+                  sheetData={sheetData}
+                  isSavedLoading={isProductStoryDraftPending}
+                  isPublishedLoading={isPublishedStoryPending}
+                  onSelectTemplate={() => {
+                    const template = watch("template");
 
-                  if (template)
+                    if (template)
+                      handleSavedOrPublishData(
+                        template,
+                        setContents,
+                        setSheetData,
+                        filterCarouselTypes,
+                        productId
+                      );
+                  }}
+                  onImportSaveClick={() =>
                     handleSavedOrPublishData(
-                      template,
+                      productStoryDraft,
                       setContents,
                       setSheetData,
                       filterCarouselTypes,
                       productId
-                    );
-                }}
-                onImportSaveClick={() =>
-                  handleSavedOrPublishData(
-                    productStoryDraft,
-                    setContents,
-                    setSheetData,
-                    filterCarouselTypes,
-                    productId
-                  )
-                }
-                onImportPublishClick={() =>
-                  handleSavedOrPublishData(
-                    publishedStory,
-                    setContents,
-                    setSheetData,
-                    filterCarouselTypes,
-                    productId
-                  )
-                }
-              />
-            )}
+                    )
+                  }
+                  onImportPublishClick={() =>
+                    handleSavedOrPublishData(
+                      publishedStory,
+                      setContents,
+                      setSheetData,
+                      filterCarouselTypes,
+                      productId
+                    )
+                  }
+                />
+              ))}
 
             <VStack mt={24} spacing={4} align="stretch">
               {(contents.length > 0 || sheetData.length > 0) && (

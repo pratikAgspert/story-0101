@@ -182,16 +182,20 @@ export const getLocalStorageData = () => {
 
   const localUrlMapDataString = localStorage.getItem(`urlMap`);
 
+  const localStoryNameDataString = localStorage.getItem(`storyName`);
+
   try {
     // If any localStorage data exists, use it
     if (
       localContentDataString ||
       localSheetDataString ||
-      localUrlMapDataString
+      localUrlMapDataString ||
+      localStoryNameDataString
     ) {
       const localUrlMapData = JSON.parse(localUrlMapDataString || "{}");
       const localContentData = JSON.parse(localContentDataString || "[]");
       const localSheetData = JSON.parse(localSheetDataString || "[]");
+      const localStoryName = JSON.parse(localStoryNameDataString || "[]");
 
       const [replacedContentData, usedContentKeys] = updateImageUrls(
         localContentData,
@@ -206,11 +210,13 @@ export const getLocalStorageData = () => {
       console.log("Local Storage Data:", {
         content: replacedContentData,
         sheet: replacedSheetData,
+        storyName: localStoryName,
       });
 
       return {
         contentData: replacedContentData,
         sheetData: replacedSheetData,
+        storyName: localStoryName,
       };
     }
   } catch (error) {
@@ -220,6 +226,7 @@ export const getLocalStorageData = () => {
   return {
     contentData: [],
     sheetData: [],
+    storyName: "",
   };
 };
 
