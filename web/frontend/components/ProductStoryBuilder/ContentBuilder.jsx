@@ -142,10 +142,7 @@ const ContentBuilder = ({
 
   const { control, watch, setValue, getValues, setError } = formMethods;
 
-  // const isEditPublishStory = searchParams.get("edit");
-
   useEffect(() => {
-    // if (isEditPublishStory === "published") {
     if (templateStory) {
       handleSavedOrPublishData(
         templateStory,
@@ -158,17 +155,11 @@ const ContentBuilder = ({
       searchParams.delete("edit");
       setSearchParams(searchParams.toString());
     }
-    // }
-  }, [
-    // isEditPublishStory,
-    templateStory,
-  ]);
+  }, [templateStory]);
 
   const currentStory = watch("stories");
 
   useEffect(() => {
-    // let storyData;
-
     // Always check localStorage first when switching to draft
     if (!templateStory) {
       const { contentData, sheetData } = getLocalStorageData();
@@ -177,31 +168,7 @@ const ContentBuilder = ({
       return;
     }
 
-    // Handle published and saved cases
-    // if (currentStory === "published") {
-    //   storyData = publishedStory;
-
-    //   if (publishedStoryId === null) {
-    //     toast({
-    //       status: "info",
-    //       title: "No Published Story Data",
-    //     });
-    //   }
-    // } else if (currentStory === "saved") {
-    //   storyData = productStoryDraft;
-
-    //   if (draftStoryId === null) {
-    //     toast({
-    //       status: "info",
-    //       title: "No Saved Story Data",
-    //     });
-    //   }
-    // }
-
-    if (
-      templateStory
-      //  && currentStory !== "draft"
-    ) {
+    if (templateStory) {
       const { data, general_sheet, is_general_sheet } =
         templateStory?.description;
 
@@ -229,10 +196,7 @@ const ContentBuilder = ({
       setContents([]);
       setSheetData([]);
     }
-  }, [
-    templateStory,
-    // currentStory, publishedStory, productStoryDraft, productId
-  ]);
+  }, [templateStory]);
 
   const toastId = "productStoryToastId";
   const toastConfig = {
@@ -374,35 +338,6 @@ const ContentBuilder = ({
     });
   };
 
-  // const handlePublishProductStory = async (productId) => {
-  //   publishProductStory(productId, {
-  //     onSuccess: (data) => {
-  //       console.log("Published product story: ", data);
-  //       toast2({
-  //         status: "success",
-  //         title: `Product with ID ${productDisplayId} has been published.`,
-  //       });
-
-  //       [PUBLISHED_PRODUCT_STORY_QUERY_KEY, PRODUCT_LIST_QUERY_KEY]?.map(
-  //         (key) =>
-  //           queryClient.invalidateQueries({
-  //             queryKey: [key],
-  //           })
-  //       );
-  //       onClose();
-  //     },
-  //     onError: (error) => {
-  //       toast2({
-  //         status: "error",
-  //         title: "Can't publish Product Story.",
-  //         description:
-  //           error?.message ||
-  //           "An error occurred while publishing product story.",
-  //       });
-  //     },
-  //   });
-  // };
-
   const handleSaveAndEditProductStory = async (action = "save") => {
     const storyName = getValues("storyName");
     if (!storyName?.trim()) {
@@ -440,7 +375,6 @@ const ContentBuilder = ({
     const story = {
       name: storyName,
       description: {
-        // data:[...replacedContentData,...replacedSheetData] //when is_general_sheet: false
         data: replacedContentData,
         is_general_sheet: true,
         general_sheet: replacedSheetData,
@@ -467,9 +401,6 @@ const ContentBuilder = ({
           removeFromLocalStorage(`content`);
           removeFromLocalStorage(`sheet`);
           removeFromLocalStorage(`urlMap`);
-
-          // setValue("stories", "saved");
-          // onClose();
         },
         onError: (error) => {
           toast({
@@ -500,9 +431,6 @@ const ContentBuilder = ({
             removeFromLocalStorage(`content`);
             removeFromLocalStorage(`sheet`);
             removeFromLocalStorage(`urlMap`);
-
-            // setValue("stories", "saved");
-            // onClose();
           },
           onError: (error) => {
             toast({
@@ -518,65 +446,12 @@ const ContentBuilder = ({
     }
   };
 
-  // const hasShownSavedAlert = watch("hasShownSavedAlert");
-  // const isAlertOpen = watch("isAlertOpen");
-
-  // const isDisabled = currentStory !== "draft";
   const isDisabled = false;
-  // const isPublishSelected = currentStory === "published";
-
-  // const handleSavedEditConfirmation = useCallback(() => {
-  //   setValue("hasShownSavedAlert", true);
-  //   setValue("isAlertOpen", false);
-
-  //   // const storyData = isPublishSelected ? publishedStory : productStoryDraft;
-  //   const storyData = productStoryDraft;
-
-  //   if (storyData) {
-  //     const { data, general_sheet, is_general_sheet } =
-  //       storyData?.description || {};
-
-  //     const { filterCarouselData, filterSheetData } =
-  //       filterStoryData(storyData);
-
-  //     if (is_general_sheet) {
-  //       storeInLocalStorage(`content`, data);
-  //       storeInLocalStorage(`sheet`, general_sheet);
-  //       setContents(data || []);
-  //       setSheetData(general_sheet || []);
-  //     } else {
-  //       storeInLocalStorage(`content`, filterCarouselData);
-  //       storeInLocalStorage(`sheet`, filterSheetData);
-  //       setContents(filterCarouselData || []);
-  //       setSheetData(filterSheetData || []);
-  //     }
-  //   }
-
-  //   toast({
-  //     status: "success",
-  //     title: "The story has been copied to your draft.",
-  //   });
-  //   // setValue("stories", "draft");
-  // }, [
-  //   productStoryDraft,
-  //   publishedStory,
-  //   //  isPublishSelected
-  // ]);
-
-  // const handleSavedStateChange = useCallback(() => {
-  //   if (currentStory === "saved" && !hasShownSavedAlert && !isAlertOpen) {
-  //     setValue("isAlertOpen", true);
-  //   }
-  // }, [currentStory, hasShownSavedAlert, isAlertOpen, setValue]);
 
   const handleAlertClose = useCallback(() => {
     setValue("isAlertOpen", false);
     setValue("hasShownSavedAlert", true);
   }, [setValue]);
-
-  // useEffect(() => {
-  //   draftStoryId && handleSavedStateChange();
-  // }, [contents, sheetData, handleSavedStateChange]);
 
   const updateInfoPointText = useCallback(
     (slideId, pointId, text) => {
@@ -706,8 +581,6 @@ const ContentBuilder = ({
   );
 
   const isNoData = draftStoryId === null;
-  // (currentStory === "saved" && draftStoryId === null) ||
-  // (currentStory === "published" && publishedStoryId === null);
 
   const isNoCardAdded = contents?.length === 0 && sheetData?.length === 0;
 
@@ -810,42 +683,16 @@ const ContentBuilder = ({
 
   useEffect(() => {
     //TODO: check if local storage has data, if not, then show driver
-    // if (localStorage.getItem(`content`) || localStorage.getItem(`sheet`)) {
-    setTimeout(() => {
-      driverObj?.drive();
-    }, 200);
-    // }
+    if (localStorage.getItem(`content`) || localStorage.getItem(`sheet`)) {
+      setTimeout(() => {
+        driverObj?.drive();
+      }, 200);
+    }
   }, []);
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <ProductDriverContext.Provider value={{ driver: driverObj }}>
-        {/* <DeleteConfirmationAlertDialog
-          alertTitle={
-            currentStory === "published"
-              ? "Copy Published Story?"
-              : "Edit Save Story?"
-          }
-          alertDescription={
-            currentStory === "published"
-              ? "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-              : "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-          }
-          onConfirm={handleSavedEditConfirmation}
-          onCancel={handleAlertClose}
-          noCloseIcon
-          triggerButtonProps={{
-            style: { display: "none" },
-          }}
-          confirmButtonProps={{
-            label: "Continue",
-            colorScheme: "blue",
-          }}
-          alertDialogProps={{
-            isOpen: isAlertOpen,
-            onClose: handleAlertClose,
-          }}
-        /> */}
         <Box display="flex" h="98dvh" w={"100%"} overflow={"hidden"}>
           <Box
             width="60%"
@@ -856,8 +703,6 @@ const ContentBuilder = ({
             overflowY={"scroll"}
             pb={"50px"}
           >
-            {/* <CurrentStoryTag currentStory={currentStory} /> */}
-
             <HStack
               position="sticky"
               justifyContent={"flex-end"}
@@ -867,8 +712,6 @@ const ContentBuilder = ({
             >
               {isDisabled ? (
                 // Edit Button
-                // <Popover trigger="hover" placement="top">
-                //   <PopoverTrigger>
                 <Box>
                   <IconButton
                     className="edit-story-btn"
@@ -881,28 +724,6 @@ const ContentBuilder = ({
                   />
                 </Box>
               ) : (
-                // </PopoverTrigger>
-
-                // {isNoData && (
-                //   <PopoverContent>
-                //     <PopoverBody>
-                //       <Stack>
-                //         {currentStory === "saved" ? (
-                //           <Text mb={0}>
-                //             Edit is disabled because there is no saved data to
-                //             copy.
-                //           </Text>
-                //         ) : currentStory === "published" ? (
-                //           <Text mb={0}>
-                //             Edit is disabled because there is no published
-                //             data to copy.
-                //           </Text>
-                //         ) : null}
-                //       </Stack>
-                //     </PopoverBody>
-                //   </PopoverContent>
-                // )}
-                // </Popover>
                 <Stack
                   alignItems={"end"}
                   position={"absolute"}
@@ -1028,30 +849,6 @@ const ContentBuilder = ({
           </Box>
 
           <Stack width="40%" h="100%" alignItems={"center"} spacing={1}>
-            {/* <HStack w={"35%"} mt={1}>
-              <StoryFormSelect
-                inputName={"stories"}
-                noLabel
-                control={control}
-                selectProps={{
-                  borderRadius: 50,
-                }}
-              >
-                <>
-                  {stories?.map((story) => (
-                    <Button
-                      as={"option"}
-                      size={"lg"}
-                      value={story?.value}
-                      key={story?.id}
-                    >
-                      {story?.label}
-                    </Button>
-                  ))}
-                </>
-              </StoryFormSelect>
-            </HStack> */}
-
             <Stack
               w={"277.4px"}
               h={"572.85px"}
@@ -1123,86 +920,12 @@ const ContentBuilder = ({
                             Save is disabled. Ensure you have added atleast one
                             slide.
                           </Text>
-                        ) : // ) : currentStory === "saved" ? (
-                        //   <Text mb={0}>
-                        //     Save is disabled. You can't save directly you have
-                        //     to create an edit draft.
-                        //   </Text>
-                        // ) : currentStory === "published" ? (
-                        //   <Text mb={0}>
-                        //     Save is disabled. You can't save directly after
-                        //     publishing; you have to create an edit draft.
-                        //   </Text>
-                        null}
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                )}
-              </Popover>
-
-              {/* Publish Button */}
-              {/* <Popover trigger="hover" placement="top">
-                <PopoverTrigger>
-                  <Box>
-                    <DeleteConfirmationAlertDialog
-                      alertTitle={"Confirm Publish!"}
-                      alertDescription={
-                        "Are you sure you want to publish this product story? Please ensure that you have saved all the changes."
-                      }
-                      triggerButtonProps={{
-                        isIconButton: true,
-                        icon: <IoCloudUploadSharp fontSize={26} />,
-                        padding: 5,
-
-                        colorScheme: "green",
-                        variant: "solid",
-                        flex: 1,
-                        label: "Publish",
-                        isDisabled:
-                          (contents || sheetData).length === 0 ||
-                          isPublishSelected,
-                      }}
-                      onConfirm={() => {
-                        handleSaveAndEditProductStory("publish");
-                      }}
-                      isPending={
-                        isSaveProductStoryPending ||
-                        isEditProductStoryPending ||
-                        isPublishProductStoryPending
-                      }
-                      confirmButtonProps={{
-                        label: "Publish",
-                        colorScheme: "green",
-                      }}
-                    />
-                  </Box>
-                </PopoverTrigger>
-
-                {((contents || sheetData).length === 0 || isPublishSelected) && (
-                  <PopoverContent>
-                    <PopoverBody>
-                      <Stack>
-                        {currentStory === "draft" ? (
-                          <Text mb={0}>
-                            Publish is disabled. Ensure you have added atleast one
-                            slide.
-                          </Text>
-                        ) : currentStory === "saved" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't save directly you have
-                            to create an edit draft.
-                          </Text>
-                        ) : currentStory === "published" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't publish directly after
-                            publishing; you have to create an edit draft.
-                          </Text>
                         ) : null}
                       </Stack>
                     </PopoverBody>
                   </PopoverContent>
                 )}
-              </Popover> */}
+              </Popover>
             </Stack>
           </Stack>
         </Box>
@@ -1235,22 +958,8 @@ const CurrentStoryTag = ({ currentStory }) => {
       borderLeftRadius={0}
       boxShadow={"md"}
       gap={2}
-      bg={
-        // currentStory === "draft"
-        //   ?
-        "#F4F4F4"
-        // : currentStory === "saved"
-        //   ? "#E0F2F1"
-        //   : "#E8F5E9"
-      }
-      color={
-        // currentStory === "draft"
-        //   ?
-        "#333333"
-        // : currentStory === "saved"
-        //   ? "#00796B"
-        //   : "#1B5E20"
-      }
+      bg={"#F4F4F4"}
+      color={"#333333"}
       initial={!hasAnimatedRef.current ? "hidden" : "visible"}
       animate={!hasAnimatedRef.current ? "visible" : "visible"}
       variants={{
@@ -1295,10 +1004,6 @@ const ImportStorySection = ({
   console.log("storyTemplates: ", storyTemplates);
 
   const { setValue, watch, getValues } = formMethods;
-
-  // useEffect(() => {
-  //   console.log("Values: ", getValues());
-  // }, [watch()]);
 
   useEffect(() => {
     const localContentDataString = localStorage.getItem(`content`);
@@ -1406,46 +1111,6 @@ const ImportStorySection = ({
               </AccordionItem>
             </Accordion>
           </Stack>
-
-          {/* {draftStoryId && (
-            <Button
-              w={"40%"}
-              leftIcon={<LuImport />}
-              fontSize={20}
-              borderRadius={100}
-              py={7}
-              bg={"#E0F2F1"}
-              color={"#00796B"}
-              onClick={() => {
-                onImportSaveClick();
-                setValue("template", "");
-              }}
-              isLoading={isSavedLoading}
-              isDisabled={isSavedLoading}
-            >
-              Import from Save
-            </Button>
-          )}
-
-          {publishedStoryId && (
-            <Button
-              w={"40%"}
-              leftIcon={<LuImport />}
-              fontSize={20}
-              borderRadius={100}
-              py={7}
-              bg={"#E8F5E9"}
-              color={"#1B5E20"}
-              onClick={() => {
-                onImportPublishClick();
-                setValue("template", "");
-              }}
-              isLoading={isPublishedLoading}
-              isDisabled={isPublishedLoading}
-            >
-              Import from Publish
-            </Button>
-          )} */}
         </Stack>
       )}
     </>
