@@ -403,7 +403,7 @@ const ContentBuilder = ({
       },
     };
 
-    if (productStoryDraft === undefined) {
+    if (!templateId) {
       saveProductStory(story, {
         onSuccess: (data) => {
           console.log("NEW PRODUCT STORY saved: ", data);
@@ -440,7 +440,7 @@ const ContentBuilder = ({
       editProductStory(
         {
           storyId: templateId, //TODO: change to story name
-          formData: { description: story?.description },
+          formData: { description: story?.description, name: storyName },
         },
         {
           onSuccess: (data) => {
