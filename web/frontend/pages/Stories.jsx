@@ -126,6 +126,17 @@ const Card = memo(
       updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate });
     };
 
+    const publishedProductIds = template?.products?.map((pro) => pro?.id);
+    const newSelectedProducts = selectedTags?.map((pro) => pro?.id);
+
+    const hasChanges =
+      !publishedProductIds?.every((id) => newSelectedProducts?.includes(id)) ||
+      !newSelectedProducts?.every((id) => publishedProductIds?.includes(id));
+
+    const filterNewAddedProducts = newSelectedProducts?.filter(
+      (pro) => !publishedProductIds?.includes(pro)
+    );
+
     return (
       <Stack
         bg="white"
@@ -146,17 +157,18 @@ const Card = memo(
               {template?.name}
             </Text>
             <HStack>
-              <Tag
+              <Button
                 onClick={() => {
                   onEdit(template);
                 }}
                 fontSize="xs"
+                size={"sm"}
                 p={2}
                 px={4}
                 cursor="pointer"
               >
                 Edit
-              </Tag>
+              </Button>
               {/* <Tag
                 className="preview-experience-btn"
                 fontSize="xs"
@@ -170,7 +182,7 @@ const Card = memo(
               {isUpdatingStoryTemplate ? (
                 <Spinner />
               ) : (
-                <Tag
+                <Button
                   className="publish-story-btn"
                   fontSize="xs"
                   p={2}
@@ -178,9 +190,13 @@ const Card = memo(
                   cursor="pointer"
                   isLoading={isUpdatingStoryTemplate}
                   onClick={handleUpdateStoryTemplate}
+                  isDisabled={!hasChanges}
+                  size={"sm"}
                 >
-                  Publish
-                </Tag>
+                  {hasChanges && publishedProductIds?.length !== 0
+                    ? "Republish"
+                    : "Publish"}
+                </Button>
               )}
             </HStack>
           </HStack>
@@ -210,7 +226,13 @@ const Card = memo(
 
         {selectedTags?.length !== 0 && (
           <CardAccordion
-            label={<Text fontWeight={"semibold"}>Live Products</Text>}
+            label={
+              <Text fontWeight={"semibold"}>
+                {hasChanges && filterNewAddedProducts?.length !== 0
+                  ? "Products"
+                  : "Live Products"}
+              </Text>
+            }
             body={
               <>
                 {selectedTags?.map((product) => {
@@ -219,6 +241,7 @@ const Card = memo(
                       key={product?.id}
                       product={product}
                       onRemove={() => onRemoveProduct(template?.id, product)}
+                      filterNewAddedProducts={filterNewAddedProducts}
                     />
                   );
                 })}
@@ -532,7 +555,9 @@ const Stories = () => {
   );
 };
 
-const ProductCard = ({ product, onRemove }) => {
+const ProductCard = ({ product, onRemove, filterNewAddedProducts }) => {
+  const isNewProduct = filterNewAddedProducts?.includes(product?.id);
+  console.log("filterNewAddedProducts", filterNewAddedProducts, isNewProduct);
   return (
     <HStack
       justifyContent={"space-between"}
@@ -542,12 +567,20 @@ const ProductCard = ({ product, onRemove }) => {
       borderRadius={10}
       bg={"gray.100"}
     >
-      <Text fontWeight={"semibold"}>{product?.name}</Text>
+      <HStack>
+        <Stack
+          bg={isNewProduct ? "orange.400" : "green.400"}
+          w={3}
+          h={3}
+          borderRadius={100}
+        />
+        <Text fontWeight={"semibold"}>{product?.name}</Text>
+      </HStack>
 
       <HStack>
-        <IconButton icon={<FaArrowUpRightFromSquare />} />
+        {!isNewProduct && <IconButton icon={<FaArrowUpRightFromSquare />} />}
         <IconButton
-          icon={<MdRemoveCircleOutline fontSize={24} />}
+          icon={<MdRemoveCircleOutline fontSize={24} color="red" />}
           onClick={() => onRemove(product?.id)}
         />
       </HStack>

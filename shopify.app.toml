@@ -3,7 +3,7 @@
 client_id = "8ca8c6e344e7e7930741d19a67c13759"
 name = "App0101"
 handle = "App0101"
-application_url = "https://lift-positioning-forums-tested.trycloudflare.com"
+application_url = "https://reasoning-candy-inputs-washington.trycloudflare.com"
 embedded = true
 
 [build]
@@ -16,9 +16,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://lift-positioning-forums-tested.trycloudflare.com/auth/callback",
-  "https://lift-positioning-forums-tested.trycloudflare.com/auth/shopify/callback",
-  "https://lift-positioning-forums-tested.trycloudflare.com/api/auth/callback"
+  "https://reasoning-candy-inputs-washington.trycloudflare.com/auth/callback",
+  "https://reasoning-candy-inputs-washington.trycloudflare.com/auth/shopify/callback",
+  "https://reasoning-candy-inputs-washington.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
