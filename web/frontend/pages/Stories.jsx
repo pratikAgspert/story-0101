@@ -159,6 +159,9 @@ const Card = memo(
     const publishedProductIds = template?.products?.map((pro) => pro?.id);
     const newSelectedProducts = selectedTags?.map((pro) => pro?.id);
 
+    // Check if any products are selected
+    const hasSelectedProducts = newSelectedProducts.length > 0;
+
     const hasChanges =
       !publishedProductIds?.every((id) => newSelectedProducts?.includes(id)) ||
       !newSelectedProducts?.every((id) => publishedProductIds?.includes(id));
@@ -166,6 +169,43 @@ const Card = memo(
     const filterNewAddedProducts = newSelectedProducts?.filter(
       (pro) => !publishedProductIds?.includes(pro)
     );
+
+    // Get products that were in published list but are now removed
+    const removedProducts = publishedProductIds?.filter(
+      (pro) => !newSelectedProducts?.includes(pro)
+    );
+
+    // Determine if we should show "Republish" or "Publish"
+    const isRepublishMode = () => {
+      // If there are published products and we're adding new ones, it's a republish
+      if (publishedProductIds.length > 0 && filterNewAddedProducts.length > 0) {
+        return true;
+      }
+
+      // If all products were removed and new ones added, it's a publish
+      if (
+        removedProducts.length === publishedProductIds.length &&
+        filterNewAddedProducts.length > 0
+      ) {
+        return false;
+      }
+
+      // If there are published products and we're just removing some (not all), it's a republish
+      if (
+        publishedProductIds.length > 0 &&
+        removedProducts.length > 0 &&
+        removedProducts.length < publishedProductIds.length
+      ) {
+        return true;
+      }
+
+      return false;
+    };
+
+    // Determine if the button should be disabled
+    const isButtonDisabled = !hasSelectedProducts || !hasChanges;
+
+    const buttonText = isRepublishMode() ? "Republish" : "Publish";
 
     return (
       <Stack
@@ -220,12 +260,10 @@ const Card = memo(
                   cursor="pointer"
                   isLoading={isUpdatingStoryTemplate}
                   onClick={handleUpdateStoryTemplate}
-                  isDisabled={!hasChanges}
+                  isDisabled={isButtonDisabled}
                   size={"sm"}
                 >
-                  {hasChanges && publishedProductIds?.length !== 0
-                    ? "Republish"
-                    : "Publish"}
+                  {buttonText}
                 </Button>
               )}
             </HStack>
