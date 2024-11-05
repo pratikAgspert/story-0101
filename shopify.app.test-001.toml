@@ -3,7 +3,7 @@
 client_id = "aef3e108bcf83059467b2788371b0960"
 name = "Test-001"
 handle = "test-16169"
-application_url = "https://palace-provide-eau-socks.trycloudflare.com"
+application_url = "https://bowling-broken-ecology-visiting.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://palace-provide-eau-socks.trycloudflare.com/auth/callback",
-  "https://palace-provide-eau-socks.trycloudflare.com/auth/shopify/callback",
-  "https://palace-provide-eau-socks.trycloudflare.com/api/auth/callback"
+  "https://bowling-broken-ecology-visiting.trycloudflare.com/auth/callback",
+  "https://bowling-broken-ecology-visiting.trycloudflare.com/auth/shopify/callback",
+  "https://bowling-broken-ecology-visiting.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]

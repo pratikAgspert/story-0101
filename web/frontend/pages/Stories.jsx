@@ -111,9 +111,48 @@ const Card = memo(
   }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const toast = useToast();
-
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
+
+    const [publishedIds, setPublishedIds] = useState(
+      template?.products?.map((pro) => pro?.id) || []
+    );
+
+    const calculateProductChanges = useCallback(() => {
+      const publishedProductIds = publishedIds;
+      const newSelectedProducts = selectedTags?.map((pro) => pro?.id);
+
+      const filterNewAddedProducts = newSelectedProducts?.filter(
+        (pro) => !publishedProductIds?.includes(pro)
+      );
+
+      const removedProducts = publishedProductIds?.filter(
+        (pro) => !newSelectedProducts?.includes(pro)
+      );
+
+      return {
+        publishedProductIds,
+        newSelectedProducts,
+        filterNewAddedProducts,
+        removedProducts,
+        hasChanges:
+          !publishedProductIds?.every((id) =>
+            newSelectedProducts?.includes(id)
+          ) ||
+          !newSelectedProducts?.every((id) =>
+            publishedProductIds?.includes(id)
+          ),
+      };
+    }, [selectedTags, publishedIds]);
+
+    const {
+      publishedProductIds,
+      newSelectedProducts,
+      filterNewAddedProducts,
+      removedProducts,
+      hasChanges,
+    } = calculateProductChanges();
+
     const {
       mutate: updateStoryTemplate,
       isPending: isUpdatingStoryTemplate,
@@ -129,6 +168,9 @@ const Card = memo(
         { id: template?.id, formData: updatedStoryTemplate },
         {
           onSuccess: () => {
+            // Update the publishedIds with the new selection
+            setPublishedIds(selectedTags?.map((pro) => pro?.id));
+
             const isRepublish = publishedProductIds?.length !== 0;
             toast({
               title: isRepublish ? "Story Republished" : "Story Published",
@@ -156,51 +198,37 @@ const Card = memo(
       );
     };
 
-    const publishedProductIds = template?.products?.map((pro) => pro?.id);
-    const newSelectedProducts = selectedTags?.map((pro) => pro?.id);
-
-    // Check if any products are selected
-    const hasSelectedProducts = newSelectedProducts.length > 0;
-
-    const hasChanges =
-      !publishedProductIds?.every((id) => newSelectedProducts?.includes(id)) ||
-      !newSelectedProducts?.every((id) => publishedProductIds?.includes(id));
-
-    const filterNewAddedProducts = newSelectedProducts?.filter(
-      (pro) => !publishedProductIds?.includes(pro)
-    );
-
-    // Get products that were in published list but are now removed
-    const removedProducts = publishedProductIds?.filter(
-      (pro) => !newSelectedProducts?.includes(pro)
-    );
-
-    // Determine if we should show "Republish" or "Publish"
-    const isRepublishMode = () => {
+    const isRepublishMode = useCallback(() => {
       // If there are published products and we're adding new ones, it's a republish
-      if (publishedProductIds.length > 0 && filterNewAddedProducts.length > 0) {
+      if (
+        publishedProductIds?.length > 0 &&
+        filterNewAddedProducts?.length > 0
+      ) {
         return true;
       }
 
       // If all products were removed and new ones added, it's a publish
       if (
-        removedProducts.length === publishedProductIds.length &&
-        filterNewAddedProducts.length > 0
+        removedProducts?.length === publishedProductIds?.length &&
+        filterNewAddedProducts?.length > 0
       ) {
         return false;
       }
 
       // If there are published products and we're just removing some (not all), it's a republish
       if (
-        publishedProductIds.length > 0 &&
-        removedProducts.length > 0 &&
-        removedProducts.length < publishedProductIds.length
+        publishedProductIds?.length > 0 &&
+        removedProducts?.length > 0 &&
+        removedProducts?.length < publishedProductIds?.length
       ) {
         return true;
       }
 
       return false;
-    };
+    }, [publishedProductIds, filterNewAddedProducts, removedProducts]);
+
+    // Check if any products are selected
+    const hasSelectedProducts = newSelectedProducts?.length > 0;
 
     // Determine if the button should be disabled
     const isButtonDisabled = !hasSelectedProducts || !hasChanges;
