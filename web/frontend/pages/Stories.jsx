@@ -22,6 +22,7 @@ import {
   AccordionIcon,
   AccordionPanel,
   IconButton,
+  useToast,
 } from "@chakra-ui/react";
 import { FaArrowRight } from "react-icons/fa";
 import CarouselComponent from "../components/ProductStoryVisualizer/CarouselComponent";
@@ -109,6 +110,7 @@ const Card = memo(
     className = "",
   }) => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const toast = useToast();
 
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
@@ -123,7 +125,35 @@ const Card = memo(
         product_ids: selectedTags?.map((product) => product?.id),
       };
 
-      updateStoryTemplate({ id: template?.id, formData: updatedStoryTemplate });
+      updateStoryTemplate(
+        { id: template?.id, formData: updatedStoryTemplate },
+        {
+          onSuccess: () => {
+            const isRepublish = publishedProductIds?.length !== 0;
+            toast({
+              title: isRepublish ? "Story Republished" : "Story Published",
+              description: isRepublish
+                ? "Your story has been successfully republished with the updated products."
+                : "Your story has been successfully published.",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+          },
+          onError: (error) => {
+            toast({
+              title: "Publication Failed",
+              description:
+                "There was an error publishing your story. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+          },
+        }
+      );
     };
 
     const publishedProductIds = template?.products?.map((pro) => pro?.id);
