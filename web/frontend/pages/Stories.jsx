@@ -120,6 +120,13 @@ const Card = memo(
       template?.products?.map((pro) => pro?.id) || []
     );
 
+    // Effect to handle when all products are removed individually
+    useEffect(() => {
+      if (publishedIds?.length > 0 && selectedTags?.length === 0) {
+        handleUpdateStoryTemplate();
+      }
+    }, [selectedTags?.length]);
+
     const calculateProductChanges = useCallback(() => {
       const publishedProductIds = publishedIds;
       const newSelectedProducts = selectedTags?.map((pro) => pro?.id);
@@ -177,12 +184,20 @@ const Card = memo(
               queryKey: [PRODUCT_LIST_QUERY_KEY],
             });
 
-            const isRepublish = publishedProductIds?.length !== 0;
+            const isRepublish = publishedIds?.length !== 0;
             toast({
-              title: isRepublish ? "Story Republished" : "Story Published",
-              description: isRepublish
-                ? "Your story has been successfully republished with the updated products."
-                : "Your story has been successfully published.",
+              title:
+                selectedTags.length === 0
+                  ? "Products Removed"
+                  : isRepublish
+                    ? "Story Republished"
+                    : "Story Published",
+              description:
+                selectedTags.length === 0
+                  ? "All products have been successfully removed from the story."
+                  : isRepublish
+                    ? "Your story has been successfully republished with the updated products."
+                    : "Your story has been successfully published.",
               status: "success",
               duration: 5000,
               isClosable: true,
@@ -191,9 +206,56 @@ const Card = memo(
           },
           onError: (error) => {
             toast({
-              title: "Publication Failed",
+              title: "Operation Failed",
               description:
-                "There was an error publishing your story. Please try again.",
+                "There was an error updating your story. Please try again.",
+              status: "error",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+          },
+        }
+      );
+    };
+
+    const handleRemoveAll = async () => {
+      const updatedStoryTemplate = {
+        product_ids: [],
+      };
+
+      updateStoryTemplate(
+        { id: template?.id, formData: updatedStoryTemplate },
+        {
+          onSuccess: () => {
+            // Clear publishedIds
+            setPublishedIds([]);
+
+            // Clear selected tags by calling onRemoveProduct for each tag
+            selectedTags.forEach((product) => {
+              onRemoveProduct(template?.id, product);
+            });
+
+            queryClient.invalidateQueries({
+              queryKey: [PRODUCT_LIST_QUERY_KEY],
+            });
+
+            toast({
+              title: "Products Removed",
+              description:
+                "All products have been successfully removed from the story.",
+              status: "success",
+              duration: 5000,
+              isClosable: true,
+              position: "top-right",
+            });
+          },
+          onError: (error) => {
+            console.log("ERROR MESSAGE:", error);
+            toast({
+              title: "Remove All Failed",
+              description:
+                "There was an error removing products. Please try again.",
               status: "error",
               duration: 5000,
               isClosable: true,
@@ -269,37 +331,35 @@ const Card = memo(
                 size={"sm"}
                 p={2}
                 px={4}
-                cursor="pointer"
               >
                 Edit
               </Button>
-              {/* <Tag
-                className="preview-experience-btn"
+
+              <Button
+                className="publish-story-btn"
                 fontSize="xs"
                 p={2}
                 px={4}
-                cursor="pointer"
-                onClick={() => onPreview(template)}
+                isLoading={isUpdatingStoryTemplate}
+                onClick={handleUpdateStoryTemplate}
+                isDisabled={isButtonDisabled}
+                size={"sm"}
               >
-                Preview
-              </Tag> */}
-              {isUpdatingStoryTemplate ? (
-                <Spinner />
-              ) : (
-                <Button
-                  className="publish-story-btn"
-                  fontSize="xs"
-                  p={2}
-                  px={4}
-                  cursor="pointer"
-                  isLoading={isUpdatingStoryTemplate}
-                  onClick={handleUpdateStoryTemplate}
-                  isDisabled={isButtonDisabled}
-                  size={"sm"}
-                >
-                  {buttonText}
-                </Button>
-              )}
+                {buttonText}
+              </Button>
+
+              <Button
+                className="remove-all-btn"
+                fontSize="xs"
+                p={2}
+                px={4}
+                isLoading={isUpdatingStoryTemplate}
+                onClick={handleRemoveAll}
+                isDisabled={selectedTags.length === 0}
+                size={"sm"}
+              >
+                Remove All
+              </Button>
             </HStack>
           </HStack>
 
