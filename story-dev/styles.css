@@ -1,0 +1,40 @@
+.product-widget {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.product-details {
+  margin-top: 15px;
+}
+
+.price {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2c6ecb;
+}
+
+.action-button {
+  background-color: #008060;
+  color: red;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: #006e52;
+}
+
+.story-product-widget {
+  padding: 20px;
+  margin: 10px 0;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background: red;
+}

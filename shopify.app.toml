@@ -10,6 +10,13 @@ embedded = true
 automatically_update_urls_on_dev = true
 dev_store_url = "hellostorexyz.myshopify.com"
 
+[[extensions]]
+type = "ui_extension"
+name = "Story"
+handle = "story"
+target = "admin"
+surface = "product"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
 scopes = "write_products"
