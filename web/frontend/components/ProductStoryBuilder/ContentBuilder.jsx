@@ -60,7 +60,10 @@ import {
   templates,
 } from "./storyUtils";
 import { IoIosAdd } from "react-icons/io";
-import { ProductDriverContext, ProductStoryContext } from "../../services/context";
+import {
+  ProductDriverContext,
+  ProductStoryContext,
+} from "../../services/context";
 import DraggableSection from "./DraggableSection";
 import {
   isValidMotionProp,
@@ -71,7 +74,10 @@ import {
 import { FaRegEdit, FaSave } from "react-icons/fa";
 import { LuImport } from "react-icons/lu";
 import { useSearchParams } from "react-router-dom";
-import { useGetTemplateStory, useStoryTemplate } from "../../apiHooks/useStoryTemplate";
+import {
+  useGetTemplateStory,
+  useStoryTemplate,
+} from "../../apiHooks/useStoryTemplate";
 import { IoClose, IoCloudUploadSharp } from "react-icons/io5";
 import SeoEditor from "./SeoEditor";
 import GlobalStyleEditor from "./GlobalStyleEditor";
@@ -101,23 +107,25 @@ const ContentBuilder = ({
     isPending: isPublishProductStoryPending,
   } = usePublishProductStoryDraft();
 
+  const templateId = searchParams.get("templateId") || null;
+
   const {
     data: productStoryDraft,
     isPending: isProductStoryDraftPending,
     isError: isProductStoryDraftError,
-  } = useGetProductStoryDraft(draftStoryId);
+  } = useGetProductStoryDraft(Number(templateId));
 
   const {
     data: publishedStory,
     isPending: isPublishedStoryPending,
     isError: isPublishedStoryError,
   } = useGetPublishedProductStory(publishedStoryId);
-  const templateId = searchParams.get("templateId");
+
   const {
     data: templateStory,
     isPending: isTemplateStoryPending,
     isError: isTemplateStoryError,
-  } = useGetTemplateStory(templateId);
+  } = useGetTemplateStory(Number(templateId));
 
   const {
     mutate: deleteUnusedMediaUrls,
@@ -136,61 +144,44 @@ const ContentBuilder = ({
 
   const { control, watch, setValue, getValues, setError } = formMethods;
 
-  const isEditPublishStory = searchParams.get("edit");
-
   useEffect(() => {
-    if (isEditPublishStory === "published") {
-      if (templateStory) {
-        handleSavedOrPublishData(
-          templateStory,
-          setContents,
-          setSheetData,
-          filterCarouselTypes,
-          templateStory?.name
-        );
+    if (templateStory) {
+      handleSavedOrPublishData(
+        templateStory,
+        setContents,
+        setSheetData,
+        filterCarouselTypes,
+        templateStory?.name
+      );
 
-        searchParams.delete("edit");
-        setSearchParams(searchParams.toString());
-      }
+      localStorage.setItem("storyName", templateStory?.name);
+      setValue("storyName", templateStory?.name);
+
+      searchParams.delete("edit");
+      setSearchParams(searchParams.toString());
     }
-  }, [isEditPublishStory, templateStory]);
+  }, [templateStory]);
 
   const currentStory = watch("stories");
 
   useEffect(() => {
-    let storyData;
-
     // Always check localStorage first when switching to draft
-    if (currentStory === "draft") {
-      const { contentData, sheetData } = getLocalStorageData(productId);
+    if (!templateStory) {
+      const { contentData, sheetData, storyName } = getLocalStorageData();
       setContents(contentData);
       setSheetData(sheetData);
+      if (storyName) {
+        setValue("storyName", storyName);
+      }
       return;
     }
 
-    // Handle published and saved cases
-    if (currentStory === "published") {
-      storyData = publishedStory;
+    if (templateStory) {
+      const { data, general_sheet, is_general_sheet } =
+        templateStory?.description;
 
-      if (publishedStoryId === null) {
-        toast({
-          status: "info",
-          title: "No Published Story Data",
-        });
-      }
-    } else if (currentStory === "saved") {
-      storyData = productStoryDraft;
-
-      if (draftStoryId === null) {
-        toast({
-          status: "info",
-          title: "No Saved Story Data",
-        });
-      }
-    }
-
-    if (storyData && currentStory !== "draft") {
-      const { data, general_sheet, is_general_sheet } = storyData?.description;
+      localStorage.setItem("storyName", templateStory?.name);
+      setValue("storyName", templateStory?.name);
 
       if (is_general_sheet) {
         setContents(data || []);
@@ -215,8 +206,9 @@ const ContentBuilder = ({
       // Set empty arrays when no storyData is available
       setContents([]);
       setSheetData([]);
+      setValue("storyName", undefined);
     }
-  }, [currentStory, publishedStory, productStoryDraft, productId]);
+  }, [templateStory]);
 
   const toastId = "productStoryToastId";
   const toastConfig = {
@@ -236,7 +228,7 @@ const ContentBuilder = ({
         [id]: url,
       };
 
-      storeInLocalStorage(`urlMap_${productId}`, newUrlMapping);
+      storeInLocalStorage(`urlMap`, newUrlMapping);
       return newUrlMapping;
     });
   }, []);
@@ -249,7 +241,7 @@ const ContentBuilder = ({
   }, []);
 
   const removeFromLocalStorage = (keyName) => {
-    localStorage.removeItem(`product_${keyName}`);
+    localStorage.removeItem(`${keyName}`);
   };
 
   const addContent = (type) => {
@@ -280,7 +272,7 @@ const ContentBuilder = ({
           },
         ];
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
 
         return newContents;
       });
@@ -301,17 +293,17 @@ const ContentBuilder = ({
           data:
             type === "brand_banner"
               ? [
-                {
-                  id: nanoid(),
-                  type,
-                  image_url: "",
-                },
-              ]
+                  {
+                    id: nanoid(),
+                    type,
+                    image_url: "",
+                  },
+                ]
               : [],
         },
       ];
 
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
 
       return newSheetData;
     });
@@ -323,7 +315,7 @@ const ContentBuilder = ({
         content.id === id ? { ...content, ...newData } : content
       );
 
-      storeInLocalStorage(`content_${productId}`, newContents);
+      storeInLocalStorage(`content`, newContents);
 
       return newContents;
     });
@@ -335,7 +327,7 @@ const ContentBuilder = ({
         content.id === id ? { ...content, ...newData } : content
       );
 
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
 
       return newSheetData;
     });
@@ -346,55 +338,39 @@ const ContentBuilder = ({
     setContents((prevContents) => {
       const newContents = prevContents.filter((content) => content.id !== id);
 
-      storeInLocalStorage(`content_${productId}`, newContents);
+      storeInLocalStorage(`content`, newContents);
+
+      if (newContents?.length === 0 && sheetData?.length === 0) {
+        removeFromLocalStorage("storyName");
+        setValue("storyName", undefined);
+      }
 
       return newContents;
     });
     setSheetData((prevSheetData) => {
       const newSheetData = prevSheetData.filter((content) => content.id !== id);
-      storeInLocalStorage(`sheet_${productId}`, newSheetData);
+      storeInLocalStorage(`sheet`, newSheetData);
+
+      if (contents?.length === 0 && newSheetData?.length === 0) {
+        removeFromLocalStorage("storyName");
+        setValue("storyName", undefined);
+      }
 
       return newSheetData;
     });
   };
 
-  const handlePublishProductStory = async (productId) => {
-    publishProductStory(productId, {
-      onSuccess: (data) => {
-        console.log("Published product story: ", data);
-        toast2({
-          status: "success",
-          title: `Product with ID ${productDisplayId} has been published.`,
-        });
-
-        [PUBLISHED_PRODUCT_STORY_QUERY_KEY, PRODUCT_LIST_QUERY_KEY]?.map(
-          (key) =>
-            queryClient.invalidateQueries({
-              queryKey: [key],
-            })
-        );
-        onClose();
-      },
-      onError: (error) => {
-        toast2({
-          status: "error",
-          title: "Can't publish Product Story.",
-          description:
-            error?.message ||
-            "An error occurred while publishing product story.",
-        });
-      },
-    });
-  };
-
   const handleSaveAndEditProductStory = async (action = "save") => {
-    const storyName = getValues("storyName")
+    const storyName = getValues("storyName");
     if (!storyName?.trim()) {
       toast({
         status: "error",
         title: "Please enter a name for the story.",
       });
-      setError("storyName", { type: "required", message: "Please enter a name for the story." });
+      setError("storyName", {
+        type: "required",
+        message: "Please enter a name for the story.",
+      });
       return;
     }
     const [replacedContentData, usedKeys] = updateImageUrls(contents, urlMap);
@@ -421,20 +397,19 @@ const ContentBuilder = ({
     const story = {
       name: storyName,
       description: {
-        // data:[...replacedContentData,...replacedSheetData] //when is_general_sheet: false
         data: replacedContentData,
         is_general_sheet: true,
         general_sheet: replacedSheetData,
       },
     };
 
-    if (productStoryDraft === undefined) {
+    if (!templateId) {
       saveProductStory(story, {
         onSuccess: (data) => {
           console.log("NEW PRODUCT STORY saved: ", data);
-          if (action === "publish") {
-            handlePublishProductStory(data?.id);
-          }
+          // if (action === "publish") {
+          //   handlePublishProductStory(data?.id);
+          // }
 
           toast({
             status: "success",
@@ -445,12 +420,12 @@ const ContentBuilder = ({
             queryKey: [PRODUCT_LIST_QUERY_KEY],
           });
 
-          removeFromLocalStorage(`content_${productId}`);
-          removeFromLocalStorage(`sheet_${productId}`);
-          removeFromLocalStorage(`urlMap_${productId}`);
+          removeFromLocalStorage(`content`);
+          removeFromLocalStorage(`sheet`);
+          removeFromLocalStorage(`urlMap`);
+          removeFromLocalStorage(`storyName`);
 
-          setValue("stories", "saved");
-          // onClose();
+          window.location.href = `/stories?templateId=${data?.id}`;
         },
         onError: (error) => {
           toast({
@@ -464,8 +439,8 @@ const ContentBuilder = ({
     } else {
       editProductStory(
         {
-          storyId: draftStoryId,//TODO: change to story name
-          formData: { description: story?.description },
+          storyId: templateId, //TODO: change to story name
+          formData: { description: story?.description, name: storyName },
         },
         {
           onSuccess: (data) => {
@@ -478,12 +453,10 @@ const ContentBuilder = ({
               status: "success",
               title: `Story ${storyName} has been edited.`,
             });
-            removeFromLocalStorage(`content_${productId}`);
-            removeFromLocalStorage(`sheet_${productId}`);
-            removeFromLocalStorage(`urlMap_${productId}`);
-
-            setValue("stories", "saved");
-            // onClose();
+            removeFromLocalStorage(`content`);
+            removeFromLocalStorage(`sheet`);
+            removeFromLocalStorage(`urlMap`);
+            removeFromLocalStorage(`storyName`);
           },
           onError: (error) => {
             toast({
@@ -499,59 +472,12 @@ const ContentBuilder = ({
     }
   };
 
-  const hasShownSavedAlert = watch("hasShownSavedAlert");
-  const isAlertOpen = watch("isAlertOpen");
-
-  const isDisabled = currentStory !== 'draft';
-  const isPublishSelected = currentStory === "published";
-
-  const handleSavedEditConfirmation = useCallback(() => {
-    setValue("hasShownSavedAlert", true);
-    setValue("isAlertOpen", false);
-
-    const storyData = isPublishSelected ? publishedStory : productStoryDraft;
-
-    if (storyData) {
-      const { data, general_sheet, is_general_sheet } =
-        storyData?.description || {};
-
-      const { filterCarouselData, filterSheetData } =
-        filterStoryData(storyData);
-
-      if (is_general_sheet) {
-        storeInLocalStorage(`content_${productId}`, data);
-        storeInLocalStorage(`sheet_${productId}`, general_sheet);
-        setContents(data || []);
-        setSheetData(general_sheet || []);
-      } else {
-        storeInLocalStorage(`content_${productId}`, filterCarouselData);
-        storeInLocalStorage(`sheet_${productId}`, filterSheetData);
-        setContents(filterCarouselData || []);
-        setSheetData(filterSheetData || []);
-      }
-    }
-
-    toast({
-      status: "success",
-      title: "The story has been copied to your draft.",
-    });
-    setValue("stories", "draft");
-  }, [productStoryDraft, publishedStory, isPublishSelected]);
-
-  const handleSavedStateChange = useCallback(() => {
-    if (currentStory === "saved" && !hasShownSavedAlert && !isAlertOpen) {
-      setValue("isAlertOpen", true);
-    }
-  }, [currentStory, hasShownSavedAlert, isAlertOpen, setValue]);
+  const isDisabled = false;
 
   const handleAlertClose = useCallback(() => {
     setValue("isAlertOpen", false);
     setValue("hasShownSavedAlert", true);
   }, [setValue]);
-
-  useEffect(() => {
-    draftStoryId && handleSavedStateChange();
-  }, [contents, sheetData, handleSavedStateChange]);
 
   const updateInfoPointText = useCallback(
     (slideId, pointId, text) => {
@@ -570,7 +496,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -600,7 +526,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -623,7 +549,7 @@ const ContentBuilder = ({
           return content;
         });
 
-        storeInLocalStorage(`content_${productId}`, newContents);
+        storeInLocalStorage(`content`, newContents);
         return newContents;
       });
     },
@@ -667,7 +593,7 @@ const ContentBuilder = ({
   const handleCarouselReorder = useCallback(
     (newItems) => {
       setContents(newItems);
-      storeInLocalStorage(`content_${productId}`, newItems);
+      storeInLocalStorage(`content`, newItems);
     },
     [productId]
   );
@@ -675,135 +601,144 @@ const ContentBuilder = ({
   const handleSheetReorder = useCallback(
     (newItems) => {
       setSheetData(newItems);
-      storeInLocalStorage(`sheet_${productId}`, newItems);
+      storeInLocalStorage(`sheet`, newItems);
     },
     [productId]
   );
 
-  const isNoData =
-    (currentStory === "saved" && draftStoryId === null) ||
-    (currentStory === "published" && publishedStoryId === null);
+  const isNoData = templateId === null;
 
   const isNoCardAdded = contents?.length === 0 && sheetData?.length === 0;
 
   const driverObj = driver({
     steps: [
       {
-        element: '.add-story-content-btn', popover: {
-          title: 'Add Content', description: 'Click to add content to the story',
+        element: ".add-story-content-btn",
+        popover: {
+          title: "Add Content",
+          description: "Click to add content to the story",
           onNextClick: () => {
-            const button = document.querySelector('.add-story-content-btn');
-            button?.click()
-            driverObj?.moveNext()
-            return false
-          }
-        }
-      },
-      {
-        element: '.add-360-image', popover: {
-          title: 'Add Slide', description: 'Click to add a slide', onNextClick: () => {
-            const button = document.querySelector('.add-360-image');
+            const button = document.querySelector(".add-story-content-btn");
             button?.click();
-          }
-        }
+            driverObj?.moveNext();
+            return false;
+          },
+        },
       },
       {
-        element: '.add-media', popover: {
-          title: 'Add Media', description: 'Click to add media', onNextClick: () => {
-            const button = document.querySelector('.add-media');
+        element: ".add-360-image",
+        popover: {
+          title: "Add Slide",
+          description: "Click to add a slide",
+          onNextClick: () => {
+            const button = document.querySelector(".add-360-image");
             button?.click();
-          }
-        }
+          },
+        },
       },
       {
-        element: '.story-name', popover: {
-          title: 'Story Name', description: 'Click to add a story name', onNextClick: () => {
-            const input = document.querySelector('.story-name');
+        element: ".add-media",
+        popover: {
+          title: "Add Media",
+          description: "Click to add media",
+          onNextClick: () => {
+            const button = document.querySelector(".add-media");
+            button?.click();
+          },
+        },
+      },
+      {
+        element: ".story-name",
+        popover: {
+          title: "Story Name",
+          description: "Click to add a story name",
+          onNextClick: () => {
+            const input = document.querySelector(".story-name");
             input?.focus();
-            driverObj?.moveNext()
-          }
-        }
+            driverObj?.moveNext();
+          },
+        },
       },
       {
-        element: '.scene-container', popover: {
-          title: '360° View', description: 'Click to add information pointers and drag to view the scene', onNextClick: () => {
-            driverObj?.moveNext()
-          }
-        }
+        element: ".scene-container",
+        popover: {
+          title: "360° View",
+          description:
+            "Click to add information pointers and drag to view the scene",
+          onNextClick: () => {
+            driverObj?.moveNext();
+          },
+        },
       },
       {
-        element: '.save-btn', popover: {
-          title: 'Save Draft', description: 'Click to save the draft', onNextClick: () => {
-            const button = document.querySelector('.save-btn');
+        element: ".save-btn",
+        popover: {
+          title: "Save Draft",
+          description: "Click to save the draft",
+          onNextClick: () => {
+            const button = document.querySelector(".save-btn");
             button?.click();
             setTimeout(() => {
-              driverObj?.moveNext()
-            }, 500)
-          }
-        }
+              driverObj?.moveNext();
+            }, 500);
+          },
+        },
       },
       {
-        element: '.confirm-save-btn', popover: {
-          title: 'Confirm Save', description: 'Click to confirm save', onNextClick: () => {
-            const button = document.querySelector('.confirm-save-btn');
+        element: ".confirm-save-btn",
+        popover: {
+          title: "Confirm Save",
+          description: "Click to confirm save",
+          onNextClick: () => {
+            const button = document.querySelector(".confirm-save-btn");
             button?.click();
-            setTimeout(() => { //TODO: must be attached to save onSuccess callback
-              driverObj?.moveNext()
-              window.location.href = "/stories"
-            }, 500)
-          }
-        }
-      }
-
+            setTimeout(() => {
+              //TODO: must be attached to save onSuccess callback
+              driverObj?.moveNext();
+              window.location.href = "/stories";
+            }, 500);
+          },
+        },
+      },
     ],
     allowClose: true,
     overlayClickNext: false,
     keyboardControl: false,
-    doneBtnText: 'Finish',
-  })
+    doneBtnText: "Finish",
+  });
 
   useEffect(() => {
     //TODO: check if local storage has data, if not, then show driver
-    // if (localStorage.getItem(`content_${productId}`) || localStorage.getItem(`sheet_${productId}`)) {
-    setTimeout(() => {
-      driverObj?.drive()
-    }, 200)
-    // }
-  }, [])
+    if (localStorage.getItem(`content`) || localStorage.getItem(`sheet`)) {
+      setTimeout(() => {
+        driverObj?.drive();
+      }, 200);
+    }
 
+    const savedStoryName = localStorage.getItem("storyName");
+    if (savedStoryName) {
+      setValue("storyName", savedStoryName);
+    }
+  }, []);
 
+  const watchStoryName = watch("storyName");
+
+  useEffect(() => {
+    if (watchStoryName) {
+      localStorage.setItem("storyName", watchStoryName);
+    }
+  }, [watchStoryName]);
+
+  // useEffect(() => {
+  //   if (contents?.length === 0 && sheetData?.length === 0) {
+  //     removeFromLocalStorage("storyName");
+  //     setValue("storyName", undefined);
+  //   }
+  // }, [contents, sheetData]);
 
   return (
     <ProductStoryContext.Provider value={productStoryContextValue}>
       <ProductDriverContext.Provider value={{ driver: driverObj }}>
-
-
-        <DeleteConfirmationAlertDialog
-          alertTitle={
-            currentStory === "published"
-              ? "Copy Published Story?"
-              : "Edit Save Story?"
-          }
-          alertDescription={
-            currentStory === "published"
-              ? "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-              : "This will create a new draft or overwrite a existing draft. Do you want to continue?"
-          }
-          onConfirm={handleSavedEditConfirmation}
-          onCancel={handleAlertClose}
-          noCloseIcon
-          triggerButtonProps={{
-            style: { display: "none" },
-          }}
-          confirmButtonProps={{
-            label: "Continue",
-            colorScheme: "blue",
-          }}
-          alertDialogProps={{
-            isOpen: isAlertOpen,
-            onClose: handleAlertClose,
-          }}
-        />
         <Box display="flex" h="98dvh" w={"100%"} overflow={"hidden"}>
           <Box
             width="60%"
@@ -814,8 +749,6 @@ const ContentBuilder = ({
             overflowY={"scroll"}
             pb={"50px"}
           >
-            <CurrentStoryTag currentStory={currentStory} />
-
             <HStack
               position="sticky"
               justifyContent={"flex-end"}
@@ -825,43 +758,24 @@ const ContentBuilder = ({
             >
               {isDisabled ? (
                 // Edit Button
-                <Popover trigger="hover" placement="top">
-                  <PopoverTrigger>
-                    <Box>
-                      <IconButton
-                        className="edit-story-btn"
-                        icon={<FaRegEdit />}
-                        colorScheme="teal"
-                        size="lg"
-                        isRound
-                        onClick={() => setValue("isAlertOpen", true)}
-                        isDisabled={isNoData}
-                      />
-                    </Box>
-                  </PopoverTrigger>
-
-                  {isNoData && (
-                    <PopoverContent>
-                      <PopoverBody>
-                        <Stack>
-                          {currentStory === "saved" ? (
-                            <Text mb={0}>
-                              Edit is disabled because there is no saved data to
-                              copy.
-                            </Text>
-                          ) : currentStory === "published" ? (
-                            <Text mb={0}>
-                              Edit is disabled because there is no published data
-                              to copy.
-                            </Text>
-                          ) : null}
-                        </Stack>
-                      </PopoverBody>
-                    </PopoverContent>
-                  )}
-                </Popover>
+                <Box>
+                  <IconButton
+                    className="edit-story-btn"
+                    icon={<FaRegEdit />}
+                    colorScheme="teal"
+                    size="lg"
+                    isRound
+                    onClick={() => setValue("isAlertOpen", true)}
+                    isDisabled={isNoData}
+                  />
+                </Box>
               ) : (
-                <Stack alignItems={"end"} position={"absolute"} right={0} top={0}>
+                <Stack
+                  alignItems={"end"}
+                  position={"absolute"}
+                  right={0}
+                  top={0}
+                >
                   <HStack>
                     <GlobalStyleEditor />
 
@@ -877,65 +791,68 @@ const ContentBuilder = ({
               )}
             </HStack>
 
-            <ImportStorySection
-              formMethods={formMethods}
-              productId={productId}
-              isDisabled={isDisabled}
-              draftStoryId={draftStoryId}
-              publishedStoryId={publishedStoryId}
-              contents={contents}
-              sheetData={sheetData}
-              isSavedLoading={isProductStoryDraftPending}
-              isPublishedLoading={isPublishedStoryPending}
-              onSelectTemplate={() => {
-                const template = watch("template");
+            {!templateStory ||
+              ((contents && sheetData)?.length === 0 && (
+                <ImportStorySection
+                  formMethods={formMethods}
+                  productId={productId}
+                  isDisabled={isDisabled}
+                  draftStoryId={draftStoryId}
+                  publishedStoryId={publishedStoryId}
+                  contents={contents}
+                  sheetData={sheetData}
+                  isSavedLoading={isProductStoryDraftPending}
+                  isPublishedLoading={isPublishedStoryPending}
+                  onSelectTemplate={() => {
+                    const template = watch("template");
 
-                if (template)
-                  handleSavedOrPublishData(
-                    template,
-                    setContents,
-                    setSheetData,
-                    filterCarouselTypes,
-                    productId
-                  );
-              }}
-              onImportSaveClick={() =>
-                handleSavedOrPublishData(
-                  productStoryDraft,
-                  setContents,
-                  setSheetData,
-                  filterCarouselTypes,
-                  productId
-                )
-              }
-              onImportPublishClick={() =>
-                handleSavedOrPublishData(
-                  publishedStory,
-                  setContents,
-                  setSheetData,
-                  filterCarouselTypes,
-                  productId
-                )
-              }
-            />
+                    if (template)
+                      handleSavedOrPublishData(
+                        template,
+                        setContents,
+                        setSheetData,
+                        filterCarouselTypes,
+                        productId
+                      );
+                  }}
+                  onImportSaveClick={() =>
+                    handleSavedOrPublishData(
+                      productStoryDraft,
+                      setContents,
+                      setSheetData,
+                      filterCarouselTypes,
+                      productId
+                    )
+                  }
+                  onImportPublishClick={() =>
+                    handleSavedOrPublishData(
+                      publishedStory,
+                      setContents,
+                      setSheetData,
+                      filterCarouselTypes,
+                      productId
+                    )
+                  }
+                />
+              ))}
 
             <VStack mt={24} spacing={4} align="stretch">
-              {(contents.length > 0 || sheetData.length > 0) &&
+              {(contents.length > 0 || sheetData.length > 0) && (
                 <FormInput
                   className="story-name"
-                  inputName={'storyName'}
-                  label={'Story Name'}
-                  placeholder={'Story Name'}
+                  inputName={"storyName"}
+                  label={"Story Name"}
+                  placeholder={"Story Name"}
                   control={control}
                   formControlProps={{ isRequired: true }}
                   validationRules={{
                     required: {
                       value: true,
-                      message: 'Please enter a name for the product.',
+                      message: "Please enter a name for the product.",
                     },
                   }}
                 />
-              }
+              )}
 
               <DraggableSection
                 items={contents}
@@ -979,30 +896,6 @@ const ContentBuilder = ({
           </Box>
 
           <Stack width="40%" h="100%" alignItems={"center"} spacing={1}>
-            <HStack w={"35%"} mt={1}>
-              <StoryFormSelect
-                inputName={"stories"}
-                noLabel
-                control={control}
-                selectProps={{
-                  borderRadius: 50,
-                }}
-              >
-                <>
-                  {stories?.map((story) => (
-                    <Button
-                      as={"option"}
-                      size={"lg"}
-                      value={story?.value}
-                      key={story?.id}
-                    >
-                      {story?.label}
-                    </Button>
-                  ))}
-                </>
-              </StoryFormSelect>
-            </HStack>
-
             <Stack
               w={"277.4px"}
               h={"572.85px"}
@@ -1048,8 +941,8 @@ const ContentBuilder = ({
                       onConfirm={() => {
                         handleSaveAndEditProductStory();
                         if (driverObj?.hasNextStep()) {
-                          window.location.href = "/stories"
-                          driverObj?.moveNext()
+                          window.location.href = "/stories";
+                          driverObj?.moveNext();
                         }
                       }}
                       isPending={
@@ -1074,86 +967,12 @@ const ContentBuilder = ({
                             Save is disabled. Ensure you have added atleast one
                             slide.
                           </Text>
-                        ) : currentStory === "saved" ? (
-                          <Text mb={0}>
-                            Save is disabled. You can't save directly you have to
-                            create an edit draft.
-                          </Text>
-                        ) : currentStory === "published" ? (
-                          <Text mb={0}>
-                            Save is disabled. You can't save directly after
-                            publishing; you have to create an edit draft.
-                          </Text>
                         ) : null}
                       </Stack>
                     </PopoverBody>
                   </PopoverContent>
                 )}
               </Popover>
-
-              {/* Publish Button */}
-              {/* <Popover trigger="hover" placement="top">
-                <PopoverTrigger>
-                  <Box>
-                    <DeleteConfirmationAlertDialog
-                      alertTitle={"Confirm Publish!"}
-                      alertDescription={
-                        "Are you sure you want to publish this product story? Please ensure that you have saved all the changes."
-                      }
-                      triggerButtonProps={{
-                        isIconButton: true,
-                        icon: <IoCloudUploadSharp fontSize={26} />,
-                        padding: 5,
-
-                        colorScheme: "green",
-                        variant: "solid",
-                        flex: 1,
-                        label: "Publish",
-                        isDisabled:
-                          (contents || sheetData).length === 0 ||
-                          isPublishSelected,
-                      }}
-                      onConfirm={() => {
-                        handleSaveAndEditProductStory("publish");
-                      }}
-                      isPending={
-                        isSaveProductStoryPending ||
-                        isEditProductStoryPending ||
-                        isPublishProductStoryPending
-                      }
-                      confirmButtonProps={{
-                        label: "Publish",
-                        colorScheme: "green",
-                      }}
-                    />
-                  </Box>
-                </PopoverTrigger>
-
-                {((contents || sheetData).length === 0 || isPublishSelected) && (
-                  <PopoverContent>
-                    <PopoverBody>
-                      <Stack>
-                        {currentStory === "draft" ? (
-                          <Text mb={0}>
-                            Publish is disabled. Ensure you have added atleast one
-                            slide.
-                          </Text>
-                        ) : currentStory === "saved" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't save directly you have
-                            to create an edit draft.
-                          </Text>
-                        ) : currentStory === "published" ? (
-                          <Text mb={0}>
-                            Publish is disabled. You can't publish directly after
-                            publishing; you have to create an edit draft.
-                          </Text>
-                        ) : null}
-                      </Stack>
-                    </PopoverBody>
-                  </PopoverContent>
-                )}
-              </Popover> */}
             </Stack>
           </Stack>
         </Box>
@@ -1186,20 +1005,8 @@ const CurrentStoryTag = ({ currentStory }) => {
       borderLeftRadius={0}
       boxShadow={"md"}
       gap={2}
-      bg={
-        currentStory === "draft"
-          ? "#F4F4F4"
-          : currentStory === "saved"
-            ? "#E0F2F1"
-            : "#E8F5E9"
-      }
-      color={
-        currentStory === "draft"
-          ? "#333333"
-          : currentStory === "saved"
-            ? "#00796B"
-            : "#1B5E20"
-      }
+      bg={"#F4F4F4"}
+      color={"#333333"}
       initial={!hasAnimatedRef.current ? "hidden" : "visible"}
       animate={!hasAnimatedRef.current ? "visible" : "visible"}
       variants={{
@@ -1235,6 +1042,7 @@ const ImportStorySection = ({
 }) => {
   const [isLocalStorageEmpty, setIsLocalStorageEmpty] = useState(false);
   const { isOpen, onToggle } = useDisclosure();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     data: storyTemplates,
@@ -1246,17 +1054,9 @@ const ImportStorySection = ({
   const { setValue, watch, getValues } = formMethods;
 
   useEffect(() => {
-    console.log("Values: ", getValues());
-  }, [watch()]);
+    const localContentDataString = localStorage.getItem(`content`);
 
-  useEffect(() => {
-    const localContentDataString = localStorage.getItem(
-      `product_content_${productId}`
-    );
-
-    const localSheetDataString = localStorage.getItem(
-      `product_sheet_${productId}`
-    );
+    const localSheetDataString = localStorage.getItem(`sheet`);
 
     if (!localContentDataString && !localSheetDataString) {
       setIsLocalStorageEmpty(true);
@@ -1270,7 +1070,7 @@ const ImportStorySection = ({
         ? setIsLocalStorageEmpty(true)
         : setIsLocalStorageEmpty(false);
     }
-  }, [productId, contents, sheetData]);
+  }, [contents, sheetData]);
 
   return (
     <>
@@ -1340,10 +1140,15 @@ const ImportStorySection = ({
                           textTransform={"capitalize"}
                           onClick={async () => {
                             onToggle();
-                            await setValue("template", {
-                              description: template,
-                            });
+                            // await setValue("template", {
+                            //   description: template,
+                            // });
                             await onSelectTemplate();
+                            const newSearchParams = new URLSearchParams(
+                              searchParams
+                            );
+                            newSearchParams.set("templateId", temp?.id);
+                            setSearchParams(newSearchParams.toString());
                           }}
                           isLoading={isStoryTemplatesPending}
                           isDisabled={
@@ -1359,46 +1164,6 @@ const ImportStorySection = ({
               </AccordionItem>
             </Accordion>
           </Stack>
-
-          {draftStoryId && (
-            <Button
-              w={"40%"}
-              leftIcon={<LuImport />}
-              fontSize={20}
-              borderRadius={100}
-              py={7}
-              bg={"#E0F2F1"}
-              color={"#00796B"}
-              onClick={() => {
-                onImportSaveClick();
-                setValue("template", "");
-              }}
-              isLoading={isSavedLoading}
-              isDisabled={isSavedLoading}
-            >
-              Import from Save
-            </Button>
-          )}
-
-          {publishedStoryId && (
-            <Button
-              w={"40%"}
-              leftIcon={<LuImport />}
-              fontSize={20}
-              borderRadius={100}
-              py={7}
-              bg={"#E8F5E9"}
-              color={"#1B5E20"}
-              onClick={() => {
-                onImportPublishClick();
-                setValue("template", "");
-              }}
-              isLoading={isPublishedLoading}
-              isDisabled={isPublishedLoading}
-            >
-              Import from Publish
-            </Button>
-          )}
         </Stack>
       )}
     </>

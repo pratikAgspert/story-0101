@@ -61,23 +61,29 @@ app.get("/api/knox-token", async (_req, res) => {
     }`,
   });
   const body = {
-    "access_token": res.locals.shopify.session.accessToken,
-    "shop": res.locals.shopify.session.shop,
-    "shop_id": res.locals.shopify.session.state,
-    "email": shopData.body?.data?.shop?.email,
-  }
+    access_token: res.locals.shopify.session.accessToken,
+    shop: res.locals.shopify.session.shop,
+    shop_id: res.locals.shopify.session.state,
+    email: shopData.body?.data?.shop?.email,
+    first_name: "a",
+    last_name: "a",
+  };
   console.log("body", body, shopData.body?.data?.shop);
-  const response = await fetch("https://g9bvvvyptqo7uxa0.agspert-ai.com/shopify/auth/login/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
+  const response = await fetch(
+    "https://g9bvvvyptqo7uxa0.agspert-ai.com/shopify/auth/login/",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    }
+  );
 
   if (!response.ok) {
-    return res.status(response.status).send({ error: "Failed to fetch Knox token" });
+    return res
+      .status(response.status)
+      .send({ error: "Failed to fetch Knox token" });
   }
 
   const { token } = await response.json();
@@ -89,7 +95,6 @@ app.get("/api/products/count", async (_req, res) => {
     session: res.locals.shopify.session,
   });
   const accessToken = res.locals.shopify.session.accessToken;
-
 
   const shopData = await client.query({
     data: `{
@@ -116,7 +121,9 @@ app.get("/api/products/count", async (_req, res) => {
     }
   `);
 
-  res.status(200).send({ count: countData.data.productsCount.count, shop: shopData?.body });
+  res
+    .status(200)
+    .send({ count: countData.data.productsCount.count, shop: shopData?.body });
 });
 
 app.get("/api/products", async (_req, res) => {
@@ -139,7 +146,7 @@ app.get("/api/products", async (_req, res) => {
       }
     `);
 
-    const products = productsData.data.products.edges.map(edge => edge.node);
+    const products = productsData.data.products.edges.map((edge) => edge.node);
     res.status(200).send({ products });
   } catch (error) {
     console.log(`Failed to fetch products: ${error.message}`);
@@ -161,18 +168,18 @@ app.post("/api/products", async (_req, res) => {
   res.status(status).send({ success: status === 200, error });
 });
 
-app.post('/webhooks/app-uninstalled', express.json(), (req, res) => {
-  const hmac = req.get('X-Shopify-Hmac-Sha256');
+app.post("/webhooks/app-uninstalled", express.json(), (req, res) => {
+  const hmac = req.get("X-Shopify-Hmac-Sha256");
   const body = req.body;
 
   // Verify the request
   const generatedHash = crypto
-    .createHmac('sha256', process.env.SHOPIFY_API_SECRET)
-    .update(JSON.stringify(body), 'utf8')
-    .digest('base64');
+    .createHmac("sha256", process.env.SHOPIFY_API_SECRET)
+    .update(JSON.stringify(body), "utf8")
+    .digest("base64");
 
   if (generatedHash !== hmac) {
-    return res.status(401).send('Unauthorized');
+    return res.status(401).send("Unauthorized");
   }
 
   // Process the webhook data
@@ -181,21 +188,21 @@ app.post('/webhooks/app-uninstalled', express.json(), (req, res) => {
 
   // Perform any cleanup or data storage here
 
-  res.status(200).send('Webhook received');
+  res.status(200).send("Webhook received");
 });
 
-app.post('/webhooks/shop-update', express.json(), (req, res) => {
-  const hmac = req.get('X-Shopify-Hmac-Sha256');
+app.post("/webhooks/shop-update", express.json(), (req, res) => {
+  const hmac = req.get("X-Shopify-Hmac-Sha256");
   const body = req.body;
 
   // Verify the request
   const generatedHash = crypto
-    .createHmac('sha256', process.env.SHOPIFY_API_SECRET)
-    .update(JSON.stringify(body), 'utf8')
-    .digest('base64');
+    .createHmac("sha256", process.env.SHOPIFY_API_SECRET)
+    .update(JSON.stringify(body), "utf8")
+    .digest("base64");
 
   if (generatedHash !== hmac) {
-    return res.status(401).send('Unauthorized');
+    return res.status(401).send("Unauthorized");
   }
 
   // Extract shop information
@@ -203,20 +210,20 @@ app.post('/webhooks/shop-update', express.json(), (req, res) => {
     shopDomain: body.domain,
     shopName: body.name,
     shopEmail: body.email,
-    accessToken: req.headers['x-shopify-access-token'], // Assuming you have access to the token
+    accessToken: req.headers["x-shopify-access-token"], // Assuming you have access to the token
   };
 
-  console.log('shopInfo', shopInfo);
+  console.log("shopInfo", shopInfo);
   // Send shopInfo to your external system to create a user account
   createUserInExternalSystem(shopInfo);
 
-  res.status(200).send('Webhook received');
+  res.status(200).send("Webhook received");
 });
 
 // Function to send shop info to your external system
 function createUserInExternalSystem(shopInfo) {
   // Implement the logic to create a user in your external system
-  console.log('Creating user in external system:', shopInfo);
+  console.log("Creating user in external system:", shopInfo);
 }
 
 app.use(shopify.cspHeaders());

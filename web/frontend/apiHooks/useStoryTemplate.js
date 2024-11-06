@@ -61,3 +61,13 @@ export const useGetTemplateStory = (templateId) => {
 
   return { ...query };
 }
+
+export const usePublishStoryTemplate = () => {
+  const { getToken } = useContext(AuthContext);
+  const endPoint = BASE_URL + `kvk/story_template/`;
+
+  const publishStoryTemplate = async ({ id, formData }) => {
+    const data = await makeRequest(endPoint + `${id}/publish/`, "PUT", getToken(), formData);
+    return data;
+  }
+}

@@ -72,8 +72,8 @@ export const useEditProductStoryDraft = () => {
   const mutateFun = async ({ storyId, formData }) => {
     try {
       const data = await makeRequest(
-        BASE_URL + `kvk/draft_product_description/${storyId}/`,
-        "PATCH",
+        BASE_URL + `kvk/story_template/${storyId}/`,
+        "PUT",
         getToken(),
         formData
       );
@@ -180,7 +180,7 @@ export const usePublishOldProductStory = () => {
     try {
       const data = await makeRequest(
         BASE_URL +
-        `kvk/product_description/${publishedStoryId}/publish_older_version/`,
+          `kvk/product_description/${publishedStoryId}/publish_older_version/`,
         "PATCH",
         getToken()
       );
@@ -214,11 +214,7 @@ export const useDeleteProductStoryDraft = () => {
     const endPoint = BASE_URL + `kvk/draft_product_description/${draftStoryId}`;
 
     try {
-      const data = await makeRequest(
-        endPoint,
-        "DELETE",
-        getToken()
-      );
+      const data = await makeRequest(endPoint, "DELETE", getToken());
       return data;
     } catch (error) {
       throw error;
@@ -248,11 +244,7 @@ export const useDeletePublishedProductStory = () => {
     const endPoint = BASE_URL + `kvk/product_description/${publishedStoryId}/`;
 
     try {
-      const data = await makeRequest(
-        endPoint,
-        "DELETE",
-        getToken()
-      );
+      const data = await makeRequest(endPoint, "DELETE", getToken());
       return data;
     } catch (error) {
       throw error;
