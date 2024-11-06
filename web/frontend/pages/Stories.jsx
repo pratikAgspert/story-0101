@@ -43,6 +43,7 @@ import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import { FaArrowUpRightFromSquare } from "react-icons/fa6";
 import { MdRemoveCircleOutline } from "react-icons/md";
+import { PRODUCT_LIST_QUERY_KEY } from "../apiHooks/ApiHooksQueryKeys";
 
 // Memoized Tag component
 const ProductTag = memo(({ tag, onRemove, tagBg, tagColor }) => (
@@ -113,6 +114,7 @@ const Card = memo(
     const toast = useToast();
     const tagBg = useColorModeValue("blue.50", "blue.900");
     const tagColor = useColorModeValue("blue.600", "blue.200");
+    const queryClient = useQueryClient();
 
     const [publishedIds, setPublishedIds] = useState(
       template?.products?.map((pro) => pro?.id) || []
@@ -170,6 +172,10 @@ const Card = memo(
           onSuccess: () => {
             // Update the publishedIds with the new selection
             setPublishedIds(selectedTags?.map((pro) => pro?.id));
+
+            queryClient.invalidateQueries({
+              queryKey: [PRODUCT_LIST_QUERY_KEY],
+            });
 
             const isRepublish = publishedProductIds?.length !== 0;
             toast({
@@ -652,8 +658,13 @@ const Stories = () => {
 };
 
 const ProductCard = ({ product, onRemove, filterNewAddedProducts }) => {
+  const { data: products } = useProducts();
+
   const isNewProduct = filterNewAddedProducts?.includes(product?.id);
   console.log("filterNewAddedProducts", filterNewAddedProducts, isNewProduct);
+
+  const productData = products?.find((pro) => pro?.id === product?.id);
+
   return (
     <HStack
       justifyContent={"space-between"}
@@ -674,7 +685,11 @@ const ProductCard = ({ product, onRemove, filterNewAddedProducts }) => {
       </HStack>
 
       <HStack>
-        {!isNewProduct && <IconButton icon={<FaArrowUpRightFromSquare />} />}
+        {!isNewProduct && (
+          <a href={productData?.story_url} target="_blank">
+            <IconButton icon={<FaArrowUpRightFromSquare />} />
+          </a>
+        )}
         <IconButton
           icon={<MdRemoveCircleOutline fontSize={24} color="red" />}
           onClick={() => onRemove(product?.id)}

@@ -3,7 +3,7 @@
 client_id = "aef3e108bcf83059467b2788371b0960"
 name = "Test-001"
 handle = "test-16169"
-application_url = "https://bowling-broken-ecology-visiting.trycloudflare.com"
+application_url = "https://hybrid-azerbaijan-modes-challenge.trycloudflare.com"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = ""
 
 [auth]
 redirect_urls = [
-  "https://bowling-broken-ecology-visiting.trycloudflare.com/auth/callback",
-  "https://bowling-broken-ecology-visiting.trycloudflare.com/auth/shopify/callback",
-  "https://bowling-broken-ecology-visiting.trycloudflare.com/api/auth/callback"
+  "https://hybrid-azerbaijan-modes-challenge.trycloudflare.com/auth/callback",
+  "https://hybrid-azerbaijan-modes-challenge.trycloudflare.com/auth/shopify/callback",
+  "https://hybrid-azerbaijan-modes-challenge.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
