@@ -3,8 +3,8 @@ const path = require("path");
 module.exports = {
   entry: "./index.js",
   output: {
-    filename: "story-block.js",
-    path: path.resolve(__dirname, "assets"),
+    filename: "bundle.js",
+    path: path.resolve(__dirname, "../extensions/story"),
   },
   module: {
     rules: [

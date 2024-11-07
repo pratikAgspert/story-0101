@@ -5,5 +5,9 @@ const container = document.getElementById("container");
 if (container) {
   const root = createRoot(container);
 
-  root.render(<h1>Hello World!</h1>);
+  root.render(
+    <p style={{ border: "5px soild red", fontSize: 30, fontWeight: "bold" }}>
+      Hello World!
+    </p>
+  );
 }
